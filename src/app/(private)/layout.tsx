@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import "@/app/globals.css"
+import "../globals.css"
 
 export const metadata: Metadata = {
 	title: "Flap Bam",
@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="pt-BR">
-			<body>{children}</body>
+			<body className="text-blue-primary font-black">{children}</body>
 		</html>
 	)
 }

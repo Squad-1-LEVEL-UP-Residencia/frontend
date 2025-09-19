@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+@theme {
+    --color-blue-primary: #3772FF; 
+    --color-blue-dark: #2659D9;
+    /* --color-blue-dark-secondary: #2659D91A; */ /* é so por a 10%*/
+
+    --color-purple-primary: #4A3AFF;
+    /* --color-purple-seconday: #C6D2FD; */  /* é so por a 10%*/
+
+    /* RED-PRIMARY EF4343 */
+    --color-red-primary: #EF4343;
+    /* --color-red-secondary: #FFD9D9; */  /* é so por a 10%*/
+
+    --color-white-primary: #FFFFFF;
+    --color-light-grey: #E5E5EF;
+    --color-mid-grey: #9C9C9E;
+
+    --color-background: #EDF0FA;
+
+    --color-green-primary: #16A249;
+    /* --color-green-secondary: #16a2491A; */  /* é so por a 10%*/
+
+    --color-warning-primary: #F59F0A;
+    /* --color-warning-secondary: #F59F0A1A; */  /* é so por a 10%*/
+    
+    --color-calendar-orange: #FEE6C9;
+    --color-calendar-red: #EDF0FA;
+    --color-calendar-blue: #D2F0FF;
+
+    --gradient-blue-secondary: linear-gradient(90deg, #5C85FF, #426FEC, #2759D9);
+    --gradient-blue-primary: linear-gradient(90deg, #2659D9, #5C85FF);
+
+    --color-text-primary: #21242C;
+    --color-text-secondary: #566E8F;
+    --color-text-tertiary: #6f6c8f;
+    --color-text-white: #FFFFFF;
+
+}
