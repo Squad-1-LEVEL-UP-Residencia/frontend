@@ -1,6 +1,6 @@
 export default function Colors() {
 	return (
-		<div className="space-y-4 p-8">
+		<div className="space-y-4 p-8 bg-white">
 			{/* Cores principais */}
 			<div className="bg-blue-primary text-white p-4 rounded shadow">
 				Cor azul primária customizada (bg-blue-primary)
@@ -47,6 +47,9 @@ export default function Colors() {
 			<div className="bg-mid-grey text-text-primary p-4 rounded shadow">
 				Fundo customizado (bg-mid-grey) e texto primário
 			</div>
+			<div className="bg-dark-grey text-text-primary p-4 rounded shadow">
+				Fundo customizado (bg-dark-grey) e texto primário
+			</div>
 			<div className="bg-light-grey/10 text-text-primary p-4 rounded shadow">
 				Fundo customizado (bg-light-grey/10) e texto primário
 			</div>
@@ -76,6 +79,12 @@ export default function Colors() {
 			<div className="bg-blue-primary text-text-white p-4 rounded shadow">
 				Texto branco (text-text-white)
 			</div>
+
+			<div className="bg-chat-background text-text-white p-4 rounded shadow">
+				Cor de fundo do chat (bg-chat-background) e texto branco
+				(text-text-white)
+			</div>
+
 			{/* Gradientes */}
 			<div
 				className="text-white p-4 rounded shadow"

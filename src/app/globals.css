@@ -15,8 +15,10 @@
     --color-white-primary: #FFFFFF;
     --color-light-grey: #E5E5EF;
     --color-mid-grey: #9C9C9E;
-
+    --color-grey-primary: #D9DBE9;
     --color-background: #EDF0FA;
+
+    --color-chat-background: #3772FF;
 
     --color-green-primary: #16A249;
     /* --color-green-secondary: #16a2491A; */  /* é so por a 10%*/
