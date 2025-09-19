@@ -13,7 +13,17 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="pt-BR">
-			<body className="text-blue-primary font-black">{children}</body>
+			<body
+				style={{
+					background: "var(--gradient-blue-secondary)",
+					backgroundRepeat: "no-repeat",
+					backgroundSize: "cover",
+					minHeight: "100dvh",
+					width: "100vw"
+				}}
+			>
+				{children}
+			</body>
 		</html>
 	)
 }

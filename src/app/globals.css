@@ -28,8 +28,8 @@
     --color-calendar-red: #EDF0FA;
     --color-calendar-blue: #D2F0FF;
 
-    --gradient-blue-secondary: linear-gradient(90deg, #5C85FF, #426FEC, #2759D9);
-    --gradient-blue-primary: linear-gradient(90deg, #2659D9, #5C85FF);
+    --gradient-blue-secondary: linear-gradient(180deg, #5C85FF, #426FEC, #2759D9);
+    --gradient-blue-primary: linear-gradient(180deg, #2659D9, #5C85FF);
 
     --color-text-primary: #21242C;
     --color-text-secondary: #566E8F;
