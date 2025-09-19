@@ -3,7 +3,9 @@ import type { NextRequest } from "next/server"
 
 const publicRoutes = [
 	{ path: "/sign-in", whenAuthenticated: "redirect" },
-	{ path: "/sign-up", whenAuthenticated: "redirect" }
+	{ path: "/sign-up", whenAuthenticated: "redirect" },
+	{ path: "/forgot-password", whenAuthenticated: "next" },
+	{ path: "/colors", whenAuthenticated: "next" }
 ] as const
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = "/sign-in"
