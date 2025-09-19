@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+    themes: light --default, dark --prefersdark;
+};
+
+html {
+  background: transparent !important;
+  overflow-y: auto;
+}
 
 @theme {
     --color-blue-primary: #3772FF; 
