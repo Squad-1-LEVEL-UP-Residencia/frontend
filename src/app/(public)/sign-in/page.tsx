@@ -1,15 +1,33 @@
 import { Input } from "@/components/ui/public/input"
 import { Label } from "@/components/ui/public/label"
+import { cookies } from "next/headers"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
 export default function SignIn() {
 	async function submit(formData: FormData) {
 		"use server"
 		const email = formData.get("email")
 		const password = formData.get("password")
+		const rememberMeChecked = formData.get("rememberMe") === "on"
+		const cookiesStore = await cookies()
+		// const response = await fetch("/api/sign-in", {
+		// 	method: "POST",
+		// 	headers: {
+		// 		"Content-Type": "application/json"
+		// 	},
+		// 	body: JSON.stringify({ email, password })
+		// })
 
-		const response = fetch("")
+		// const result = await response.json()
 
+		cookiesStore.set("access_token", "fake-token-123456", {
+			httpOnly: true,
+			path: "/",
+			maxAge: rememberMeChecked ? 60 * 60 * 24 * 7 : undefined
+		})
+
+		redirect("/dashboard")
 		console.log(`email: ${email}, password: ${password}`)
 	}
 
@@ -36,7 +54,8 @@ export default function SignIn() {
 						<div>
 							<input
 								type="checkbox"
-								// defaultChecked
+								defaultChecked
+								name="rememberMe"
 								className="checkbox checkbox-primary"
 							/>{" "}
 							Lembrar-me
