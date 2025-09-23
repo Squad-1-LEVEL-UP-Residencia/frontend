@@ -27,7 +27,7 @@ export default function SignIn() {
 			maxAge: rememberMeChecked ? 60 * 60 * 24 * 7 : undefined
 		})
 
-		redirect("/dashboard")
+		redirect("/")
 		console.log(`email: ${email}, password: ${password}`)
 	}
 
