@@ -1,6 +1,3 @@
-"use client"
-
-import { useState } from "react"
 import FlapIconSvg from "../../ui/public/flap-icon"
 import {
 	Building,
@@ -14,13 +11,7 @@ import {
 } from "lucide-react"
 import { SidebarLi } from "./sidebar-li"
 
-export function Sidebar() {
-	const [collapsed, setCollapsed] = useState(false)
-
-	const toggleCollapsed = () => {
-		setCollapsed(!collapsed)
-	}
-
+export function Sidebar({ collapsed }: { collapsed: boolean }) {
 	return (
 		<aside
 			style={{
@@ -28,13 +19,12 @@ export function Sidebar() {
 				backgroundRepeat: "no-repeat",
 				backgroundSize: "cover",
 				minHeight: "100dvh", //? ta gerando um scroll na pagina
-				width: collapsed ? "4.5rem" : "15rem"
+				width: collapsed ? "4.5rem" : "15rem",
+				overflow: "hidden"
 			}}
 			className={`flex flex-col gap-4 p-4 text-text-white transition-width duration-300`}
 		>
-			<button onClick={toggleCollapsed} aria-label="toggle sidebar">
-				<FlapIconSvg />
-			</button>
+			<FlapIconSvg />
 			<div className="w-full flex-1 pl-1">
 				<ul className="w-full min-h-full flex flex-col gap-4 items-start">
 					<SidebarLi
@@ -53,12 +43,6 @@ export function Sidebar() {
 						pageName="Tarefas"
 						icon={<ClipboardList />}
 						path="tarefas"
-						collapsed={collapsed}
-					/>
-					<SidebarLi
-						pageName="Outro serviços"
-						icon={<ScreenShare />}
-						path="outros-servicos"
 						collapsed={collapsed}
 					/>
 					<SidebarLi

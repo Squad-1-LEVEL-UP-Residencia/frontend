@@ -3,6 +3,8 @@ import { Inter } from "next/font/google"
 import { Sidebar } from "@/components/private/sidebar/sidebar"
 
 import "../globals.css"
+import { Navbar } from "@/components/private/navbar/navbar"
+import { BaseLayout } from "@/components/private/base-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,8 +27,7 @@ export default function RootLayout({
 					width: "100vw"
 				}}
 			>
-				<Sidebar />
-				{children}
+				<BaseLayout>{children}</BaseLayout>
 			</body>
 		</html>
 	)
