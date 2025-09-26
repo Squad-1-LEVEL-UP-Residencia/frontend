@@ -7,6 +7,7 @@ import { Container } from "../ui/container"
 import { use } from "react"
 import { getUsers } from "@/data/users/getUsers"
 import { useQuery } from "@tanstack/react-query"
+import { Avatar } from "../ui/avatar"
 // import { User } from "@/types/user"
 
 export function UsersList() {
@@ -29,7 +30,11 @@ export function UsersList() {
 					users &&
 					users.map((element: any) => (
 						<Table.Row key={element.id} variant="row">
-							<Table.Data key={element.firstName}>
+							<Table.Data
+								key={element.firstName}
+								className="flex justify-start items-center gap-2"
+							>
+								<Avatar name={element.firstName} />
 								{element.firstName}
 							</Table.Data>
 							<Table.Data key={element.company.title}>
