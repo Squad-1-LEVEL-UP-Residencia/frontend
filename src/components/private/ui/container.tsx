@@ -3,7 +3,7 @@ interface ContainerProps extends React.ComponentProps<"div"> {
 }
 
 export function Container({ className, variant, ...props }: ContainerProps) {
-	const containerStyle = variant === "page" ? "h-screen" : ""
+	const containerStyle = variant === "page" ? "h-full rounded-b-none" : ""
 
 	return (
 		<div

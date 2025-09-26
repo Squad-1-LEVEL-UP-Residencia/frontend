@@ -4,7 +4,7 @@ import { TitleSection } from "@/components/private/ui/title-section"
 
 export default function Users() {
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6 w-full h-full">
 			<TitleSection
 				title="Usuários"
 				paragraph="Gerencie os membros da sua equipe"

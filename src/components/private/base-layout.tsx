@@ -11,12 +11,14 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<div className="flex min-h-[100dvh] w-full">
+		<div className="flex h-full w-full">
 			<Sidebar collapsed={collapsed} />
 			{/* navbar */}
-			<div className="flex flex-col w-full">
+			<div className="flex flex-col w-full min-h-screen">
 				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-				<main className="px-8 pt-8 w-full text-text-primary">{children}</main>
+				<main className="px-8 pt-8 w-full text-text-primary h-full">
+					{children}
+				</main>
 			</div>
 		</div>
 	)

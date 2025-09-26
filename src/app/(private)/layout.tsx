@@ -20,7 +20,7 @@ export default function RootLayout({
 			<body
 				style={{
 					background: "var(--color-background)",
-					minHeight: "100dvh",
+					// minHeight: "100dvh",
 					width: "100vw"
 				}}
 			>
