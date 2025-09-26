@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Sidebar } from "./sidebar/sidebar"
-import { Navbar } from "./navbar/navbar"
+import { Header } from "./header/header"
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
 	const [collapsed, setCollapsed] = useState(false)
@@ -15,8 +15,8 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 			<Sidebar collapsed={collapsed} />
 			{/* navbar */}
 			<div className="flex flex-col w-full">
-				<Navbar collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-				{children}
+				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
+				<main className="p-8 w-full text-text-primary">{children}</main>
 			</div>
 		</div>
 	)
