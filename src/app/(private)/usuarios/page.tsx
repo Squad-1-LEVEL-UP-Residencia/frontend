@@ -1,20 +1,25 @@
-import { Paragraph } from "@/components/private/ui/paragraph"
-import { Title } from "@/components/private/ui/title"
+import { Container } from "@/components/private/ui/container"
+import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { TitleSection } from "@/components/private/ui/title-section"
 
 export default function Users() {
 	return (
-		<div>
+		<div className="space-y-6">
 			<TitleSection
 				title="Usuários"
 				paragraph="Gerencie os membros da sua equipe"
 			/>
-			<ul>
-				<li>Fulanin de tal</li>
-				<li>Beltrano de tal</li>
-				<li>Ciclano de tal</li>
-				<li>Fulano de tal</li>
-			</ul>
+			<SearchBar />
+			{/* Criar componente Container para a base */}
+			{/* Lista de usuários - Exemplo estático */}
+			<Container variant="page">
+				<ul>
+					<li>Fulanin de tal</li>
+					<li>Beltrano de tal</li>
+					<li>Ciclano de tal</li>
+					<li>Fulano de tal</li>
+				</ul>
+			</Container>
 		</div>
 	)
 }

@@ -16,7 +16,7 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 			{/* navbar */}
 			<div className="flex flex-col w-full">
 				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-				<main className="p-8 w-full text-text-primary">{children}</main>
+				<main className="px-8 pt-8 w-full text-text-primary">{children}</main>
 			</div>
 		</div>
 	)
