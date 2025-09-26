@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/public/input"
-import { Label } from "@/components/ui/public/label"
+import { Input } from "@/components/public/input"
+import { Label } from "@/components/public/label"
 import { cookies } from "next/headers"
 import Link from "next/link"
 import { redirect } from "next/navigation"
