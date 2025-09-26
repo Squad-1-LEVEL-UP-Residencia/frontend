@@ -16,7 +16,14 @@
 - O projeto utiliza o padrão **Layout Composto**: Sidebar + Header + Main.
 - Componentes são organizados por contexto (`private`, `public`, `ui`), facilitando reutilização e manutenção.
 - A pasta `ui` dentro de `src/components/private/ui` contém componentes prontos e padronizados para uso em toda a aplicação, como:
-  - `Title`, `Paragraph`, `TitleSection`, `Input`, `Label`, entre outros.
+  - `Button`
+  - `Container`
+  - `Input`
+  - `PageContainer`
+  - `Paragraph`
+  - `TitleSection`
+  - `Title`
+  - `page-search-bar/SearchBar`
   - Esses componentes garantem consistência visual e facilitam o desenvolvimento de novas telas.
 - Para seções de título e descrição, utilize o componente `TitleSection`:
   ```tsx

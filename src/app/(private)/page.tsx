@@ -1,5 +1,9 @@
-import { Title } from "@/components/private/ui/title"
+import { TitleSection } from "@/components/private/ui/title-section"
 
 export default function Home() {
-	return <Title>Home (nem existe essa pagina no figma)</Title>
+	return (
+		<div className="flex flex-col gap-6 w-full h-full">
+			<TitleSection title="Home" paragraph="Home mimimimi" />
+		</div>
+	)
 }

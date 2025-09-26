@@ -22,6 +22,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 				backgroundSize: "cover",
 				minHeight: "100dvh",
 				width: collapsed ? "5rem" : "15rem",
+				minWidth: collapsed ? "5rem" : "15rem",
 				overflow: "hidden"
 			}}
 			className={`flex flex-col gap-4 p-4 text-text-white transition-width duration-300`}
