@@ -45,11 +45,16 @@ function TableData(props: ComponentProps<"td">) {
 interface TableProps {
 	head: string[]
 	body: React.ReactNode
+	isLoading?: boolean
 }
 
-function Table({ head, body }: TableProps) {
+function Table({ head, body, isLoading }: TableProps) {
 	return (
-		<table className="table w-full overflow-auto bg-white">
+		<table
+			className={`table w-full overflow-auto  ${
+				isLoading ? "bg-light-grey/20" : "bg-white"
+			}`}
+		>
 			<thead className="">
 				{/* foreach TableHead (ex: name, setor, cargo, action) */}
 				<TableRow variant="head">

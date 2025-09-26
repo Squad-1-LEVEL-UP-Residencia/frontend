@@ -1,4 +1,10 @@
+import { TrashIcon } from "lucide-react"
+
 export function List() {
+	function initials(nome: string): import("react").ReactNode {
+		return nome.slice(0, 2).toUpperCase()
+	}
+
 	return (
 		<section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
 			//TODO List
@@ -70,3 +76,55 @@ export function List() {
 		</section>
 	)
 }
+
+function abrirEditar(pessoa: any) {
+	console.log("Editar:", pessoa)
+}
+
+function excluir(pessoa: any) {
+	console.log("Excluir:", pessoa)
+}
+
+// Exemplo de dados para groups
+const groups: [
+	string,
+	{
+		id: number
+		nome: string
+		email: string
+		funcao: string
+		tags: string[]
+	}[]
+][] = [
+	[
+		"Designer",
+		[
+			{
+				id: 1,
+				nome: "João Silva",
+				email: "joao@email.com",
+				funcao: "Designer Gráfico",
+				tags: ["Criação", "Digital"]
+			},
+			{
+				id: 2,
+				nome: "Maria Rosa",
+				email: "maria@email.com",
+				funcao: "Designer UI",
+				tags: ["Criação"]
+			}
+		]
+	],
+	[
+		"Dev",
+		[
+			{
+				id: 3,
+				nome: "Carlos Roberto",
+				email: "carlos@email.com",
+				funcao: "Frontend",
+				tags: ["Digital"]
+			}
+		]
+	]
+]

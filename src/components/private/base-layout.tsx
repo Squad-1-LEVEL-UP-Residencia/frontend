@@ -2,6 +2,8 @@
 import { useState } from "react"
 import { Sidebar } from "./sidebar/sidebar"
 import { Header } from "./header/header"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { queryClient } from "@/data/react-query"
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
 	const [collapsed, setCollapsed] = useState(false)
@@ -16,9 +18,11 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 			{/* navbar */}
 			<div className="flex flex-col w-full min-h-screen">
 				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-				<main className="px-8 pt-8 w-full text-text-primary h-full">
-					{children}
-				</main>
+				<QueryClientProvider client={queryClient}>
+					<main className="px-8 pt-8 w-full text-text-primary h-full">
+						{children}
+					</main>
+				</QueryClientProvider>
 			</div>
 		</div>
 	)

@@ -1,6 +1,7 @@
-import { Container } from "@/components/private/ui/container"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { TitleSection } from "@/components/private/ui/title-section"
+import { UsersList } from "@/components/private/usuarios/users-list"
+import { Suspense } from "react"
 
 export default function Users() {
 	return (
@@ -11,14 +12,9 @@ export default function Users() {
 			/>
 			<SearchBar />
 			{/* Lista de usuários - Exemplo estático */}
-			<Container variant="page">
-				<ul>
-					<li>Fulanin de tal</li>
-					<li>Beltrano de tal</li>
-					<li>Ciclano de tal</li>
-					<li>Fulano de tal</li>
-				</ul>
-			</Container>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<UsersList />
+			</Suspense>
 		</div>
 	)
 }
