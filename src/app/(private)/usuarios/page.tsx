@@ -10,7 +10,6 @@ export default function Users() {
 				paragraph="Gerencie os membros da sua equipe"
 			/>
 			<SearchBar />
-			{/* Criar componente Container para a base */}
 			{/* Lista de usuários - Exemplo estático */}
 			<Container variant="page">
 				<ul>
