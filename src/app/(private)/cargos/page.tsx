@@ -286,6 +286,7 @@ export default function CargosCompact() {
 									}`}
 								>
 									<div className="flex items-center gap-3">
+										{/* avatar  */}
 										<div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
 											{initials(p.nome)}
 										</div>
