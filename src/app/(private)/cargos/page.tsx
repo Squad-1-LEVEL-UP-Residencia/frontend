@@ -191,15 +191,15 @@ export default function CargosCompact() {
 	}
 
 	return (
-		//TODO PageContainer
+		// TODO PageContainer
 		<div className="min-h-screen bg-slate-50">
-			//TODO TitleSection
+			{/* //TODO TitleSection */}
 			<main className="mx-auto max-w-6xl px-6 py-8">
 				<header className="mb-6">
 					<h1 className="text-2xl font-semibold">Cargos</h1>
 					<p className="text-sm text-slate-500">Gerencie os Cargos</p>
 				</header>
-				//TODO SearchBar
+				{/* //TODO SearchBar */}
 				<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="relative flex-1">
 						<input
@@ -256,9 +256,9 @@ export default function CargosCompact() {
 						+ Adicionar Usuário
 					</button>
 				</div>
-				//TODO Container
+				{/* //TODO Container */}
 				<section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-					//TODO List
+					{/* //TODO List */}
 					<div className="grid grid-cols-[2fr_1.5fr_1fr_160px] gap-2 border-b border-slate-100 px-6 py-4 text-xs font-medium uppercase tracking-wide text-slate-500">
 						<div>Cargo</div>
 						<div></div>

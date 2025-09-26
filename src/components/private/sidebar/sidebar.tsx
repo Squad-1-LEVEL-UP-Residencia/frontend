@@ -1,6 +1,7 @@
 "use client"
 import FlapIconSvg from "../../public/flap-icon"
 import {
+	Briefcase,
 	Building,
 	ClipboardList,
 	HomeIcon,
@@ -65,6 +66,14 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 						icon={<Building />}
 						path="clientes"
 						isSelected={pathname === "/clientes"}
+						collapsed={collapsed}
+					/>
+					{/* TODO criar validacao de perfil de usuario  */}
+					<SidebarLi
+						pageName="Cargos"
+						icon={<Briefcase />}
+						path="cargos"
+						isSelected={pathname === "/cargos"}
 						collapsed={collapsed}
 					/>
 					<SidebarLi
