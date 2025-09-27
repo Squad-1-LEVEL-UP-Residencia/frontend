@@ -1,8 +1,6 @@
 import { ComponentProps } from "react"
 
-interface InputProps extends ComponentProps<"input"> {
-	// variant?: string
-}
+type InputProps = ComponentProps<"input">
 
 export function Input({ className, ...props }: InputProps) {
 	return (

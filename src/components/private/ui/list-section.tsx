@@ -7,7 +7,7 @@ export function List() {
 
 	return (
 		<section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-			//TODO List
+			{/* //TODO List */}
 			<div className="grid grid-cols-[2fr_1.5fr_1fr_160px] gap-2 border-b border-slate-100 px-6 py-4 text-xs font-medium uppercase tracking-wide text-slate-500">
 				<div>Cargo</div>
 				<div></div>
