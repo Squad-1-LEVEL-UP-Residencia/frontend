@@ -1,10 +1,10 @@
 import { PageContainer } from "@/components/private/ui/page-container"
 import { TitleSection } from "@/components/private/ui/title-section"
 
-export default function Roles() {
+export default function Clients() {
 	return (
 		<PageContainer>
-			<TitleSection title="Cargos" paragraph="Gerenciar cargos" />
+			<TitleSection title="Clientes" paragraph="Gerenciar clientes" />
 		</PageContainer>
 	)
 }

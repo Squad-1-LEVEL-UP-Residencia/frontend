@@ -10,7 +10,7 @@ export default function Users() {
 				title="Usuários"
 				paragraph="Gerencie os membros da sua equipe"
 			/>
-			<SearchBar />
+			<SearchBar placeholder="Pesquisar usuários..." />
 			{/* Lista de usuários - Exemplo estático */}
 			<Suspense fallback={<div>Carregando...</div>}>
 				<UsersList />
