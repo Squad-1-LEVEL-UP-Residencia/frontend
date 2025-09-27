@@ -1,5 +1,8 @@
 "use client"
 
+import { Container } from "@/components/private/ui/container"
+import { PageContainer } from "@/components/private/ui/page-container"
+import { TitleSection } from "@/components/private/ui/title-section"
 import React, { useEffect, useMemo, useState } from "react"
 
 type Tag = "Criação" | "Conteúdo" | "Digital"
@@ -192,9 +195,11 @@ export default function CargosCompact() {
 
 	return (
 		// TODO PageContainer
-		<div className="min-h-screen bg-slate-50">
+
+		<PageContainer>
 			{/* //TODO TitleSection */}
 			<main className="mx-auto max-w-6xl px-6 py-8">
+				<TitleSection title="Cargos" paragraph="Gerenciar cargos" />
 				<header className="mb-6">
 					<h1 className="text-2xl font-semibold">Cargos</h1>
 					<p className="text-sm text-slate-500">Gerencie os Cargos</p>
@@ -257,7 +262,7 @@ export default function CargosCompact() {
 					</button>
 				</div>
 				{/* //TODO Container */}
-				<section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+				<Container variant="page">
 					{/* //TODO List */}
 					<div className="grid grid-cols-[2fr_1.5fr_1fr_160px] gap-2 border-b border-slate-100 px-6 py-4 text-xs font-medium uppercase tracking-wide text-slate-500">
 						<div>Cargo</div>
@@ -330,7 +335,7 @@ export default function CargosCompact() {
 							))}
 						</div>
 					))}
-				</section>
+				</Container>
 				<div className="mt-4 flex items-center justify-center gap-1">
 					<button
 						className="rounded-lg border border-slate-200 px-2 py-1 text-sm hover:bg-slate-50 disabled:opacity-40"
@@ -460,7 +465,7 @@ export default function CargosCompact() {
 					</div>
 				</div>
 			)}
-		</div>
+		</PageContainer>
 	)
 }
 
