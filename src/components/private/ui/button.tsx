@@ -14,7 +14,7 @@ export function Button({ className, variant, ...props }: ButtonProps) {
 
 	switch (variant) {
 		case "secondary":
-			colorVariant = "bg-white/90 hover:text-zinc-700 text-text-primary"
+			colorVariant = "bg-transparent hover:text-zinc-700 text-text-primary"
 			break
 		case "tertiary":
 			colorVariant = "bg-indigo-primary hover:bg-indigo-primary/90 text-white"
@@ -22,7 +22,7 @@ export function Button({ className, variant, ...props }: ButtonProps) {
 		case "primary":
 		default:
 			colorVariant =
-				"bg-white/90 hover:bg-zinc-300/20 border border-light-grey text-text-primary"
+				"bg-zinc-100/10 hover:bg-zinc-300/20 border border-light-grey text-text-primary"
 			break
 	}
 
