@@ -49,12 +49,22 @@ export function Modal({
 				</div>
 				{/* content */}
 				<div>{children}</div>
+				{/* end content */}
 				{hasCancelButton ? (
 					<div className="modal-action">
-						<form method="dialog">
+						<form method="dialog" className="flex items-center gap-2">
 							{/* if there is a button in form, it will close the modal */}
-							<button className="btn">Close</button>
-							<Button onClick={() => console.log("receba")}>Salvar</Button>
+							<Button variant="primary" className="w-20">
+								Close
+							</Button>
+							<Button
+								color="indigo"
+								variant="secondary"
+								className="w-20"
+								onClick={() => console.log("receba")}
+							>
+								Salvar
+							</Button>
 						</form>
 					</div>
 				) : null}

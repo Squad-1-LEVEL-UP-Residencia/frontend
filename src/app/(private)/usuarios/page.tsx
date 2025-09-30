@@ -28,7 +28,8 @@ export default function Users() {
 					<h1>receba</h1>
 				</Modal>
 				<Button
-					variant="tertiary"
+					variant="secondary"
+					color="indigo"
 					onClick={() => handleOpenModal()}
 					className="gap-2 px-4"
 				>
