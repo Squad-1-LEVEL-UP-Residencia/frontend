@@ -24,7 +24,7 @@ export default function Users() {
 					title="Usuários"
 					paragraph="Gerencie os membros da sua equipe"
 				/>
-				<Modal variant="sm">
+				<Modal hasCancelButton variant="sm">
 					<h1>receba</h1>
 				</Modal>
 				<Button
