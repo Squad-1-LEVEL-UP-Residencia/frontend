@@ -16,10 +16,10 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 		<div className="flex h-full w-full">
 			<Sidebar collapsed={collapsed} />
 			{/* navbar */}
-			<div className="flex flex-col w-full min-h-screen">
+			<div className="flex flex-col w-full min-h-screen bg-white">
 				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
 				<QueryClientProvider client={queryClient}>
-					<main className="px-8 pt-8 w-full text-text-primary h-full">
+					<main className="px-8 pt-8 w-full text-text-primary h-full rounded-xl bg-background">
 						{children}
 					</main>
 				</QueryClientProvider>
