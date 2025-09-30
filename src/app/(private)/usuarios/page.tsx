@@ -1,4 +1,7 @@
+"use client"
+
 import { Button } from "@/components/private/ui/button"
+import { Modal } from "@/components/private/ui/modal"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { TitleSection } from "@/components/private/ui/title-section"
 import { UsersList } from "@/components/private/usuarios/users-list"
@@ -6,6 +9,13 @@ import { Plus } from "lucide-react"
 import { Suspense } from "react"
 
 export default function Users() {
+	const handleOpenModal = () => {
+		const dialog = document?.getElementById(
+			"my_modal_5"
+		) as HTMLDialogElement | null
+		dialog?.showModal()
+	}
+
 	return (
 		<div className="flex flex-col gap-6 w-full h-full">
 			{/* envelopar isso e o botao numa div */}
@@ -14,8 +24,14 @@ export default function Users() {
 					title="Usuários"
 					paragraph="Gerencie os membros da sua equipe"
 				/>
-
-				<Button variant="tertiary" className="gap-2 px-4">
+				<Modal variant="sm">
+					<h1>receba</h1>
+				</Modal>
+				<Button
+					variant="tertiary"
+					onClick={() => handleOpenModal()}
+					className="gap-2 px-4"
+				>
 					<Plus /> Adicionar Usuário
 				</Button>
 			</div>
