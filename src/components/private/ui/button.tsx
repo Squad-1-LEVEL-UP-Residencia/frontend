@@ -3,19 +3,33 @@
  *
  * - primary: Fat button with border (default).
  * - secondary: Fat button without border.
- * - tertiary: Slim button (not currently implemented).
+ * - tertiary: Slim colorized button (not currently implemented).
  */
 interface ButtonProps extends React.ComponentProps<"button"> {
 	variant?: "primary" | "secondary" | "tertiary"
 }
 
 export function Button({ className, variant, ...props }: ButtonProps) {
+	let colorVariant: string
+
+	switch (variant) {
+		case "secondary":
+			colorVariant = "bg-white/90 hover:text-zinc-700 text-text-primary"
+			break
+		case "tertiary":
+			colorVariant = "bg-indigo-primary hover:bg-indigo-primary/90 text-white"
+			break
+		case "primary":
+		default:
+			colorVariant =
+				"bg-white/90 hover:bg-zinc-300/20 border border-light-grey text-text-primary"
+			break
+	}
+
 	return (
 		<button
 			{...props}
-			className={`bg-white/90 p-2 rounded-xl ${
-				variant === "secondary" ? "" : "border border-light-grey"
-			} hover:bg-white transition-colors text-text-primary ${className}`}
+			className={`flex items-center justify-center p-2 rounded-xl ${colorVariant} transition-colors  ${className}`}
 		>
 			{props.children}
 		</button>
