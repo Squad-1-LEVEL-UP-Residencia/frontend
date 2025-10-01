@@ -13,8 +13,8 @@ export function SearchBar({ search, placeholder }: SearchBarProps) {
 	return (
 		// <div className="bg-white p-6 rounded-lg flex gap-2">
 		<Container className="flex gap-2" variant="card">
-			<Input placeholder={placeholder} value={search} />
-			<Button className="px-3">
+			<Input variant="placeholder" placeholder={placeholder} value={search} />
+			<Button outline={true} className="px-3">
 				<FilterIcon size={16} />
 			</Button>
 		</Container>

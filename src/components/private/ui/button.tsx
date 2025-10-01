@@ -1,23 +1,17 @@
 /**
- * Button component with support for different visual variants.
+ * Button component with support for different visual outlines.
  *
  * - primary: Fat button with border (default).
  * - secondary: Fat button without border.
  * - tertiary: Slim colorized button (not currently implemented).
  */
 interface ButtonProps extends React.ComponentProps<"button"> {
-	variant: "primary" | "secondary"
+	outline: boolean
 	color?: "white" | "indigo" | "transparent"
 	size?: "slim" | "fat"
 }
 
-export function Button({
-	className,
-	size,
-	color,
-	variant,
-	...props
-}: ButtonProps) {
+export function Button({ className, size, color, outline, ...props }: ButtonProps) {
 	let bgClass: string = ""
 	let textClass: string = ""
 	let borderClass: string = ""
@@ -34,6 +28,7 @@ export function Button({
 			break
 		case "transparent":
 		default:
+			// por padrao é transparente
 			bgClass = "bg-transparent hover:bg-zinc-100"
 			textClass = "text-text-primary"
 			break
@@ -47,17 +42,21 @@ export function Button({
 		case "fat":
 			paddingClass = "p-4"
 		default:
+			// por padrao é slim
 			paddingClass = "p-2"
 			break
 	}
 
-	// 3- variant controla se tem border, o primary é com borda
-	switch (variant) {
-		case "primary":
+	// 3- outline controla se tem border, o primary é com borda
+	switch (outline) {
+		case true:
 			borderClass = "border border-light-grey"
 			break
-		case "secondary":
+		case false:
+			borderClass = "border-none"
+			break
 		default:
+			// por padrao tem borda
 			borderClass = "border border-light-grey"
 			break
 	}
@@ -69,7 +68,7 @@ export function Button({
 		<button
 			{...props}
 			className={`
-				flex items-center justify-center p-2 rounded-xl transition-colors 
+				flex items-center justify-center p-2 rounded-xl transition-colors
 				${bgClass} ${textClass} ${borderClass} ${paddingClass} ${className}
 			`}
 		>
