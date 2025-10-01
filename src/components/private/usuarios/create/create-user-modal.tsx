@@ -1,10 +1,10 @@
-import { Modal } from "../ui/modal"
-import { Title } from "../ui/title"
+import { Modal } from "../../ui/modal"
+import { Title } from "../../ui/title"
 import { CreateUserForm } from "./create-user-form"
 
 export function CreateUserModal() {
 	return (
-		<Modal id="my_modal_user" hasCancelButton className="flex flex-col gap-16">
+		<Modal id="create_user_modal" hasCancelButton className="flex flex-col gap-16">
 			<Title variant="sm">Adicionar novo usuário</Title>
 			<CreateUserForm />
 		</Modal>

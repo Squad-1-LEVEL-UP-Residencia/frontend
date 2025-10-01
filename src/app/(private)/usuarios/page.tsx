@@ -2,7 +2,8 @@ import { Button } from "@/components/private/ui/button"
 import { ModalTrigger } from "@/components/private/ui/modal"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { TitleSection } from "@/components/private/ui/title-section"
-import { CreateUserModal } from "@/components/private/usuarios/create-user-modal"
+import { CreateUserModal } from "@/components/private/usuarios/create/create-user-modal"
+import { EditUserModal } from "@/components/private/usuarios/edit/edit-user-modal"
 import { UsersList } from "@/components/private/usuarios/users-list"
 import { Plus } from "lucide-react"
 import { Suspense } from "react"
@@ -13,7 +14,7 @@ export default function Users() {
 			<div className="flex items-center justify-between">
 				<TitleSection title="Usuários" paragraph="Gerencie os membros da sua equipe" />
 
-				<ModalTrigger id="my_modal_user">
+				<ModalTrigger id="create_user_modal">
 					<Button outline={false} color="indigo" className="gap-2 px-4">
 						<Plus /> Adicionar Usuário
 					</Button>
@@ -28,6 +29,7 @@ export default function Users() {
 
 			{/* Modal de cadastro de usuario */}
 			<CreateUserModal />
+			<EditUserModal />
 		</div>
 	)
 }

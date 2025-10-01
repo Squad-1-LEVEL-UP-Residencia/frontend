@@ -1,4 +1,4 @@
-import { Input } from "../ui/input"
+import { Input } from "../../ui/input"
 
 export function EditUserForm() {
 	return (
@@ -7,11 +7,11 @@ export function EditUserForm() {
 				Nome
 			</label>
 			{/* adicionar valor */}
-			<Input id="name" variant="no-placeholder" value={"Nome do Usuário"} />
+			<Input id="name" variant="no-placeholder" defaultValue={"Nome do Usuário"} />
 			<label className="font-medium" htmlFor="email">
 				Email
 			</label>
-			<Input id="email" type="email" variant="no-placeholder" value={"email@exemplo.com"} />
+			<Input id="email" type="email" variant="no-placeholder" defaultValue={"email@exemplo.com"} />
 		</form>
 	)
 }

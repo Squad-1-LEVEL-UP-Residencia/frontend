@@ -15,6 +15,7 @@ function ModalTrigger({ id, children }: { id: string; children: React.ReactNode 
 
 const handleOpenModal = (id: string) => {
 	const dialog = document?.getElementById(id) as HTMLDialogElement | null
+	console.log("dialog", id, dialog)
 	dialog?.showModal()
 }
 
@@ -33,7 +34,7 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 	}
 
 	return (
-		<dialog id="my_modal_user" className={`modal modal-bottom sm:modal-middle`} {...props}>
+		<dialog id={id} className={`modal modal-bottom sm:modal-middle`} {...props}>
 			<div className={`modal-box bg-white w-full ${widthVariant}`}>
 				<div className="modal-action">
 					{/* TODO acho q posso tirar isso */}
