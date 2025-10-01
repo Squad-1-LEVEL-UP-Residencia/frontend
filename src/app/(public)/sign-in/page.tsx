@@ -30,6 +30,7 @@ export default function SignIn() {
 		redirect("/")
 		console.log(`email: ${email}, password: ${password}`)
 	}
+	// TODO refatorar em componentes menores
 
 	return (
 		<main className="w-full mx-auto my-8 min-h-screen flex items-center justify-center">
