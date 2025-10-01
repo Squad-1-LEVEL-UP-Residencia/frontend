@@ -1,9 +1,8 @@
 import { Button } from "@/components/private/ui/button"
-import { Input } from "@/components/private/ui/input"
-import { Modal, ModalTrigger } from "@/components/private/ui/modal"
+import { ModalTrigger } from "@/components/private/ui/modal"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
-import { Title } from "@/components/private/ui/title"
 import { TitleSection } from "@/components/private/ui/title-section"
+import { CreateUserModal } from "@/components/private/usuarios/create-user-modal"
 import { UsersList } from "@/components/private/usuarios/users-list"
 import { Plus } from "lucide-react"
 import { Suspense } from "react"
@@ -28,15 +27,7 @@ export default function Users() {
 			</Suspense>
 
 			{/* Modal de cadastro de usuario */}
-			<Modal id="my_modal_user" hasCancelButton className="flex flex-col gap-16">
-				<Title variant="sm">Adicionar novo usuário</Title>
-				<div className="flex flex-col gap-4">
-					<label htmlFor="name">Nome</label>
-					<Input id="name" variant="no-placeholder" />
-					<label htmlFor="email">Email</label>
-					<Input id="email" type="email" variant="no-placeholder" />
-				</div>
-			</Modal>
+			<CreateUserModal />
 		</div>
 	)
 }

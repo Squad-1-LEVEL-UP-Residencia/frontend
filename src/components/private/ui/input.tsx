@@ -8,9 +8,11 @@ export function Input({ className, variant = "placeholder", ...props }: InputPro
 	return (
 		<input
 			{...props}
-			className={`border border-light-grey w-full py-2 px-4 rounded-xl bg-${
-				variant === "placeholder" ? "white" : "bg-zinc-200/10"
-			}/90 ${className}`}
+			className={`
+				border border-light-grey w-full py-2 px-4 rounded-xl 
+				${variant === "placeholder" ? "bg-white" : "bg-zinc-200/30"} 
+				${className}
+			`}
 		/>
 	)
 }

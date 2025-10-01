@@ -52,11 +52,12 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 					<div className="modal-action">
 						<form method="dialog" className="flex items-center gap-2">
 							{/* if there is a button in form, it will close the modal */}
-							<Button outline={true} className="w-20">
-								Close
+							{/* TODO customizar as cores hover e font dos botoes e o action do cadastrar */}
+							<Button outline={true} className="min-w-20 px-4">
+								Cancelar
 							</Button>
-							<Button color="indigo" outline={false} className="w-20" onClick={() => console.log("receba")}>
-								Salvar
+							<Button color="indigo" outline={false} className="min-w-20 px-4" onClick={() => console.log("receba")}>
+								Cadastrar
 							</Button>
 						</form>
 					</div>
