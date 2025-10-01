@@ -46,7 +46,7 @@ export function UsersList() {
 								key={element.id}
 								className="flex justify-start items-center space-x-2"
 							>
-								<Button>Editar</Button>
+								<Button variant="primary">Editar</Button>
 								<Button variant="secondary">
 									<Trash2Icon width={16} height={16} />
 								</Button>

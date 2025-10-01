@@ -1,3 +1,5 @@
+"use client"
+
 import { ComponentProps } from "react"
 import { Button } from "./button"
 
@@ -6,9 +8,18 @@ interface ModalProps extends ComponentProps<"dialog"> {
 	hasCancelButton: boolean
 }
 
-// TODO criar modulos para envelopar o botao de abrir o modal e funcao de abrir o modal
+function ModalTrigger({ children }: { children: React.ReactNode }) {
+	return <div onClick={() => Modal.handleOpen()}>{children}</div>
+}
 
-export function Modal({
+const handleOpenModal = () => {
+	const dialog = document?.getElementById(
+		"my_modal_5"
+	) as HTMLDialogElement | null
+	dialog?.showModal()
+}
+
+function Modal({
 	variant,
 	children,
 	className,
@@ -72,3 +83,7 @@ export function Modal({
 		</dialog>
 	)
 }
+
+Modal.handleOpen = handleOpenModal
+
+export { Modal, ModalTrigger }
