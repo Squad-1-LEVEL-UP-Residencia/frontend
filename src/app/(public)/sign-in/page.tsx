@@ -1,4 +1,4 @@
-import { SignInInput } from "@/components/public/sign-in-input"
+import { Input } from "@/components/public/input"
 import { Label } from "@/components/public/label"
 import { cookies } from "next/headers"
 import Link from "next/link"
@@ -30,7 +30,6 @@ export default function SignIn() {
 		redirect("/")
 		console.log(`email: ${email}, password: ${password}`)
 	}
-	// TODO refatorar em componentes menores
 
 	return (
 		<main className="w-full mx-auto my-8 min-h-screen flex items-center justify-center">
@@ -38,22 +37,34 @@ export default function SignIn() {
 				action={submit}
 				className="w-full sm:w-md md:w-xl flex flex-col items-center justify-center gap-4 bg-white px-7 py-10 shadow-2xl rounded-[10px]"
 			>
-				<h2 className="text-text-primary font-semibold text-[32px]">Seja Bem vindo!</h2>
-				<p className="text-text-secondary text-base">Faça login na sua conta para acessar a plataforma</p>
+				<h2 className="text-text-primary font-semibold text-[32px]">
+					Seja Bem vindo!
+				</h2>
+				<p className="text-text-secondary text-base">
+					Faça login na sua conta para acessar a plataforma
+				</p>
 				<fieldset className="fieldset w-full bg-white p-4">
 					<Label>Email</Label>
-					<SignInInput name="email" type="email" />
+					<Input name="email" type="email" />
 
 					<Label>Senha</Label>
-					<SignInInput name="password" type="password" />
+					<Input name="password" type="password" />
 
 					<div className="w-full flex justify-between mt-2">
 						<div>
-							<input type="checkbox" defaultChecked name="rememberMe" className="checkbox checkbox-primary" />{" "}
+							<input
+								type="checkbox"
+								defaultChecked
+								name="rememberMe"
+								className="checkbox checkbox-primary"
+							/>{" "}
 							Lembrar-me
 						</div>
 						<div>
-							<Link href="/forgot-password" className="link text-blue-primary no-underline">
+							<Link
+								href="/forgot-password"
+								className="link text-blue-primary no-underline"
+							>
 								Esqueceu a senha?
 							</Link>
 						</div>

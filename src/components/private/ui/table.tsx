@@ -55,7 +55,7 @@ function Table({ head, body, isLoading }: TableProps) {
 				isLoading ? "bg-light-grey/20" : "bg-white"
 			}`}
 		>
-			<thead>
+			<thead className="">
 				{/* foreach TableHead (ex: name, setor, cargo, action) */}
 				<TableRow variant="head">
 					{head.map((th, idx) => {
