@@ -7,7 +7,7 @@
  */
 interface ButtonProps extends React.ComponentProps<"button"> {
 	outline: boolean
-	color?: "white" | "indigo" | "transparent"
+	color?: "white" | "indigo" | "transparent" | "danger"
 	size?: "slim" | "fat"
 }
 
@@ -25,6 +25,10 @@ export function Button({ className, size, color, outline, ...props }: ButtonProp
 		case "white":
 			bgClass = "bg-white hover:bg-zinc-100"
 			textClass = "text-text-primary"
+			break
+		case "danger":
+			bgClass = "bg-red-600 hover:bg-red-600/90"
+			textClass = "text-white"
 			break
 		case "transparent":
 		default:

@@ -6,7 +6,7 @@ import { Button } from "./button"
 interface ModalProps extends ComponentProps<"dialog"> {
 	id: string
 	variant?: string
-	hasCancelButton: boolean
+	hasCancelButton?: boolean
 }
 
 function ModalTrigger({ id, children }: { id: string; children: React.ReactNode }) {
@@ -17,6 +17,16 @@ const handleOpenModal = (id: string) => {
 	const dialog = document?.getElementById(id) as HTMLDialogElement | null
 	console.log("dialog", id, dialog)
 	dialog?.showModal()
+}
+
+function ModalFooter({ children, className, ...props }: ComponentProps<"div">) {
+	return (
+		<div className={`modal-action ${className}`} {...props}>
+			<form method="dialog" className="flex items-center gap-2">
+				{children}
+			</form>
+		</div>
+	)
 }
 
 function Modal({ id, variant, children, className, hasCancelButton, ...props }: ModalProps) {
@@ -49,20 +59,20 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 				{/* content */}
 				<div className={`${className}`}>{children}</div>
 				{/* end content */}
-				{hasCancelButton ? (
-					<div className="modal-action">
-						<form method="dialog" className="flex items-center gap-2">
-							{/* if there is a button in form, it will close the modal */}
-							{/* TODO customizar as cores hover e font dos botoes e o action do cadastrar */}
-							<Button outline={true} className="min-w-20 px-4">
-								Cancelar
-							</Button>
-							<Button color="indigo" outline={false} className="min-w-20 px-4" onClick={() => console.log("receba")}>
-								Cadastrar
-							</Button>
-						</form>
-					</div>
-				) : null}
+				{/* {hasCancelButton ? (
+						modalBody
+					) : (
+						<div className="modal-action">
+							<form method="dialog" className="flex items-center gap-2">
+								<Button outline={true} className="min-w-20 px-4">
+									Cancelar
+								</Button>
+								<Button color="indigo" outline={false} className="min-w-20 px-4" onClick={() => console.log("receba")}>
+									Cadastrar
+								</Button>
+							</form>
+						</div>
+					)} */}
 			</div>
 		</dialog>
 	)
@@ -70,4 +80,4 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 
 Modal.handleOpen = handleOpenModal
 
-export { Modal, ModalTrigger }
+export { Modal, ModalTrigger, ModalFooter }

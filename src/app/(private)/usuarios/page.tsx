@@ -3,6 +3,7 @@ import { ModalTrigger } from "@/components/private/ui/modal"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { TitleSection } from "@/components/private/ui/title-section"
 import { CreateUserModal } from "@/components/private/usuarios/create/create-user-modal"
+import { DeleteUserModal } from "@/components/private/usuarios/delete/delete-user-modal"
 import { EditUserModal } from "@/components/private/usuarios/edit/edit-user-modal"
 import { UsersList } from "@/components/private/usuarios/users-list"
 import { Plus } from "lucide-react"
@@ -30,6 +31,7 @@ export default function Users() {
 			{/* Modal de cadastro de usuario */}
 			<CreateUserModal />
 			<EditUserModal />
+			<DeleteUserModal />
 		</div>
 	)
 }
