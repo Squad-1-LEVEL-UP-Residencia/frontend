@@ -14,6 +14,7 @@ html {
     /* --color-blue-dark-secondary: #2659D91A; */ /* é so por a 10%*/
 
     --color-purple-primary: #4A3AFF;
+    --color-indigo-primary: #5060c0;
     /* --color-purple-seconday: #C6D2FD; */  /* é so por a 10%*/
 
     /* RED-PRIMARY EF4343 */
@@ -40,6 +41,8 @@ html {
 
     --gradient-blue-secondary: linear-gradient(180deg, #5C85FF, #426FEC, #2759D9);
     --gradient-blue-primary: linear-gradient(180deg, #2659D9, #5C85FF);
+    --gradient-indigo: linear-gradient(180deg, #5060c0, #4655ad);
+    --gradient-purple: linear-gradient(180deg, #4A3AFF, #3F2C99);
 
     --color-text-primary: #21242C;
     --color-text-secondary: #566E8F;
