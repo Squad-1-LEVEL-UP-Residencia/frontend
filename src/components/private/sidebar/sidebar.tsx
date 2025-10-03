@@ -18,7 +18,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 	return (
 		<aside
 			style={{
-				background: "var(--gradient-blue-primary)",
+				background: "var(--gradient-indigo)",
 				backgroundRepeat: "no-repeat",
 				backgroundSize: "cover",
 				minHeight: "100dvh",
@@ -33,13 +33,6 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 					<li className="p-2">
 						<FlapIconSvg />
 					</li>
-					<SidebarLi
-						pageName="Home"
-						icon={<HomeIcon />}
-						path=""
-						isSelected={pathname === "/"}
-						collapsed={collapsed}
-					/>
 					<SidebarLi
 						pageName="Dashboard"
 						icon={<LayoutDashboardIcon />}
