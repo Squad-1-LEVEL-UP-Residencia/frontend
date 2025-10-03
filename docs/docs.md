@@ -94,14 +94,14 @@ Componente de modal customizável.
 **Importação:**
 
 ```tsx
-import { Modal, ModalTrigger } from "@/components/private/ui/modal"
+import { Modal, ModalTrigger, ModalFooter } from "@/components/private/ui/modal"
 ```
 
 **Props principais do Modal:**
 
 - `id` (string) – Identificador único do modal.
 - `variant` ("lg" | "sm") – Define a largura do modal.
-- `hasCancelButton` (boolean) – Exibe botões de ação (Cancelar/Cadastrar) ou apenas o botão de fechar.
+- `hasCloseButton` (boolean) – Exibe apenas o botão de fechar no canto superior direito.
 - Aceita todas as props padrão de `<dialog>`.
 
 **Como abrir o modal:**
@@ -111,16 +111,43 @@ Use o `ModalTrigger` para envolver qualquer elemento que deve abrir o modal ao s
 <ModalTrigger id="meu-modal">
   <Button outline={true}>Abrir Modal</Button>
 </ModalTrigger>
-<Modal id="meu-modal" variant="lg" hasCancelButton={true}>
+<Modal id="meu-modal" variant="lg" hasCloseButton={true}>
   Conteúdo do modal aqui
+</Modal>
+```
+
+#### ModalFooter
+
+Para adicionar botões de ação (como "Cancelar" e "Salvar/Cadastrar") na parte inferior do modal, utilize o componente `ModalFooter` dentro do conteúdo do `Modal`.  
+O `ModalFooter` já aplica o layout correto e utiliza um `<form method="dialog">` para garantir o fechamento automático do modal ao clicar em botões do tipo submit.
+
+**Exemplo de uso com ModalFooter:**
+
+```tsx
+<Modal id="meu-modal" variant="lg">
+	<h2>Título do Modal</h2>
+	<p>Conteúdo do modal...</p>
+	<ModalFooter>
+		<Button outline={true}>Cancelar</Button>
+		<Button
+			color="indigo"
+			outline={false}
+			onClick={() => {
+				/* ação de salvar */
+			}}
+		>
+			Salvar
+		</Button>
+	</ModalFooter>
 </Modal>
 ```
 
 **Observações:**
 
-- O botão "Cancelar" fecha o modal.
-- O botão "Cadastrar" executa uma ação customizável via `onClick`.
-- Para abrir o modal, o id do ModalTrigger e do Modal devem ser os mesmos.
+- O botão "Cancelar" fecha o modal automaticamente por estar dentro do `<form method="dialog">`.
+- O botão "Salvar" pode executar uma ação customizada via `onClick`.
+- Se quiser apenas o botão de fechar no canto superior direito, utilize a prop `hasCloseButton={true}` no `Modal` e não inclua o `ModalFooter`.
+- Para abrir o modal, o id do `ModalTrigger` e do `Modal` devem ser os mesmos.
 
 ---
 

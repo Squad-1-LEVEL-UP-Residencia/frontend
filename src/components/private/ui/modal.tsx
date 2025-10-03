@@ -6,7 +6,8 @@ import { Button } from "./button"
 interface ModalProps extends ComponentProps<"dialog"> {
 	id: string
 	variant?: string
-	hasCancelButton?: boolean
+	hasCloseButton?: boolean
+	hasCancelButton?: boolean // ta aq so pra nn quebrar no rebase
 }
 
 function ModalTrigger({ id, children }: { id: string; children: React.ReactNode }) {
@@ -29,7 +30,7 @@ function ModalFooter({ children, className, ...props }: ComponentProps<"div">) {
 	)
 }
 
-function Modal({ id, variant, children, className, hasCancelButton, ...props }: ModalProps) {
+function Modal({ id, variant, children, className, hasCloseButton, ...props }: ModalProps) {
 	let widthVariant: string = ""
 	switch (variant) {
 		case "lg":
@@ -48,7 +49,7 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 			<div className={`modal-box bg-white w-full ${widthVariant}`}>
 				<div className="modal-action">
 					{/* TODO acho q posso tirar isso */}
-					{!hasCancelButton ? (
+					{!hasCloseButton ? (
 						<form method="dialog">
 							{/* TODO customizar as cores hover e font do botao de close */}
 							{/* if there is a button in form, it will close the modal */}
@@ -59,7 +60,7 @@ function Modal({ id, variant, children, className, hasCancelButton, ...props }: 
 				{/* content */}
 				<div className={`${className}`}>{children}</div>
 				{/* end content */}
-				{/* {hasCancelButton ? (
+				{/* {hasCloseButton ? (
 						modalBody
 					) : (
 						<div className="modal-action">
