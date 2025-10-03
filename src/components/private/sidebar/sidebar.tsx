@@ -1,14 +1,6 @@
 "use client"
 import FlapIconSvg from "../../public/flap-icon"
-import {
-	Briefcase,
-	Building,
-	ClipboardList,
-	HomeIcon,
-	LayoutDashboardIcon,
-	Settings,
-	Users
-} from "lucide-react"
+import { Briefcase, Building, ClipboardList, LayoutDashboardIcon, Settings, Users } from "lucide-react"
 import { SidebarLi } from "./sidebar-li"
 import { usePathname } from "next/navigation"
 
