@@ -7,7 +7,7 @@ import { Title } from "../../ui/title"
 
 export function DeleteUserModal() {
 	return (
-		<Modal id="delete_user_modal" hasCancelButton className="flex flex-col gap-16">
+		<Modal id="delete_user_modal" hasCloseButton className="flex flex-col gap-16">
 			<Title variant="sm">Remover usuário</Title>
 			<Paragraph>Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.</Paragraph>
 			<ModalFooter>
