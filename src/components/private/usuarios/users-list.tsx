@@ -7,6 +7,7 @@ import { Container } from "../ui/container"
 import { getUsers } from "@/data/users/getUsers"
 import { useQuery } from "@tanstack/react-query"
 import { Avatar } from "../ui/avatar"
+import { ModalTrigger } from "../ui/modal"
 // import { User } from "@/types/user"
 
 export function UsersList() {
@@ -29,27 +30,21 @@ export function UsersList() {
 					users &&
 					users.map((element: any) => (
 						<Table.Row key={element.id} variant="row">
-							<Table.Data
-								key={element.firstName}
-								className="flex justify-start items-center gap-2"
-							>
+							<Table.Data key={element.firstName} className="flex justify-start items-center gap-2">
 								<Avatar name={element.firstName} />
 								{element.firstName}
 							</Table.Data>
-							<Table.Data key={element.company.title}>
-								{element.company.title}
-							</Table.Data>
-							<Table.Data key={element.company.department}>
-								{element.company.department}
-							</Table.Data>
-							<Table.Data
-								key={element.id}
-								className="flex justify-start items-center space-x-2"
-							>
-								<Button>Editar</Button>
-								<Button variant="secondary">
-									<Trash2Icon width={16} height={16} />
-								</Button>
+							<Table.Data key={element.company.title}>{element.company.title}</Table.Data>
+							<Table.Data key={element.company.department}>{element.company.department}</Table.Data>
+							<Table.Data key={element.id} className="flex justify-start items-center space-x-2">
+								<ModalTrigger id="edit_user_modal">
+									<Button outline={true}>Editar</Button>
+								</ModalTrigger>
+								<ModalTrigger id="delete_user_modal">
+									<Button outline={false} color="transparent" className="hover:text-red-500">
+										<Trash2Icon width={16} height={16} />
+									</Button>
+								</ModalTrigger>
 							</Table.Data>
 						</Table.Row>
 					))
