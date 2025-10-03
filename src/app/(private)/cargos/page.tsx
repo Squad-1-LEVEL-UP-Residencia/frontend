@@ -73,18 +73,21 @@ export default function CargosPage() {
           head={["Cargo", "Ações"]}
           body={view.map((c) => (
             <Table.Row key={c.id} variant="row">
-              <Table.Data>{c.nome}</Table.Data>
-              <Table.Data className="flex justify-start items-center space-x-2">
-                <Button variant="primary" onClick={() => editar(c)}>
-                  Editar
-                </Button>
-                <Button
-                  variant="secondary"
-                  aria-label={`Excluir ${c.nome}`}
-                  onClick={() => excluir(c)}
-                >
-                  <Trash2Icon width={16} height={16} />
-                </Button>
+              <Table.Data className="w-full">{c.nome}</Table.Data>
+
+              <Table.Data className="text-right pr-2 sm:pr-6">
+                <span className="inline-flex items-center gap-2">
+                  <Button variant="primary" onClick={() => editar(c)}>
+                    Editar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    aria-label={`Excluir ${c.nome}`}
+                    onClick={() => excluir(c)}
+                  >
+                    <Trash2Icon width={16} height={16} />
+                  </Button>
+                </span>
               </Table.Data>
             </Table.Row>
           ))}
@@ -95,7 +98,6 @@ export default function CargosPage() {
         <form onSubmit={addCargo} className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Adicionar Cargo</h3>
-
             <ModalTrigger>
               <button
                 type="button"
