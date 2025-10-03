@@ -6,7 +6,6 @@ interface ModalProps extends ComponentProps<"dialog"> {
 	id: string
 	variant?: string
 	hasCloseButton?: boolean
-	hasCancelButton?: boolean // ta aq so pra nn quebrar no rebase
 }
 
 function ModalTrigger({ id, children }: { id: string; children: React.ReactNode }) {
@@ -29,7 +28,7 @@ function ModalFooter({ children, className, ...props }: ComponentProps<"div">) {
 	)
 }
 
-function Modal({ id, variant, children, className, hasCloseButton, hasCancelButton, ...props }: ModalProps) {
+function Modal({ id, variant, children, className, hasCloseButton, ...props }: ModalProps) {
 	let widthVariant: string = ""
 	switch (variant) {
 		case "lg":
