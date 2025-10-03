@@ -1,7 +1,6 @@
 "use client"
 
 import { ComponentProps } from "react"
-import { Button } from "./button"
 
 interface ModalProps extends ComponentProps<"dialog"> {
 	id: string
@@ -30,7 +29,7 @@ function ModalFooter({ children, className, ...props }: ComponentProps<"div">) {
 	)
 }
 
-function Modal({ id, variant, children, className, hasCloseButton, ...props }: ModalProps) {
+function Modal({ id, variant, children, className, hasCloseButton, hasCancelButton, ...props }: ModalProps) {
 	let widthVariant: string = ""
 	switch (variant) {
 		case "lg":
@@ -49,7 +48,7 @@ function Modal({ id, variant, children, className, hasCloseButton, ...props }: M
 			<div className={`modal-box bg-white w-full ${widthVariant}`}>
 				<div className="modal-action">
 					{/* TODO acho q posso tirar isso */}
-					{!hasCloseButton ? (
+					{hasCloseButton ? (
 						<form method="dialog">
 							{/* TODO customizar as cores hover e font do botao de close */}
 							{/* if there is a button in form, it will close the modal */}
