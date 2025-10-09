@@ -4,16 +4,48 @@ import { Trash2Icon } from "lucide-react"
 import { Button } from "../ui/button"
 import { Table } from "../ui/table"
 import { Container } from "../ui/container"
-import { getUsers } from "@/data/users/getUsers"
 import { useQuery } from "@tanstack/react-query"
 import { Avatar } from "../ui/avatar"
 import { ModalTrigger } from "../ui/modal"
-// import { User } from "@/types/user"
+import { User } from "@/data/users/user"
 
 export function UsersList() {
 	// const users = use(getUsers()) ?? []
 
-	const { data: users, isLoading } = useQuery({
+	async function getUsers() {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve([
+					{
+						id: 1,
+						firstName: "Danillo",
+						company: {
+							title: "Desenvolvedor",
+							department: "Tecnologia"
+						}
+					},
+					{
+						id: 2,
+						firstName: "Maria",
+						company: {
+							title: "Designer",
+							department: "Criação"
+						}
+					},
+					{
+						id: 3,
+						firstName: "João",
+						company: {
+							title: "Analista",
+							department: "Negócios"
+						}
+					}
+				])
+			}, 800) // simula delay de 800ms
+		})
+	}
+
+	const { data: users, isLoading } = useQuery<User | Promise<unknown>>({
 		queryKey: ["users"],
 		queryFn: getUsers,
 		// staleTime: 1000 * 60 * 5 // 5 minutes

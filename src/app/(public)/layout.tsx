@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "@/app/globals.css"
+import { SignInAuthProvider } from "@/components/public/sign-auth-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,7 +28,7 @@ export default function RootLayout({
 				}}
 				className="text-text-primary"
 			>
-				{children}
+				<SignInAuthProvider>{children}</SignInAuthProvider>
 			</body>
 		</html>
 	)

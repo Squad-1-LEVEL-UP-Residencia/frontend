@@ -4,6 +4,7 @@ import { Sidebar } from "./sidebar/sidebar"
 import { Header } from "./header/header"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { queryClient } from "@/data/react-query"
+import { AuthContextProvider } from "@/contexts/auth-context"
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {
 	const [collapsed, setCollapsed] = useState(true)
@@ -14,14 +15,16 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="flex h-full w-full">
-			<Sidebar collapsed={collapsed} />
-			{/* navbar */}
-			<div className="flex flex-col w-full min-h-screen bg-white">
-				<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-				<QueryClientProvider client={queryClient}>
-					<main className="px-8 pt-8 w-full text-text-primary h-full rounded-xl bg-background">{children}</main>
-				</QueryClientProvider>
-			</div>
+			<AuthContextProvider>
+				<Sidebar collapsed={collapsed} />
+				{/* navbar */}
+				<div className="flex flex-col w-full min-h-screen bg-white">
+					<Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
+					<QueryClientProvider client={queryClient}>
+						<main className="px-8 pt-8 w-full text-text-primary h-full rounded-xl bg-background">{children}</main>
+					</QueryClientProvider>
+				</div>
+			</AuthContextProvider>
 		</div>
 	)
 }

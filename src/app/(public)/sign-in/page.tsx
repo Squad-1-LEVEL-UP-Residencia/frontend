@@ -8,9 +8,17 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SignInProps, signInSchema } from "@/data/auth/authSchemas"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { User } from "@/data/users/user"
+
+interface SignInResponse {
+	ok: boolean
+	user?: User
+}
 
 export default function SignIn() {
 	const router = useRouter()
+	const { login } = useAuth()
 
 	const {
 		register,
@@ -28,46 +36,23 @@ export default function SignIn() {
 				headers: {
 					"Content-Type": "application/json"
 				},
-				body: JSON.stringify({ email, password })
+				body: JSON.stringify({ email, password, rememberMe })
 			})
 			if (!res.ok) throw new Error("Failed to sign in")
+			const result: SignInResponse = await res.json()
+			console.log("antes do login")
+			login(result.user!)
+			console.log("dps do login")
+
 			return router.push("/dashboard")
 		} catch (error) {
 			console.log("Error on sign in:", {
-				...(error instanceof Error
-					? { message: error.message }
-					: {
-							// Handle non-Error cases
-					  })
+				...(error instanceof Error ? { message: error.message } : {})
+				//TODO toast de error
 			})
 		}
 	}
 
-	// async function submit(formData: FormData) {
-	// 	"use server"
-	// 	const email = formData.get("email")
-	// 	const password = formData.get("password")
-	// 	const rememberMeChecked = formData.get("rememberMe") === "on"
-	// 	const cookiesStore = await cookies()
-	// 	// const response = await fetch("/api/sign-in", {
-	// 	// 	method: "POST",
-	// 	// 	headers: {
-	// 	// 		"Content-Type": "application/json"
-	// 	// 	},
-	// 	// 	body: JSON.stringify({ email, password })
-	// 	// })
-
-	// 	// const result = await response.json()
-
-	// 	cookiesStore.set("access_token", "fake-token-123456", {
-	// 		httpOnly: true,
-	// 		path: "/",
-	// 		maxAge: rememberMeChecked ? 60 * 60 * 24 * 7 : undefined
-	// 	})
-
-	// 	redirect("/")
-	// 	console.log(`email: ${email}, password: ${password}`)
-	// }
 	// TODO refatorar em componentes menores
 
 	return (

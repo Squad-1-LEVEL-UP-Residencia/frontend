@@ -1,6 +1,5 @@
 import { SignInProps, signInResponseSchema } from "@/data/auth/authSchemas"
 import { apiFetch } from "@/lib/api"
-import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {

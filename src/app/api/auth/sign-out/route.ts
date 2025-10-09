@@ -6,5 +6,6 @@ export async function GET(request: NextRequest) {
 
 	const response = NextResponse.redirect(url)
 	response.cookies.delete("accessToken")
+
 	return response
 }
