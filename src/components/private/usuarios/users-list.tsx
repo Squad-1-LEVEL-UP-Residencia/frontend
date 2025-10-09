@@ -12,63 +12,58 @@ import { User } from "@/data/users/user"
 export function UsersList() {
 	// const users = use(getUsers()) ?? []
 
-	async function getUsers() {
+	async function getUsers(): Promise<User[]> {
 		return new Promise((resolve) => {
 			setTimeout(() => {
 				resolve([
 					{
-						id: 1,
-						firstName: "Danillo",
-						company: {
-							title: "Desenvolvedor",
-							department: "Tecnologia"
-						}
+						id: "1",
+						name: "Danillo",
+						email: "danillo@email.com",
+						avatarUrl: "https://ui-avatars.com/api/?name=Danillo",
+						role: ["admin"]
 					},
 					{
-						id: 2,
-						firstName: "Maria",
-						company: {
-							title: "Designer",
-							department: "Criação"
-						}
+						id: "2",
+						name: "Maria",
+						email: "maria@email.com",
+						avatarUrl: "https://ui-avatars.com/api/?name=Maria",
+						role: ["designer"]
 					},
 					{
-						id: 3,
-						firstName: "João",
-						company: {
-							title: "Analista",
-							department: "Negócios"
-						}
+						id: "3",
+						name: "João",
+						email: "joao@email.com",
+						avatarUrl: "https://ui-avatars.com/api/?name=Joao",
+						role: ["analista"]
 					}
 				])
 			}, 800) // simula delay de 800ms
 		})
 	}
 
-	const { data: users, isLoading } = useQuery<User | Promise<unknown>>({
+	const { data: users, isLoading } = useQuery<User[]>({
 		queryKey: ["users"],
 		queryFn: getUsers,
-		// staleTime: 1000 * 60 * 5 // 5 minutes
-		staleTime: 5000 // 5 minutes
+		staleTime: 5000 // 5 minutos
 	})
 
 	return (
 		<Container variant="page">
 			<Table
 				isLoading={isLoading}
-				head={["Usuário", "Cargo", "Setor", "Ações"]}
+				head={["Usuário", "E-mail", "Cargo", "Ações"]}
 				body={
-					//precisa ser um array de componentes pois posso passar buttons e badges
 					users &&
-					users.map((element: any) => (
+					users.map((element: User) => (
 						<Table.Row key={element.id} variant="row">
-							<Table.Data key={element.firstName} className="flex justify-start items-center gap-2">
-								<Avatar name={element.firstName} />
-								{element.firstName}
+							<Table.Data className="flex justify-start items-center gap-2">
+								<Avatar name={element.name} />
+								{element.name}
 							</Table.Data>
-							<Table.Data key={element.company.title}>{element.company.title}</Table.Data>
-							<Table.Data key={element.company.department}>{element.company.department}</Table.Data>
-							<Table.Data key={element.id} className="flex justify-start items-center space-x-2">
+							<Table.Data>{element.email}</Table.Data>
+							<Table.Data>{element.role.join(", ")}</Table.Data>
+							<Table.Data className="flex justify-start items-center space-x-2">
 								<ModalTrigger id="edit_user_modal">
 									<Button outline={true}>Editar</Button>
 								</ModalTrigger>

@@ -18,8 +18,6 @@ interface SignInResponse {
 
 export default function SignIn() {
 	const router = useRouter()
-	const { login } = useAuth()
-
 	const {
 		register,
 		handleSubmit,
@@ -40,9 +38,6 @@ export default function SignIn() {
 			})
 			if (!res.ok) throw new Error("Failed to sign in")
 			const result: SignInResponse = await res.json()
-			console.log("antes do login")
-			login(result.user!)
-			console.log("dps do login")
 
 			return router.push("/dashboard")
 		} catch (error) {

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 	const response = NextResponse.json({ ok: true, user: user })
 
 	response.cookies.set("accessToken", parsedResponse.data.accessToken, {
-		httpOnly: true,
+		httpOnly: false,
 		path: "/"
 		//TODO configurar max age com base no rememberMe ou no refreshToken
 		//* Acho q so devo implementar o refreshToken se tiver com o rememberMe
