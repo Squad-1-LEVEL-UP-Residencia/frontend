@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server"
 
 const publicRoutes = [
 	{ path: "/sign-in", whenAuthenticated: "redirect" },
-	{ path: "/sign-up", whenAuthenticated: "redirect" },
 	{ path: "/forgot-password", whenAuthenticated: "next" },
 	{ path: "/colors", whenAuthenticated: "next" }
 ] as const
@@ -14,16 +13,17 @@ export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
 
 	const publicRoute = publicRoutes.find((route) => route.path === pathname)
-	const authToken = request.cookies.get("access_token")
-
-	if (!authToken && !publicRoute) {
+	const authToken = request.cookies.get("accessToken")
+	const authTokenValue = authToken?.value
+	const isAuthenticated = authTokenValue != null && authTokenValue !== ""
+	if (!isAuthenticated && !publicRoute) {
 		const redirectUrl = request.nextUrl.clone()
 		redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED
 
 		return NextResponse.redirect(redirectUrl)
 	}
 
-	if (authToken && publicRoute?.whenAuthenticated == "redirect") {
+	if (isAuthenticated && publicRoute?.whenAuthenticated == "redirect") {
 		const redirectUrl = request.nextUrl.clone()
 		redirectUrl.pathname = "/dashboard"
 
@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
 	}
 
 	// Redireciona usuário autenticado da '/' para '/dashboard'
-	if (authToken && pathname === "/") {
+	if (isAuthenticated && pathname === "/") {
 		const redirectUrl = request.nextUrl.clone()
 		redirectUrl.pathname = "/dashboard"
 		return NextResponse.redirect(redirectUrl)
