@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
 		roles: parsedResponse.data.roles
 	}
 
-	//TODO Lidar com o refreshToken com o httpOnlyCookies
 	const response = NextResponse.json({ ok: true, user: user })
 
 	response.cookies.set("accessToken", parsedResponse.data.accessToken, {

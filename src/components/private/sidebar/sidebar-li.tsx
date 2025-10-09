@@ -6,22 +6,15 @@ type SideBarLiPRops = {
 	collapsed: boolean
 } & React.LiHTMLAttributes<HTMLLIElement>
 
-export function SidebarLi({
-	icon,
-	pageName,
-	path,
-	isSelected,
-	collapsed,
-	...props
-}: SideBarLiPRops) {
+export function SidebarLi({ icon, pageName, path, isSelected, collapsed, ...props }: SideBarLiPRops) {
 	return (
 		<li {...props}>
 			<a
 				href={`/${path}`}
-				className={`flex items-center rounded-xl p-3 gap-2 w-full ${
+				className={`cursor-pointer flex items-center rounded-xl p-3 gap-2 w-full transition-colors duration-300 ${
 					collapsed ? "justify-center" : "justify-start"
 				}
-				${isSelected ? "bg-white/20" : ""}
+				${isSelected ? "bg-white/20 hover:bg-white/30" : "hover:bg-white/10"}
 				`}
 			>
 				{icon} {!collapsed && <span className="capitalize">{pageName}</span>}
