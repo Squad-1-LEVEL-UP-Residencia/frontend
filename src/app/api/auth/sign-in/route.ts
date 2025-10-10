@@ -1,14 +1,15 @@
 import { SignInProps, signInResponseSchema } from "@/data/auth/authSchemas"
-import { apiFetch } from "@/lib/api"
+import { env } from "@/lib/env"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
+	const baseURL = env.NEXT_PUBLIC_API_URL
 	const url = request.nextUrl
 	url.pathname = "/"
 
 	const body: SignInProps = await request.json()
 
-	const result = await apiFetch("/auth/login", {
+	const result = await fetch(`${baseURL}/auth/login`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"

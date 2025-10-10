@@ -1,10 +1,13 @@
 "use client"
 
+import { Role } from "@/data/roles/role"
 import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
 import { ModalFooter } from "../../ui/modal"
+import { useRoles } from "@/hooks/use-roles"
 
 export function CreateUserForm() {
+	const { data: roles, isLoading } = useRoles()
 	return (
 		<>
 			<form className="flex flex-col gap-4">
@@ -16,6 +19,13 @@ export function CreateUserForm() {
 					Email
 				</label>
 				<Input id="email" type="email" variant="no-placeholder" />
+				<label className="font-medium" htmlFor="cargo">
+					Cargo
+				</label>
+				<select defaultValue="Selecione um cargo" id="cargo" className="select-primary">
+					<option disabled={true}>Selecione um cargo</option>
+					{roles ? roles.roles.map((role: Role) => <option value={role.id}>{role.name}</option>) : null}
+				</select>
 			</form>
 			<ModalFooter>
 				<Button outline={true} className="min-w-20 px-4">
