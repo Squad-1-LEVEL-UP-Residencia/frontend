@@ -7,7 +7,7 @@ import { Role } from "@/data/roles/role"
 export async function getRoles() {
 	const accessToken = await getToken()
 	if (!accessToken) {
-		return undefined
+		return { roles: [] } as { roles: Role[] }
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -24,11 +24,9 @@ export async function getRoles() {
 	})
 	const data = await result.json()
 	if (!result.ok) {
-		return undefined
+		return { roles: [] } as { roles: Role[] }
 	}
 
 	// const roles: Role[] = data
-	const roles = data
-	console.log(roles)
-	return roles
+	return data
 }

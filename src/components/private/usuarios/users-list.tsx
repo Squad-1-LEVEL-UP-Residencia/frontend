@@ -13,36 +13,6 @@ import { getUsers } from "@/actions/users/get-users"
 export function UsersList() {
 	// const users = use(getUsers()) ?? []
 
-	// async function getUsers(): Promise<User[]> {
-	// 	return new Promise((resolve) => {
-	// 		setTimeout(() => {
-	// 			resolve([
-	// 				{
-	// 					id: "1",
-	// 					name: "Danillo",
-	// 					email: "danillo@email.com",
-	// 					avatarUrl: "https://ui-avatars.com/api/?name=Danillo",
-	// 					role: ["admin"]
-	// 				},
-	// 				{
-	// 					id: "2",
-	// 					name: "Maria",
-	// 					email: "maria@email.com",
-	// 					avatarUrl: "https://ui-avatars.com/api/?name=Maria",
-	// 					role: ["designer"]
-	// 				},
-	// 				{
-	// 					id: "3",
-	// 					name: "João",
-	// 					email: "joao@email.com",
-	// 					avatarUrl: "https://ui-avatars.com/api/?name=Joao",
-	// 					role: ["analista"]
-	// 				}
-	// 			])
-	// 		}, 800) // simula delay de 800ms
-	// 	})
-	// }
-
 	const { data: users, isLoading } = useQuery<User[]>({
 		queryKey: ["users"],
 		queryFn: getUsers,

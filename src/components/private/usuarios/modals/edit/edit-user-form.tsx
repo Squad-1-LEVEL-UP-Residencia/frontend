@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
-import { ModalFooter } from "../../ui/modal"
+import { Button } from "@/components/private/ui/button"
+import { Input } from "@/components/private/ui/input"
+import { ModalFooter } from "@/components/private/ui/modal"
 
 export function EditUserForm() {
 	return (

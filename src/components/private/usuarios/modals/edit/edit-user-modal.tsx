@@ -1,5 +1,5 @@
-import { Modal } from "../../ui/modal"
-import { Title } from "../../ui/title"
+import { Modal } from "@/components/private/ui/modal"
+import { Title } from "@/components/private/ui/title"
 import { EditUserForm } from "./edit-user-form"
 
 export function EditUserModal() {

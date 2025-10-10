@@ -1,9 +1,9 @@
 "use client"
 
-import { Button } from "../../ui/button"
-import { Modal, ModalFooter } from "../../ui/modal"
-import { Paragraph } from "../../ui/paragraph"
-import { Title } from "../../ui/title"
+import { Button } from "@/components/private/ui/button"
+import { Modal, ModalFooter } from "@/components/private/ui/modal"
+import { Paragraph } from "@/components/private/ui/paragraph"
+import { Title } from "@/components/private/ui/title"
 
 export function DeleteUserModal() {
 	return (

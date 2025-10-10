@@ -1,9 +1,9 @@
 "use client"
 
 import { Role } from "@/data/roles/role"
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
-import { ModalFooter } from "../../ui/modal"
+import { Button } from "@/components/private/ui/button"
+import { Input } from "@/components/private/ui/input"
+import { ModalFooter } from "@/components/private/ui/modal"
 import { useRoles } from "@/hooks/use-roles"
 
 export function CreateUserForm() {
