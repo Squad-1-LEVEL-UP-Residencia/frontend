@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 			password: body.password
 		})
 	})
-
+	console.log(result)
 	if (!result.ok) throw new Error("Auth error")
 	const resultJson = await result.json()
 	const parsedResponse = signInResponseSchema.safeParse(resultJson)

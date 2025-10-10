@@ -25,7 +25,13 @@ export function CreateUserForm() {
 				</label>
 				<select defaultValue="Selecione um cargo" id="cargo" className="select-primary">
 					<option disabled={true}>Selecione um cargo</option>
-					{roles ? roles.roles.map((role: Role) => <option value={role.id}>{role.name}</option>) : null}
+					{isLoading ? (
+						<option disabled={true} value={undefined}>
+							Carregando...
+						</option>
+					) : roles ? (
+						roles.roles.map((role: Role) => <option value={role.id}>{role.name}</option>)
+					) : null}
 				</select>
 			</form>
 			<ModalFooter>
