@@ -21,11 +21,7 @@ function TableRow({ className, ...props }: TableRowProps) {
 
 function TableHead({ className, ...props }: ComponentProps<"th">) {
 	return (
-		<th
-			className={`text-text-secondary text-sm font-medium px-6 py-4 text-left ${
-				className ?? ""
-			}`}
-		>
+		<th className={`text-text-secondary text-sm font-medium px-6 py-4 text-left ${className ?? ""}`}>
 			{props.children}
 		</th>
 	)
@@ -33,10 +29,7 @@ function TableHead({ className, ...props }: ComponentProps<"th">) {
 
 function TableData(props: ComponentProps<"td">) {
 	return (
-		<td
-			className={`px-6 py-4 space-x-2 text-left ${props.className ?? ""}`}
-			{...props}
-		>
+		<td className={`px-6 py-4 space-x-2 text-left ${props.className ?? ""}`} {...props}>
 			{props.children}
 		</td>
 	)
@@ -50,11 +43,7 @@ interface TableProps {
 
 function Table({ head, body, isLoading }: TableProps) {
 	return (
-		<table
-			className={`table w-full overflow-auto  ${
-				isLoading ? "bg-light-grey/20" : "bg-white"
-			}`}
-		>
+		<table className={`table w-full overflow-y-auto  ${isLoading ? "bg-light-grey/20" : "bg-white"}`}>
 			<thead>
 				{/* foreach TableHead (ex: name, setor, cargo, action) */}
 				<TableRow variant="head">

@@ -71,11 +71,11 @@ export function CreateUserForm() {
 			</form>
 			<ModalFooter>
 				<>
-					<form method="dialog">
-						<Button outline={true} className="min-w-20 px-4">
-							Cancelar
-						</Button>
-					</form>
+					{/* <form method="dialog"> */}
+					<Button outline={true} className="min-w-20 px-4">
+						Cancelar
+					</Button>
+					{/* </form> */}
 					<Button color="indigo" type="submit" outline={false} className="min-w-20 px-4" form="create-user-form">
 						Cadastrar
 					</Button>
