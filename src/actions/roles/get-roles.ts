@@ -1,11 +1,11 @@
 "use server"
 
 import { env } from "@/lib/env"
-import { getToken } from "@/hooks/get-token"
+import { useToken } from "@/hooks/use-token"
 import { Role } from "@/data/roles/role"
 
 export async function getRoles() {
-	const accessToken = await getToken()
+	const accessToken = await useToken()
 	if (!accessToken) {
 		return { roles: [] } as { roles: Role[] }
 	}

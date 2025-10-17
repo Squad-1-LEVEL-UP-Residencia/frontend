@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers"
 
-export async function getToken() {
+export async function useToken() {
 	const ck = await cookies()
 	const accessToken = ck.get("accessToken")?.value
 	if (!accessToken) {

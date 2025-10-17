@@ -9,15 +9,10 @@ import { Avatar } from "../ui/avatar"
 import { ModalTrigger } from "../ui/modal"
 import { User } from "@/data/users/user"
 import { getUsers } from "@/actions/users/get-users"
+import { useUsers } from "@/hooks/users/use-users"
 
 export function UsersList() {
-	// const users = use(getUsers()) ?? []
-
-	const { data: users, isLoading } = useQuery<User[]>({
-		queryKey: ["users"],
-		queryFn: getUsers,
-		staleTime: 5000 // 5 minutos
-	})
+	const { data: users, isLoading } = useUsers()
 
 	return (
 		<Container variant="page">

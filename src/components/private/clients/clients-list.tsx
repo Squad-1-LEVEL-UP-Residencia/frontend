@@ -47,7 +47,7 @@ export function ClientsList() {
 						createdAt: "2024-04-20T09:15:00.000Z"
 					}
 				])
-			}, 800) // simula delay de 800ms
+			}, 100) // simula delay de 100ms
 		})
 	}
 

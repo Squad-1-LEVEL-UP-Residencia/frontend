@@ -1,17 +1,10 @@
 "use server"
 
 import { env } from "@/lib/env"
-import { getToken } from "@/hooks/get-token"
-import { NextResponse } from "next/server"
+import { useToken } from "@/hooks/use-token"
 
 export async function getUsers() {
-	// const ck = await cookies()
-	// const accessToken = ck.get("accessToken")?.value
-	// if (!accessToken) {
-	// 	return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-	// }
-
-	const accessToken = await getToken()
+	const accessToken = await useToken()
 	if (!accessToken) {
 		return null
 	}
