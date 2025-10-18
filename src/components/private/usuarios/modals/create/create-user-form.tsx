@@ -1,6 +1,6 @@
 "use client"
 
-import { Role } from "@/data/roles/role"
+import { Role } from "@/types/roles/role"
 import { Button } from "@/components/private/ui/button"
 import { Input } from "@/components/private/ui/input"
 import { ModalFooter } from "@/components/private/ui/modal"
@@ -8,10 +8,10 @@ import { useRoles } from "@/hooks/roles/use-roles"
 import { SpanError } from "@/components/private/ui/span-error"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreateUserFormData, createUserSchema } from "@/data/auth/registerSchema"
+import { CreateUserFormData, createUserSchema } from "@/types/auth/registerSchema"
 import { createUser } from "@/actions/users/create-user"
 import toast from "react-hot-toast"
-import { queryClient } from "@/data/react-query"
+import { queryClient } from "@/types/react-query"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()

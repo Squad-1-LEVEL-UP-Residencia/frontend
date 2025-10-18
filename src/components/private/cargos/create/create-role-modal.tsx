@@ -1,3 +1,5 @@
+"use client"
+
 import { Modal, ModalFooter } from "../../ui/modal"
 import { Title } from "../../ui/title"
 import { Button } from "../../ui/button"

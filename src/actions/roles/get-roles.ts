@@ -2,7 +2,7 @@
 
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
-import { Role } from "@/data/roles/role"
+import { Role } from "@/types/roles/role"
 
 export async function getRoles() {
 	const accessToken = await useToken()

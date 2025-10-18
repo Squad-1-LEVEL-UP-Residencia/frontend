@@ -6,10 +6,10 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SignInProps, signInSchema } from "@/data/auth/authSchemas"
+import { SignInProps, signInSchema } from "@/types/auth/authSchemas"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
-import { User } from "@/data/users/user"
+import { User } from "@/types/users/user"
 
 interface SignInResponse {
 	ok: boolean

@@ -1,4 +1,4 @@
-import { User } from "@/data/users/user"
+import { User } from "@/types/users/user"
 import Cookies from "js-cookie"
 import { jwtDecode } from "jwt-decode"
 import { createContext, useContext, useEffect, useState } from "react"

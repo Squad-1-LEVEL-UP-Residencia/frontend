@@ -7,7 +7,7 @@ import { Container } from "../ui/container"
 import { useQuery } from "@tanstack/react-query"
 import { Avatar } from "../ui/avatar"
 import { ModalTrigger } from "../ui/modal"
-import { Client } from "@/data/clients/client"
+import { Client } from "@/types/clients/client"
 
 export function ClientsList() {
 	// const users = use(getUsers()) ?? []

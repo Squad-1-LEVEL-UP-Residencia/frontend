@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Sidebar } from "./sidebar/sidebar"
 import { Header } from "./header/header"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { queryClient } from "@/data/react-query"
+import { queryClient } from "@/types/react-query"
 import { AuthContextProvider } from "@/contexts/auth-context"
 
 export function BaseLayout({ children }: { children: React.ReactNode }) {

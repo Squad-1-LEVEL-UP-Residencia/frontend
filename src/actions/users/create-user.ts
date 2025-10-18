@@ -1,6 +1,6 @@
 "use server"
 
-import { type CreateUserFormData } from "@/data/auth/registerSchema"
+import { type CreateUserFormData } from "@/types/auth/registerSchema"
 import { env } from "@/lib/env"
 import { revalidateTag } from "next/cache"
 

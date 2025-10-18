@@ -1,4 +1,4 @@
-import { SignInProps, signInResponseSchema } from "@/data/auth/authSchemas"
+import { SignInProps, signInResponseSchema } from "@/types/auth/authSchemas"
 import { env } from "@/lib/env"
 import { NextRequest, NextResponse } from "next/server"
 

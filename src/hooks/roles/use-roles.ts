@@ -1,5 +1,5 @@
 import { getRoles } from "@/actions/roles/get-roles"
-import { Role } from "@/data/roles/role"
+import { Role } from "@/types/roles/role"
 import { useQuery } from "@tanstack/react-query"
 
 export function useRoles() {
