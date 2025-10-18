@@ -16,8 +16,6 @@ export async function createUser({ name, email, cargo }: CreateUserFormData) {
 
 		if (!response.ok) {
 			const error = await response.json()
-			console.log(error)
-
 			// Tratamento específico para erros de validação
 			if (error.errors && typeof error.errors === "object") {
 				const validationErrors = Object.entries(error.errors)

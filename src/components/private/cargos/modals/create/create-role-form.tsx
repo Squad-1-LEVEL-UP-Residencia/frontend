@@ -11,6 +11,7 @@ import toast from "react-hot-toast"
 import { CreateRoleFormData, createRoleSchema } from "@/types/roles/create-role-schema"
 // import { createRole } from "@/actions/roles/create-role"
 import { queryClient } from "@/types/react-query"
+import { createRole } from "@/actions/roles/create-role"
 
 export function CreateRoleForm() {
 	const {
@@ -22,13 +23,13 @@ export function CreateRoleForm() {
 	})
 
 	async function handleCreateRole({ name }: CreateRoleFormData) {
-		// const created = await createRole({ name })
-		// if (created.success === true) {
-		// 	toast.success("Cargo criado com sucesso!")
-		// 	queryClient.invalidateQueries({ queryKey: ["roles"] })
-		// } else {
-		// 	toast.error(created.error)
-		// }
+		const created = await createRole({ name })
+		if (created.success === true) {
+			toast.success("Cargo criado com sucesso!")
+			queryClient.invalidateQueries({ queryKey: ["roles"] })
+		} else {
+			toast.error(`Erro ao criar o cargo: ${created.error}`)
+		}
 		toast.success("Cargo criado com sucesso! (mock)")
 	}
 
