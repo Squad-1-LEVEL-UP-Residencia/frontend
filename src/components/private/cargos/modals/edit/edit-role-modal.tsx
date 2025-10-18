@@ -1,8 +1,8 @@
 "use client"
 
-import { Modal, ModalFooter } from "../../ui/modal"
-import { Title } from "../../ui/title"
-import { Button } from "../../ui/button"
+import { Modal, ModalFooter } from "@/components/private/ui/modal"
+import { Title } from "@/components/private/ui/title"
+import { Button } from "@/components/private/ui/button"
 
 export function EditRoleModal() {
 	return (
