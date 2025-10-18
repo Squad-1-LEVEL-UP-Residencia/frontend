@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Avatar } from "../ui/avatar"
 import { ModalTrigger } from "../ui/modal"
 import { Client } from "@/data/clients/client"
+import { ScrollList } from "../ui/scroll-lost"
 
 export function ClientsList() {
 	// const users = use(getUsers()) ?? []
@@ -59,34 +60,36 @@ export function ClientsList() {
 
 	return (
 		<Container variant="page">
-			<Table
-				isLoading={isLoading}
-				head={["Empresa", "E-mail", "Contato", "Telefone", "Ações"]}
-				body={
-					clients &&
-					clients.map((client: Client) => (
-						<Table.Row key={client.id} variant="row">
-							<Table.Data className="flex justify-start items-center gap-2">
-								<Avatar name={client.companyName} />
-								{client.companyName}
-							</Table.Data>
-							<Table.Data>{client.email}</Table.Data>
-							<Table.Data>{client.primaryContact}</Table.Data>
-							<Table.Data>{client.phone}</Table.Data>
-							<Table.Data className="flex justify-start items-center space-x-2">
-								<ModalTrigger id="edit_client_modal">
-									<Button outline={true}>Editar</Button>
-								</ModalTrigger>
-								<ModalTrigger id="delete_client_modal">
-									<Button outline={false} color="transparent" className="hover:text-red-500">
-										<Trash2Icon width={16} height={16} />
-									</Button>
-								</ModalTrigger>
-							</Table.Data>
-						</Table.Row>
-					))
-				}
-			/>
+			<ScrollList>
+				<Table
+					isLoading={isLoading}
+					head={["Empresa", "E-mail", "Contato", "Telefone", "Ações"]}
+					body={
+						clients &&
+						clients.map((client: Client) => (
+							<Table.Row key={client.id} variant="row">
+								<Table.Data className="flex justify-start items-center gap-2">
+									<Avatar name={client.companyName} />
+									{client.companyName}
+								</Table.Data>
+								<Table.Data>{client.email}</Table.Data>
+								<Table.Data>{client.primaryContact}</Table.Data>
+								<Table.Data>{client.phone}</Table.Data>
+								<Table.Data className="flex justify-start items-center space-x-2">
+									<ModalTrigger id="edit_client_modal">
+										<Button outline={true}>Editar</Button>
+									</ModalTrigger>
+									<ModalTrigger id="delete_client_modal">
+										<Button outline={false} color="transparent" className="hover:text-red-500">
+											<Trash2Icon width={16} height={16} />
+										</Button>
+									</ModalTrigger>
+								</Table.Data>
+							</Table.Row>
+						))
+					}
+				/>
+			</ScrollList>
 		</Container>
 	)
 }

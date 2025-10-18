@@ -10,13 +10,14 @@ import { ModalTrigger } from "../ui/modal"
 import { User } from "@/data/users/user"
 import { getUsers } from "@/actions/users/get-users"
 import { useUsers } from "@/hooks/users/use-users"
+import { ScrollList } from "../ui/scroll-lost"
 
 export function UsersList() {
 	const { data: users, isLoading } = useUsers()
 
 	return (
 		<Container variant="page">
-			<div className="w-full max-h-[70vh] overflow-y-auto overflow-x-auto">
+			<ScrollList>
 				<Table
 					isLoading={isLoading}
 					head={["Usuário", "E-mail", "Cargo", "Ações"]}
@@ -44,7 +45,7 @@ export function UsersList() {
 						))
 					}
 				/>
-			</div>
+			</ScrollList>
 		</Container>
 	)
 }
