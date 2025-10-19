@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Table } from "@/components/private/ui/table"
 import { Button } from "@/components/private/ui/button"
 import { ModalTrigger } from "@/components/private/ui/modal"
