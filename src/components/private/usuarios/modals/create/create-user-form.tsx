@@ -12,6 +12,7 @@ import { CreateUserFormData, createUserSchema } from "@/types/auth/registerSchem
 import { createUser } from "@/actions/users/create-user"
 import toast from "react-hot-toast"
 import { queryClient } from "@/types/react-query"
+import { Label } from "@/components/private/ui/label"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
@@ -38,21 +39,21 @@ export function CreateUserForm() {
 	return (
 		<>
 			<form id="create-user-form" className="flex flex-col gap-4" onSubmit={handleSubmit(handleCreateUser)}>
-				<label className="font-medium" htmlFor="name">
+				<Label className="font-medium" htmlFor="name">
 					Nome
-				</label>
+				</Label>
 				<Input id="name" variant="no-placeholder" {...register("name")} />
 				{errors.name && <SpanError>{errors.name.message as string}</SpanError>}
 
-				<label className="font-medium" htmlFor="email">
+				<Label className="font-medium" htmlFor="email">
 					Email
-				</label>
+				</Label>
 				<Input id="email" type="email" variant="no-placeholder" {...register("email")} />
 				{errors.email && <SpanError>{errors.email.message as string}</SpanError>}
 
-				<label className="font-medium" htmlFor="cargo">
+				<Label className="font-medium" htmlFor="cargo">
 					Cargo
-				</label>
+				</Label>
 				<select defaultValue="Selecione um cargo" id="cargo" className="select-primary" {...register("cargo")}>
 					<option disabled={true}>Selecione um cargo</option>
 					{isLoading ? (

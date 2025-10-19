@@ -6,7 +6,7 @@ import { CreateRoleFormData } from "@/types/roles/create-role-schema"
 import { Role } from "@/types/roles/role"
 import { revalidateTag } from "next/cache"
 
-export async function createRole({}: CreateRoleFormData) {
+export async function createRole({ name, description, permissions }: CreateRoleFormData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
@@ -16,18 +16,23 @@ export async function createRole({}: CreateRoleFormData) {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
 		},
-		body: JSON.stringify({})
+		body: JSON.stringify({
+			name,
+			description,
+			permissionIds: permissions,
+			isSystemRole: false
+		})
 	})
 
 	if (!response.ok) {
 		const error = await response.json()
-		const { error: errorTitle, validationErrors, raw } = validationErrorHelper(error)
+		const { error: errorTitle, validationErrors, raw, details } = validationErrorHelper(error)
 
-		console.log(validationErrors)
+		console.log(error)
 		return {
 			success: false,
 			error: errorTitle,
-			errors: validationErrors,
+			details: validationErrors && details,
 			status: response.status,
 			raw
 		}

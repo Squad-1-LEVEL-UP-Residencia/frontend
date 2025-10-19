@@ -5,16 +5,14 @@ import { Input } from "@/components/private/ui/input"
 import { ModalFooter } from "@/components/private/ui/modal"
 import { SpanError } from "@/components/private/ui/span-error"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import toast from "react-hot-toast"
 import { CreateRoleFormData, createRoleSchema } from "@/types/roles/create-role-schema"
-// import { createRole } from "@/actions/roles/create-role"
 import { queryClient } from "@/types/react-query"
 import { createRole } from "@/actions/roles/create-role"
 import { getPermissions } from "@/actions/roles/get-permissions"
 import { useQuery } from "@tanstack/react-query"
-import { Label } from "@/components/public/label"
+import { Label } from "@/components/private/ui/label"
 
 export function CreateRoleForm() {
 	const {
@@ -44,25 +42,28 @@ export function CreateRoleForm() {
 		setValue("permissions", updated)
 	}
 
-	async function handleCreateRole({ name, permissions }: CreateRoleFormData) {
-		const created = await createRole({ name, permissions })
+	async function handleCreateRole({ name, permissions, description }: CreateRoleFormData) {
+		const created = await createRole({ name, permissions, description })
 		if (created.success === true) {
 			toast.success("Cargo criado com sucesso!")
 			queryClient.invalidateQueries({ queryKey: ["roles"] })
 		} else {
 			toast.error(`Erro ao criar o cargo: ${created.error}`)
 		}
-		toast.success("Cargo criado com sucesso! (mock)")
 	}
 
 	return (
 		<>
 			<form id="create-role-form" className="flex flex-col gap-4" onSubmit={handleSubmit(handleCreateRole)}>
-				<label className="font-medium" htmlFor="name">
-					Nome do cargo
-				</label>
+				<Label htmlFor="name">Nome do cargo</Label>
 				<Input id="name" variant="no-placeholder" {...register("name")} />
 				{errors.name && <SpanError>{errors.name.message as string}</SpanError>}
+
+				<Label htmlFor="description">Descrição do cargo</Label>
+				<Input variant="no-placeholder" {...register("description")} />
+				{errors.description && <SpanError>{errors.description.message as string}</SpanError>}
+
+				{errors.permissions && <SpanError>{errors.permissions.message as string}</SpanError>}
 				{permissions && (
 					<div className="flex flex-col gap-2">
 						{permissions.map((perm: Permission) => (
