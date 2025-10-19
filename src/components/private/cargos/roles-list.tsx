@@ -17,13 +17,14 @@ export function RolesList() {
 		<Container variant="page">
 			<ScrollList>
 				<Table
-					head={["Cargo", "Ações"]}
+					head={["Cargo", "Descrição", "Ações"]}
 					isLoading={isLoading}
 					body={
 						roles &&
 						roles.map((r: Role) => (
 							<Table.Row key={r.id} variant="row">
-								<Table.Data className="w-full">{r.name}</Table.Data>
+								<Table.Data className="w-2/5">{r.name}</Table.Data>
+								<Table.Data className="w-full">{r.description}</Table.Data>
 								<Table.Data className="text-right pr-2 sm:pr-6">
 									<span className="inline-flex items-center gap-2">
 										<ModalTrigger id="edit_role_modal">

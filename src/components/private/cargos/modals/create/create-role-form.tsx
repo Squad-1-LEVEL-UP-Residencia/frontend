@@ -64,6 +64,7 @@ export function CreateRoleForm() {
 				{errors.description && <SpanError>{errors.description.message as string}</SpanError>}
 
 				{errors.permissions && <SpanError>{errors.permissions.message as string}</SpanError>}
+				{isLoading && <p>Carregando permissões...</p>}
 				{permissions && (
 					<div className="flex flex-col gap-2">
 						{permissions.map((perm: Permission) => (
