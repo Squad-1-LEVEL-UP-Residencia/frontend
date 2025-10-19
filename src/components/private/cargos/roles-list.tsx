@@ -9,10 +9,13 @@ import type { Role } from "@/types/roles/role"
 import { useRoles } from "@/hooks/roles/use-roles"
 import { Container } from "../ui/container"
 import { ScrollList } from "../ui/scroll-lost"
+import { useSearchParams } from "next/navigation"
 
 export function RolesList() {
-	const { data, isLoading } = useRoles()
-	const roles = data?.roles ?? []
+	const searchParams = useSearchParams()
+	const search = searchParams.get("search") || undefined
+	const { data: roles, isLoading } = useRoles(search)
+
 	return (
 		<Container variant="page">
 			<ScrollList>

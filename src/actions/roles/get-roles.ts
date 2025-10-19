@@ -4,10 +4,10 @@ import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
 import { Role } from "@/types/roles/role"
 
-export async function getRoles() {
+export async function getRoles(search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return { roles: [] } as { roles: Role[] }
+		return [] as Role[]
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -25,9 +25,17 @@ export async function getRoles() {
 	})
 	const data = await result.json()
 	if (!result.ok) {
-		return { roles: [] } as { roles: Role[] }
+		return [] as Role[]
 	}
 
-	// const roles: Role[] = data
-	return data
+	if (data.roles && search) {
+		const filteredRoles = data.roles.filter(
+			(role: Role) =>
+				role.name.toLowerCase().includes(search.toLowerCase()) ||
+				role.description.toLowerCase().includes(search.toLowerCase())
+		)
+		return filteredRoles as Role[]
+	}
+
+	return data.roles as Role[]
 }

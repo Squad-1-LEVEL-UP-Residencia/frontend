@@ -2,6 +2,7 @@ import { CreateRoleModal } from "@/components/private/cargos/modals/create/creat
 import { DeleteRoleModal } from "@/components/private/cargos/modals/delete/delete-role-modal"
 import { EditRoleModal } from "@/components/private/cargos/modals/edit/edit-role-modal"
 import { RolesList } from "@/components/private/cargos/roles-list"
+import { RolesSearch } from "@/components/private/cargos/roles-search"
 import { Button } from "@/components/private/ui/button"
 import { ModalTrigger } from "@/components/private/ui/modal"
 import { PageContainer } from "@/components/private/ui/page-container"
@@ -24,7 +25,7 @@ export default function CargosNewPage() {
 				</ModalTrigger>
 			</PageHeader>
 
-			<SearchBar placeholder={"Pesquisar cargos"} />
+			<RolesSearch />
 			<Suspense fallback={<div>Loading...</div>}>
 				<RolesList />
 			</Suspense>
