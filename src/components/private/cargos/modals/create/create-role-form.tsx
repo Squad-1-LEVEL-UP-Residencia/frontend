@@ -14,6 +14,7 @@ import { queryClient } from "@/types/react-query"
 import { createRole } from "@/actions/roles/create-role"
 import { getPermissions } from "@/actions/roles/get-permissions"
 import { useQuery } from "@tanstack/react-query"
+import { Label } from "@/components/public/label"
 
 export function CreateRoleForm() {
 	const {
@@ -65,14 +66,15 @@ export function CreateRoleForm() {
 				{permissions && (
 					<div className="flex flex-col gap-2">
 						{permissions.map((perm: Permission) => (
-							<label key={perm.id} className="flex items-center gap-2">
+							<Label key={perm.id} className="flex items-center gap-2 p-2">
 								<input
 									type="checkbox"
+									className="toggle border-zinc-950 bg-transparent text-zinc-200 checked:border-indigo-600 checked:bg-indigo-500 checked:text-white"
 									checked={selectedPermissions.includes(perm.id)}
 									onChange={() => handleTogglePermission(perm.id)}
 								/>
-								<span>{perm.description}</span>
-							</label>
+								<span className="font-medium text-base">{perm.description}</span>
+							</Label>
 						))}
 					</div>
 				)}
