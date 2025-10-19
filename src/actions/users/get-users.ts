@@ -3,7 +3,7 @@
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
 
-export async function getUsers() {
+export async function getUsers(search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
 		return null
@@ -28,6 +28,13 @@ export async function getUsers() {
 	}
 
 	const users = await result.json()
+
+	if (search) {
+		return users.filter((user: { name: string; email: string }) => {
+			const lowerSearch = search.toLowerCase()
+			return user.name.toLowerCase().includes(lowerSearch) || user.email.toLowerCase().includes(lowerSearch)
+		})
+	}
 
 	return users
 }

@@ -10,9 +10,12 @@ import { ModalTrigger } from "../ui/modal"
 import { User } from "@/types/users/user"
 import { useUsers } from "@/hooks/users/use-users"
 import { ScrollList } from "../ui/scroll-lost"
+import { useSearchParams } from "next/navigation"
 
 export function UsersList() {
-	const { data: users, isLoading } = useUsers()
+	const searchParams = useSearchParams()
+
+	const { data: users, isLoading } = useUsers(searchParams.get("search") || "")
 
 	return (
 		<Container variant="page">
