@@ -12,18 +12,39 @@ import { CreateRoleFormData, createRoleSchema } from "@/types/roles/create-role-
 // import { createRole } from "@/actions/roles/create-role"
 import { queryClient } from "@/types/react-query"
 import { createRole } from "@/actions/roles/create-role"
+import { getPermissions } from "@/actions/roles/get-permissions"
+import { useQuery } from "@tanstack/react-query"
 
 export function CreateRoleForm() {
 	const {
 		register,
 		handleSubmit,
+		watch,
+		setValue,
 		formState: { errors }
 	} = useForm<CreateRoleFormData>({
 		resolver: zodResolver(createRoleSchema)
 	})
 
-	async function handleCreateRole({ name }: CreateRoleFormData) {
-		const created = await createRole({ name })
+	const { data, isLoading } = useQuery({
+		queryKey: ["permissions"],
+		queryFn: getPermissions,
+		staleTime: 1000 * 60 * 5
+	})
+
+	const permissions = data?.permissions || []
+	// console.log(data)
+	const selectedPermissions = watch("permissions") || []
+
+	function handleTogglePermission(permissionId: string) {
+		const updated = selectedPermissions.includes(permissionId)
+			? selectedPermissions.filter((id: string) => id !== permissionId)
+			: [...selectedPermissions, permissionId]
+		setValue("permissions", updated)
+	}
+
+	async function handleCreateRole({ name, permissions }: CreateRoleFormData) {
+		const created = await createRole({ name, permissions })
 		if (created.success === true) {
 			toast.success("Cargo criado com sucesso!")
 			queryClient.invalidateQueries({ queryKey: ["roles"] })
@@ -41,12 +62,26 @@ export function CreateRoleForm() {
 				</label>
 				<Input id="name" variant="no-placeholder" {...register("name")} />
 				{errors.name && <SpanError>{errors.name.message as string}</SpanError>}
+				{permissions && (
+					<div className="flex flex-col gap-2">
+						{permissions.map((perm: Permission) => (
+							<label key={perm.id} className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									checked={selectedPermissions.includes(perm.id)}
+									onChange={() => handleTogglePermission(perm.id)}
+								/>
+								<span>{perm.description}</span>
+							</label>
+						))}
+					</div>
+				)}
 			</form>
 			<ModalFooter>
 				<Button outline={true} className="min-w-20 px-4">
 					Cancelar
 				</Button>
-				<Button color="indigo" type="submit" outline={false} className="min-w-20 px-4" form="create-role-form">
+				<Button color="indigo" form="create-role-form" type="submit" outline={false} className="min-w-20 px-4">
 					Cadastrar
 				</Button>
 			</ModalFooter>

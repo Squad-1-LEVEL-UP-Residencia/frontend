@@ -12,7 +12,8 @@ export async function getUsers() {
 	const api = env.NEXT_PUBLIC_API_URL
 	const result = await fetch(`${api}/users`, {
 		next: {
-			tags: ["users"]
+			tags: ["users"],
+			revalidate: 300
 		},
 		method: "GET",
 		headers: {

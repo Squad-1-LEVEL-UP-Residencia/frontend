@@ -2,18 +2,17 @@
 
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
-import { Role } from "@/types/roles/role"
 
-export async function getRoles() {
+export async function getPermissions() {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return { roles: [] } as { roles: Role[] }
+		return { permissions: [] } as { permissions: [] }
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
-	const result = await fetch(`${api}/roles`, {
+	const result = await fetch(`${api}/roles/permissions`, {
 		next: {
-			tags: ["roles"],
+			tags: ["permissions"],
 			revalidate: 300
 		},
 		method: "GET",
@@ -25,9 +24,7 @@ export async function getRoles() {
 	})
 	const data = await result.json()
 	if (!result.ok) {
-		return { roles: [] } as { roles: Role[] }
+		return { permissions: [] } as { permissions: [] }
 	}
-
-	// const roles: Role[] = data
 	return data
 }
