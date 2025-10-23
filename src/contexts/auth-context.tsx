@@ -10,17 +10,18 @@ interface AuthContextProps {
 }
 
 export interface AccessTokenJwtPayload {
-	nameid: string
-	unique_name: string
+	userId: string
+	name: string
 	email: string
-	active: string
 	role: string
-	nbf: number
-	exp: number
-	iat: number
+	expiresAt: string
+	avatarUrl?: string
+	sub: string
 	iss: string
 	aud: string
-	avatarUrl: string
+	nbf: number
+	iat: number
+	exp: number
 }
 
 const authContext = createContext<AuthContextProps>({} as AuthContextProps)
@@ -34,8 +35,8 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
 		if (token) {
 			const decoded = jwtDecode<AccessTokenJwtPayload>(token)
 			const parsedUser: User = {
-				id: decoded.nameid,
-				name: decoded.unique_name,
+				id: decoded.userId,
+				name: decoded.name,
 				email: decoded.email,
 				role: [decoded.role],
 				avatarUrl: decoded.avatarUrl

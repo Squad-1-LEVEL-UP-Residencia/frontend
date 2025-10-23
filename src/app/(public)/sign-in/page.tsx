@@ -3,12 +3,10 @@
 import { SignInInput } from "@/components/public/sign-in-input"
 import { Label } from "@/components/public/label"
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SignInProps, signInSchema } from "@/types/auth/authSchemas"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
 import { User } from "@/types/users/user"
 
 interface SignInResponse {
@@ -31,6 +29,7 @@ export default function SignIn() {
 		try {
 			const res = await fetch("/api/auth/sign-in", {
 				method: "POST",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/json"
 				},

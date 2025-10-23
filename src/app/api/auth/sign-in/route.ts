@@ -23,17 +23,17 @@ export async function POST(request: NextRequest) {
 	if (!result.ok) throw new Error("Auth error")
 	const resultJson = await result.json()
 	const parsedResponse = signInResponseSchema.safeParse(resultJson)
-
+	console.log(parsedResponse)
 	if (!parsedResponse.data?.accessToken) {
 		return NextResponse.json({ ok: false, status: 500, message: "Error undefined accessToken" })
 	}
 
-	const user = {
-		id: parsedResponse.data.userId,
-		name: parsedResponse.data.name,
-		email: parsedResponse.data.email,
-		roles: parsedResponse.data.roles
-	}
+	// const user = {
+	// 	id: parsedResponse.data.userId,
+	// 	name: parsedResponse.data.name,
+	// 	email: parsedResponse.data.email,
+	// 	roles: parsedResponse.data.roles
+	// }
 
 	const response = NextResponse.json({ ok: true })
 

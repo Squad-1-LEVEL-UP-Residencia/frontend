@@ -4,7 +4,7 @@ export const signInResponseSchema = z.object({
 	userId: z.uuid(),
 	name: z.string(),
 	email: z.email(),
-	roles: z.array(z.string()),
+	roles: z.string(),
 	accessToken: z.string(),
 	refreshToken: z.string(),
 	expiresAt: z.string()
