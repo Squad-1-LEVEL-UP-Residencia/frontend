@@ -3,9 +3,11 @@ import { User } from "@/types/users/user"
 import { useQuery } from "@tanstack/react-query"
 
 export function useUsers(search?: string) {
+	const searchKey = search ?? ""
+
 	return useQuery<User[]>({
-		queryKey: ["users", search],
-		queryFn: () => getUsers(search),
+		queryKey: ["users", searchKey],
+		queryFn: () => getUsers(searchKey),
 		staleTime: 5000 // 5 minutos
 	})
 }

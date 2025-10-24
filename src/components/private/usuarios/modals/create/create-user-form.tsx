@@ -11,8 +11,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { CreateUserFormData, createUserSchema } from "@/types/auth/registerSchema"
 import { createUser } from "@/actions/users/create-user"
 import toast from "react-hot-toast"
-import { queryClient } from "@/types/react-query"
 import { Label } from "@/components/private/ui/label"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { queryClient } from "@/types/react-query"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
@@ -25,15 +26,22 @@ export function CreateUserForm() {
 		resolver: zodResolver(createUserSchema)
 	})
 
-	async function handleCreateUser({ cargo, email, name }: CreateUserFormData) {
-		const created = await createUser({ name, email, cargo })
-		if (created.success === true) {
-			toast.success("Usuário criado com sucesso!")
-			queryClient.invalidateQueries({ queryKey: ["users"] })
-		} else {
-			toast.error(created.error)
+	const { mutateAsync: createUserFn, isPending } = useMutation({
+		mutationFn: createUser,
+		onSuccess: (data) => {
+			if (data.success) {
+				toast.success("Usuário criado com sucesso!")
+
+				queryClient.invalidateQueries({ queryKey: ["users"] })
+			} else {
+				toast.error(data.error)
+			}
+			// console.log("Created user:", data)
 		}
-		console.log("Created user:", created)
+	})
+
+	async function handleCreateUser({ cargo, email, name }: CreateUserFormData) {
+		await createUserFn({ name, email, cargo })
 	}
 
 	return (
@@ -78,7 +86,7 @@ export function CreateUserForm() {
 					</Button>
 					{/* </form> */}
 					<Button color="indigo" type="submit" outline={false} className="min-w-20 px-4" form="create-user-form">
-						Cadastrar
+						{isPending ? "Cadastrando..." : "Cadastrar"}
 					</Button>
 				</>
 			</ModalFooter>

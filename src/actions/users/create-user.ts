@@ -2,10 +2,10 @@
 
 import { type CreateUserFormData } from "@/types/auth/registerSchema"
 import { env } from "@/lib/env"
-import { revalidateTag } from "next/cache"
 
 export async function createUser({ name, email, cargo }: CreateUserFormData) {
 	try {
+		//TODO lidar com o loading
 		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/register`, {
 			method: "POST",
 			headers: {
@@ -32,7 +32,7 @@ export async function createUser({ name, email, cargo }: CreateUserFormData) {
 
 			return { error: error.message || "Erro ao criar usuário", status: response.status, success: false }
 		}
-		revalidateTag("users")
+
 		const data = await response.json()
 		return {
 			success: true,

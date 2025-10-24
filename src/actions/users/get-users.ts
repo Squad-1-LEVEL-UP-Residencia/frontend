@@ -11,16 +11,11 @@ export async function getUsers(search?: string) {
 
 	const api = env.NEXT_PUBLIC_API_URL
 	const result = await fetch(`${api}/users`, {
-		next: {
-			tags: ["users"],
-			revalidate: 300
-		},
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${accessToken}`
-		},
-		cache: "force-cache"
+		}
 	})
 
 	if (!result.ok) {
