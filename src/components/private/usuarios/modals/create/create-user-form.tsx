@@ -8,13 +8,14 @@ import { useRoles } from "@/hooks/roles/use-roles"
 import { SpanError } from "@/components/private/ui/span-error"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreateUserFormData, createUserSchema } from "@/types/auth/registerSchema"
+import { CreateUserFormData, createUserSchema } from "@/types/users/registerSchema"
 import { createUser } from "@/actions/users/create-user"
 import toast from "react-hot-toast"
 import { Label } from "@/components/private/ui/label"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
 import Link from "next/link"
+import { Select } from "@/components/private/ui/select"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
@@ -42,8 +43,8 @@ export function CreateUserForm() {
 		}
 	})
 
-	async function handleCreateUser({ cargo, email, name }: CreateUserFormData) {
-		await createUserFn({ name, email, cargo })
+	async function handleCreateUser({ role, email, name }: CreateUserFormData) {
+		await createUserFn({ name, email, role })
 		reset()
 	}
 
@@ -65,7 +66,7 @@ export function CreateUserForm() {
 				<Label className="font-medium" htmlFor="cargo">
 					Cargo
 				</Label>
-				<select defaultValue="Selecione um cargo" id="cargo" className="select-primary" {...register("cargo")}>
+				<Select defaultValue="Selecione um cargo" id="cargo" {...register("role")}>
 					<option disabled={true}>Selecione um cargo</option>
 					{isLoading ? (
 						<option disabled={true} value={undefined}>
@@ -78,11 +79,11 @@ export function CreateUserForm() {
 							</option>
 						))
 					) : null}
-				</select>
+				</Select>
 				<Link href="/cargos" className="text-blue-500 hover:underline">
 					Criar novo cargo
 				</Link>
-				{errors.cargo && <SpanError>{errors.cargo.message as string}</SpanError>}
+				{errors.role && <SpanError>{errors.role.message as string}</SpanError>}
 			</form>
 			<ModalFooter>
 				<>

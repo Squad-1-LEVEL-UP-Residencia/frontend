@@ -1,20 +1,22 @@
 "use server"
 
-import { type CreateUserFormData } from "@/types/auth/registerSchema"
 import { env } from "@/lib/env"
+import type { CreateUserFormData } from "@/types/users/registerSchema"
 
-export async function createUser({ name, email, cargo }: CreateUserFormData) {
+export async function createUser({ name, email, role }: CreateUserFormData) {
 	try {
 		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/register`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ name, email, cargo })
+			//TODO mudar o role para usar o id quando consertar no backend
+			body: JSON.stringify({ name, email, role: 2 })
 		})
 
 		if (!response.ok) {
 			const error = await response.json()
+			console.log(error)
 			// Tratamento específico para erros de validação
 			if (error.errors && typeof error.errors === "object") {
 				const validationErrors = Object.entries(error.errors)
