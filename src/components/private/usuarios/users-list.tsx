@@ -11,7 +11,6 @@ import { User } from "@/types/users/user"
 import { useUsers } from "@/hooks/users/use-users"
 import { ScrollList } from "../ui/scroll-lost"
 import { useSearchParams } from "next/navigation"
-import { is } from "zod/locales"
 
 export function UsersList() {
 	const searchParams = useSearchParams()

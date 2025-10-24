@@ -5,13 +5,12 @@ import { env } from "@/lib/env"
 
 export async function createUser({ name, email, cargo }: CreateUserFormData) {
 	try {
-		//TODO lidar com o loading
 		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/register`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ name, email, cargo, password: "Senha@123" })
+			body: JSON.stringify({ name, email, cargo })
 		})
 
 		if (!response.ok) {
