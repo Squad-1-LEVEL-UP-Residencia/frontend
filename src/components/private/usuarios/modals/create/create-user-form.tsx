@@ -81,11 +81,23 @@ export function CreateUserForm() {
 			<ModalFooter>
 				<>
 					{/* <form method="dialog"> */}
-					<Button outline={true} className="min-w-20 px-4">
+
+					<Button
+						outline={true}
+						disabled={isPending}
+						className={`${isPending ? "opacity-70 cursor-not-allowed hover:" : ""} min-w-20 px-4`}
+					>
 						Cancelar
 					</Button>
 					{/* </form> */}
-					<Button color="indigo" type="submit" outline={false} className="min-w-20 px-4" form="create-user-form">
+					<Button
+						color="indigo"
+						disabled={isPending}
+						className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
+						type="submit"
+						outline={false}
+						form="create-user-form"
+					>
 						{isPending ? "Cadastrando..." : "Cadastrar"}
 					</Button>
 				</>
