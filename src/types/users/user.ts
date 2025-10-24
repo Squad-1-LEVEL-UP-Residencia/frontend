@@ -3,5 +3,6 @@ export type User = {
 	name: string
 	email: string
 	avatarUrl?: string
-	role: Array<string> //Estranho ser um array mas tem q ver com os cara do back
+	role: string
+	// role: Array<string> //Estranho ser um array mas tem q ver com os cara do back
 }

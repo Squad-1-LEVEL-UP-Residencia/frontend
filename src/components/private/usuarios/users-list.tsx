@@ -11,11 +11,17 @@ import { User } from "@/types/users/user"
 import { useUsers } from "@/hooks/users/use-users"
 import { ScrollList } from "../ui/scroll-lost"
 import { useSearchParams } from "next/navigation"
+import { is } from "zod/locales"
 
 export function UsersList() {
 	const searchParams = useSearchParams()
 
 	const { data: users, isLoading } = useUsers(searchParams.get("search") || "")
+
+	while (isLoading !== true) {
+		console.log(users)
+		break
+	}
 
 	return (
 		<Container variant="page">
@@ -32,7 +38,8 @@ export function UsersList() {
 									{element.name}
 								</Table.Data>
 								<Table.Data>{element.email}</Table.Data>
-								<Table.Data>{Array.isArray(element.role) ? element.role.join(", ") : "-"}</Table.Data>
+								{/* <Table.Data>{Array.isArray(element.role) ? element.role.join(", ") : "-"}</Table.Data> */}
+								<Table.Data>{element.role}</Table.Data>
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_user_modal">
 										<Button outline={true}>Editar</Button>

@@ -38,7 +38,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
 				id: decoded.userId,
 				name: decoded.name,
 				email: decoded.email,
-				role: [decoded.role],
+				role: decoded.role,
 				avatarUrl: decoded.avatarUrl
 			}
 			login(parsedUser)
