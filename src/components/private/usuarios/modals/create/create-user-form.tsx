@@ -21,6 +21,7 @@ export function CreateUserForm() {
 	const {
 		register,
 		handleSubmit,
+		reset,
 		formState: { errors }
 	} = useForm<CreateUserFormData>({
 		resolver: zodResolver(createUserSchema)
@@ -42,6 +43,7 @@ export function CreateUserForm() {
 
 	async function handleCreateUser({ cargo, email, name }: CreateUserFormData) {
 		await createUserFn({ name, email, cargo })
+		reset()
 	}
 
 	return (
