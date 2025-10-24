@@ -39,7 +39,7 @@ export function UsersList() {
 								</Table.Data>
 								<Table.Data>{element.email}</Table.Data>
 								{/* <Table.Data>{Array.isArray(element.role) ? element.role.join(", ") : "-"}</Table.Data> */}
-								<Table.Data>{element.role}</Table.Data>
+								<Table.Data>{element.role ?? "-"}</Table.Data>
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_user_modal">
 										<Button outline={true}>Editar</Button>
