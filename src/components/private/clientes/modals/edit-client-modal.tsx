@@ -34,6 +34,12 @@ export function EditClientModal() {
 					CNPJ
 				</label>
 				<Input id="cnpj" variant={"no-placeholder"} />
+
+				<label className="font-medium" htmlFor="agentUrl">
+					URL do agente
+				</label>
+				<Input id="agentUrl" variant={"no-placeholder"} />
+
 				<Button color="indigo" outline={false} className="min-w-20 px-4" type="submit">
 					Salvar alterações
 				</Button>
