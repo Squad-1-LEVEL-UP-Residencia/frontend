@@ -12,8 +12,8 @@ import { CreateUserFormData, createUserSchema } from "@/types/auth/registerSchem
 import { createUser } from "@/actions/users/create-user"
 import toast from "react-hot-toast"
 import { Label } from "@/components/private/ui/label"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { queryClient } from "@/types/react-query"
+import { useMutation } from "@tanstack/react-query"
+import { queryClient } from "@/lib/react-query"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
