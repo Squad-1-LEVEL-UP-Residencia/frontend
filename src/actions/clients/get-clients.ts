@@ -46,7 +46,6 @@ export async function getClients(search?: string): Promise<Client[]> {
 				client.primaryContact.toLowerCase().includes(search.toLowerCase()) ||
 				client.phone.toLowerCase().includes(search.toLowerCase())
 		)
-		console.log("Filtered Clients:", filteredClients)
 		return filteredClients
 	}
 

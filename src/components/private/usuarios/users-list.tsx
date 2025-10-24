@@ -18,11 +18,6 @@ export function UsersList() {
 
 	const { data: users, isLoading } = useUsers(searchParams.get("search") || "")
 
-	while (isLoading !== true) {
-		console.log(users)
-		break
-	}
-
 	return (
 		<Container variant="page">
 			<ScrollList>
