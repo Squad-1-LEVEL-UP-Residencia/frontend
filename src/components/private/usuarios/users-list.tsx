@@ -1,54 +1,71 @@
-"use client"
+"use client";
 
-import { Trash2Icon } from "lucide-react"
-import { Button } from "../ui/button"
-import { Table } from "../ui/table"
-import { Container } from "../ui/container"
-import { useQuery } from "@tanstack/react-query"
-import { Avatar } from "../ui/avatar"
-import { ModalTrigger } from "../ui/modal"
-import { User } from "@/types/users/user"
-import { useUsers } from "@/hooks/users/use-users"
-import { ScrollList } from "../ui/scroll-lost"
-import { useSearchParams } from "next/navigation"
+import { Trash2Icon } from "lucide-react";
+import { Button } from "../ui/button";
+import { Table } from "../ui/table";
+import { Container } from "../ui/container";
+import { Avatar } from "../ui/avatar";
+import { ModalTrigger } from "../ui/modal";
+import { User } from "@/types/users/user";
+import { useUsers } from "@/hooks/users/use-users";
+import { ScrollList } from "../ui/scroll-lost";
+import { useSearchParams } from "next/navigation";
 
 export function UsersList() {
-	const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
+  const { data: users, isLoading } = useUsers(searchParams.get("search") || "");
 
-	const { data: users, isLoading } = useUsers(searchParams.get("search") || "")
+  function openEdit(u: User) {
+    window.dispatchEvent(new CustomEvent("user:edit-open", { detail: u }));
+  }
+  function openDelete(u: User) {
+    window.dispatchEvent(new CustomEvent("user:delete-open", { detail: u }));
+  }
 
-	return (
-		<Container variant="page">
-			<ScrollList>
-				<Table
-					isLoading={isLoading}
-					head={["Usuário", "E-mail", "Cargo", "Ações"]}
-					body={
-						users &&
-						users.map((element: User) => (
-							<Table.Row key={element.id} variant="row">
-								<Table.Data className="flex justify-start items-center gap-2">
-									<Avatar name={element.name} />
-									{element.name}
-								</Table.Data>
-								<Table.Data>{element.email}</Table.Data>
-								{/* <Table.Data>{Array.isArray(element.role) ? element.role.join(", ") : "-"}</Table.Data> */}
-								<Table.Data>{element.role ?? "-"}</Table.Data>
-								<Table.Data className="flex justify-start items-center space-x-2">
-									<ModalTrigger id="edit_user_modal">
-										<Button outline={true}>Editar</Button>
-									</ModalTrigger>
-									<ModalTrigger id="delete_user_modal">
-										<Button outline={false} color="transparent" className="hover:text-red-500">
-											<Trash2Icon width={16} height={16} />
-										</Button>
-									</ModalTrigger>
-								</Table.Data>
-							</Table.Row>
-						))
-					}
-				/>
-			</ScrollList>
-		</Container>
-	)
+  return (
+    <Container variant="page">
+      <ScrollList>
+        <Table
+          isLoading={isLoading}
+          head={["Usuário", "E-mail", "Cargo", "Ações"]}
+          body={
+            users &&
+            users.map((u: User) => (
+              <Table.Row key={u.id} variant="row">
+                <Table.Data className="flex justify-start items-center gap-2">
+                  <Avatar name={u.name} />
+                  {u.name}
+                </Table.Data>
+
+                <Table.Data>{u.email}</Table.Data>
+
+                <Table.Data>
+                  {Array.isArray(u.role) ? u.role.join(", ") : u.role ?? "-"}
+                </Table.Data>
+
+                <Table.Data className="flex justify-start items-center space-x-2">
+                  <ModalTrigger id="edit_user_modal">
+                    <Button outline={true} onClick={() => openEdit(u)}>
+                      Editar
+                    </Button>
+                  </ModalTrigger>
+
+                  <ModalTrigger id="delete_user_modal">
+                    <Button
+                      outline={false}
+                      color="transparent"
+                      className="hover:text-red-500"
+                      onClick={() => openDelete(u)}
+                    >
+                      <Trash2Icon width={16} height={16} />
+                    </Button>
+                  </ModalTrigger>
+                </Table.Data>
+              </Table.Row>
+            ))
+          }
+        />
+      </ScrollList>
+    </Container>
+  );
 }
