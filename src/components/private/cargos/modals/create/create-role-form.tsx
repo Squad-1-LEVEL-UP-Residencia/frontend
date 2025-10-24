@@ -11,7 +11,7 @@ import { CreateRoleFormData, createRoleSchema } from "@/types/roles/create-role-
 import { queryClient } from "@/lib/react-query"
 import { createRole } from "@/actions/roles/create-role"
 import { getPermissions } from "@/actions/roles/get-permissions"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { Label } from "@/components/private/ui/label"
 
 export function CreateRoleForm() {
@@ -19,6 +19,7 @@ export function CreateRoleForm() {
 		register,
 		handleSubmit,
 		watch,
+		reset,
 		setValue,
 		formState: { errors }
 	} = useForm<CreateRoleFormData>({
@@ -42,14 +43,21 @@ export function CreateRoleForm() {
 		setValue("permissions", updated)
 	}
 
-	async function handleCreateRole({ name, permissions, description }: CreateRoleFormData) {
-		const created = await createRole({ name, permissions, description })
-		if (created.success === true) {
-			toast.success("Cargo criado com sucesso!")
-			queryClient.invalidateQueries({ queryKey: ["roles"] })
-		} else {
-			toast.error(`Erro ao criar o cargo: ${created.error}`)
+	const { mutateAsync: createRoleMutation, isPending } = useMutation({
+		mutationFn: createRole,
+		onSuccess: (data) => {
+			if (data.success === true) {
+				toast.success("Cargo criado com sucesso!")
+				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
+			} else {
+				toast.error(`Erro ao criar o cargo: ${data.error}`)
+			}
 		}
+	})
+
+	async function handleCreateRole({ name, permissions, description }: CreateRoleFormData) {
+		await createRoleMutation({ name, permissions, description })
+		reset()
 	}
 
 	return (
@@ -82,10 +90,21 @@ export function CreateRoleForm() {
 				)}
 			</form>
 			<ModalFooter>
-				<Button outline={true} className="min-w-20 px-4">
+				<Button
+					outline={true}
+					disabled={isPending}
+					className={`${isPending ? "opacity-70 cursor-not-allowed hover:" : ""} min-w-20 px-4`}
+				>
 					Cancelar
 				</Button>
-				<Button color="indigo" form="create-role-form" type="submit" outline={false} className="min-w-20 px-4">
+				<Button
+					color="indigo"
+					form="create-role-form"
+					type="submit"
+					outline={false}
+					disabled={isPending}
+					className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
+				>
 					Cadastrar
 				</Button>
 			</ModalFooter>

@@ -4,7 +4,6 @@ import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 import { CreateRoleFormData } from "@/types/roles/create-role-schema"
 import { Role } from "@/types/roles/role"
-import { revalidateTag } from "next/cache"
 
 export async function createRole({ name, description, permissions }: CreateRoleFormData) {
 	const token = await useToken()
@@ -38,7 +37,6 @@ export async function createRole({ name, description, permissions }: CreateRoleF
 		}
 	}
 
-	revalidateTag("roles")
 	const data = await response.json()
 	return {
 		success: true,

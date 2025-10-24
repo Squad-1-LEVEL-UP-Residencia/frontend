@@ -14,6 +14,7 @@ import toast from "react-hot-toast"
 import { Label } from "@/components/private/ui/label"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
+import Link from "next/link"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
@@ -78,6 +79,9 @@ export function CreateUserForm() {
 						))
 					) : null}
 				</select>
+				<Link href="/cargos" className="text-blue-500 hover:underline">
+					Criar novo cargo
+				</Link>
 				{errors.cargo && <SpanError>{errors.cargo.message as string}</SpanError>}
 			</form>
 			<ModalFooter>
