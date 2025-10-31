@@ -1,20 +1,25 @@
 "use server"
 
+import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 import type { EditUserFormData } from "@/types/users/edit-user-schema"
 
 export async function editUser({ id, name, email, role }: EditUserFormData) {
 	try {
-		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/users/${id}`, {
+		const token = await useToken()
+
+		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/users/${id}`, {
 			method: "PUT",
 			headers: {
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`
 			},
 			body: JSON.stringify({ userId: id, name, email, roleIds: [role] })
 		})
 
 		if (!response.ok) {
 			const error = await response.json()
+			console.log(error)
 			// Tratamento específico para erros de validação
 			if (error.errors && typeof error.errors === "object") {
 				const validationErrors = Object.entries(error.errors)
@@ -29,7 +34,7 @@ export async function editUser({ id, name, email, role }: EditUserFormData) {
 				}
 			}
 
-			return { error: error.message || "Erro ao criar usuário", status: response.status, success: false }
+			return { error: error.message || "Erro ao editar usuário", status: response.status, success: false }
 		}
 
 		const data = await response.json()

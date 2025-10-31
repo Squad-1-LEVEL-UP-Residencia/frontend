@@ -75,7 +75,7 @@ export function CreateUserForm() {
 					) : roles ? (
 						roles.map((role: Role) => (
 							<option key={role.id} value={role.id}>
-								{role.name}
+								{role.description}
 							</option>
 						))
 					) : null}
