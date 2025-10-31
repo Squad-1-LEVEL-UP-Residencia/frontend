@@ -15,6 +15,14 @@ export function RolesList() {
 	const search = searchParams.get("search") || undefined
 	const { data: roles, isLoading } = useRoles(search)
 
+	function openEdit(r: Role) {
+		window.dispatchEvent(new CustomEvent("role:edit-open", { detail: r }))
+	}
+
+	function openDelete(r: Role) {
+		window.dispatchEvent(new CustomEvent("role:delete-open", { detail: r }))
+	}
+
 	return (
 		<Container variant="page">
 			<ScrollList>
@@ -30,7 +38,7 @@ export function RolesList() {
 								<Table.Data className="text-right pr-2 sm:pr-6">
 									<span className="inline-flex items-center gap-2">
 										<ModalTrigger id="edit_role_modal">
-											<Button outline>Editar</Button>
+											<Button outline onClick={() => openEdit(r)}>Editar</Button>
 										</ModalTrigger>
 
 										<ModalTrigger id="delete_role_modal">
@@ -39,6 +47,7 @@ export function RolesList() {
 												color="transparent"
 												className="hover:text-red-500"
 												aria-label={`Excluir ${r.name}`}
+												onClick={() => openDelete(r)}
 											>
 												<Trash2Icon width={16} height={16} />
 											</Button>
