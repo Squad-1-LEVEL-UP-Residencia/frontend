@@ -1,15 +1,11 @@
-export type Permission = {
-  id: string;
-  name: string;
-  description?: string;
-};
+import { Permission } from "./permission"
 
 export type Role = {
-  id: string; // UUID
-  name: string;
-  description: string;
-  isSystemRole: boolean;
-  isActive: boolean;
-  createdAt: string; // ISO datetime
-  permissions: Permission[];
-};
+	id: string // UUID
+	name: string
+	description: string
+	isSystemRole: boolean
+	isActive: boolean
+	createdAt: string // ISO datetime
+	permissions: Permission[]
+}

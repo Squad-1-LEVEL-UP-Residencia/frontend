@@ -12,9 +12,6 @@ export async function getRoles(search?: string) {
 
 	const api = env.NEXT_PUBLIC_API_URL
 	const result = await fetch(`${api}/roles`, {
-		next: {
-			revalidate: 300
-		},
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",

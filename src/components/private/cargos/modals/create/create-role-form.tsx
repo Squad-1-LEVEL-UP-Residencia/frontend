@@ -13,6 +13,7 @@ import { createRole } from "@/actions/roles/create-role"
 import { getPermissions } from "@/actions/roles/get-permissions"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Label } from "@/components/private/ui/label"
+import { Permission } from "@/types/roles/permission"
 
 export function CreateRoleForm() {
 	const {
@@ -93,6 +94,7 @@ export function CreateRoleForm() {
 				<Button
 					outline={true}
 					disabled={isPending}
+					onClick={() => reset()}
 					className={`${isPending ? "opacity-70 cursor-not-allowed hover:" : ""} min-w-20 px-4`}
 				>
 					Cancelar

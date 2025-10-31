@@ -4,7 +4,7 @@ import { Button } from "@/components/private/ui/button"
 import { Input } from "@/components/private/ui/input"
 import { ModalFooter } from "@/components/private/ui/modal"
 import { SpanError } from "@/components/private/ui/span-error"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import toast from "react-hot-toast"
 import { EditRoleFormData, editRoleSchema } from "@/types/roles/edit-role-schema"
@@ -13,8 +13,9 @@ import { updateRole } from "@/actions/roles/update-role"
 import { getPermissions } from "@/actions/roles/get-permissions"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Label } from "@/components/private/ui/label"
-import { Role, Permission } from "@/types/roles/role"
+import { Role } from "@/types/roles/role"
 import { useEffect } from "react"
+import { Permission } from "@/types/roles/permission"
 
 type Props = { role: Role | null }
 
@@ -23,6 +24,7 @@ export function EditRoleForm({ role }: Props) {
 		register,
 		handleSubmit,
 		watch,
+		control,
 		reset,
 		setValue,
 		formState: { errors }
@@ -44,17 +46,26 @@ export function EditRoleForm({ role }: Props) {
 		reset({
 			name: role.name,
 			description: role.description,
-			isActive: role.isActive,
-			permissions: role.permissions.map((p) => p.id)
+			isActive: role.isActive
+			// permissions: role.permissions.map((p) => p.id) //* colocar apenas a permissions q aquele user tem, tem q fazer o get disso
 		})
 	}, [role, reset])
 
 	function handleTogglePermission(permissionId: string) {
+		console.log("Toggling permission:", permissionId)
 		const updated = selectedPermissions.includes(permissionId)
 			? selectedPermissions.filter((id: string) => id !== permissionId)
 			: [...selectedPermissions, permissionId]
 		setValue("permissions", updated)
+		console.log(selectedPermissions)
 	}
+
+	useEffect(() => {
+		const subscription = watch((value) => {
+			console.log("🎯 Form atual:", value.permissions)
+		})
+		return () => subscription.unsubscribe()
+	}, [watch])
 
 	const { mutateAsync: updateRoleMutation, isPending } = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: EditRoleFormData }) => updateRole(id, data),
@@ -69,6 +80,8 @@ export function EditRoleForm({ role }: Props) {
 	})
 
 	async function handleEditRole(formData: EditRoleFormData) {
+		console.log("caiu aq")
+
 		if (!role) {
 			toast.error("Nenhum cargo selecionado")
 			return
@@ -76,9 +89,21 @@ export function EditRoleForm({ role }: Props) {
 		await updateRoleMutation({ id: role.id, data: formData })
 	}
 
+	{
+		Object.keys(errors).length > 0 && <pre className="text-red-500 text-xs">{JSON.stringify(errors, null, 2)}</pre>
+	}
+
 	return (
 		<>
-			<form id="edit-role-form" className="flex flex-col gap-4" onSubmit={handleSubmit(handleEditRole)}>
+			<form
+				id="form-edit-role"
+				className="flex flex-col gap-4"
+				onSubmit={(e) => {
+					e.preventDefault()
+					console.log("🧠 handleSubmit executando...")
+					handleSubmit(handleEditRole)(e)
+				}}
+			>
 				<Label htmlFor="name">Nome do cargo</Label>
 				<Input id="name" variant="no-placeholder" {...register("name")} />
 				{errors.name && <SpanError>{errors.name.message as string}</SpanError>}
@@ -88,7 +113,11 @@ export function EditRoleForm({ role }: Props) {
 				{errors.description && <SpanError>{errors.description.message as string}</SpanError>}
 
 				<Label className="flex items-center gap-2">
-					<input type="checkbox" className="toggle border-zinc-950 bg-transparent text-zinc-200 checked:border-indigo-600 checked:bg-indigo-500 checked:text-white" {...register("isActive")} />
+					<input
+						type="checkbox"
+						className="toggle border-zinc-950 bg-transparent text-zinc-200 checked:border-indigo-600 checked:bg-indigo-500 checked:text-white"
+						{...register("isActive")}
+					/>
 					<span className="font-medium text-base">Cargo ativo</span>
 				</Label>
 
@@ -114,17 +143,18 @@ export function EditRoleForm({ role }: Props) {
 				<Button
 					outline={true}
 					disabled={isPending}
+					onClick={() => reset()}
 					className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
 				>
 					Cancelar
 				</Button>
 				<Button
 					color="indigo"
-					form="edit-role-form"
-					type="submit"
-					outline={false}
 					disabled={isPending}
 					className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
+					type="submit"
+					outline={false}
+					form="form-edit-role"
 				>
 					{isPending ? "Salvando..." : "Salvar"}
 				</Button>

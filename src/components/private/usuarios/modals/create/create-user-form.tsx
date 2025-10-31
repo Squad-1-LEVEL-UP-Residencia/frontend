@@ -92,6 +92,7 @@ export function CreateUserForm() {
 					<Button
 						outline={true}
 						disabled={isPending}
+						onClick={() => reset()}
 						className={`${isPending ? "opacity-70 cursor-not-allowed hover:" : ""} min-w-20 px-4`}
 					>
 						Cancelar

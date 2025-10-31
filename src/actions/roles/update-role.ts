@@ -7,7 +7,7 @@ import { Role } from "@/types/roles/role"
 
 export async function updateRole(id: string, { name, description, isActive, permissions }: EditRoleFormData) {
 	const token = await useToken()
-
+	console.log("caiu aq")
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
 	const response = await fetch(`${baseUrl}/roles/${id}`, {
 		method: "PUT",

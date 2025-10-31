@@ -101,6 +101,7 @@ export function EditUserForm({ user }: Props) {
 				<Button
 					outline={true}
 					disabled={isPending}
+					onClick={() => reset()}
 					className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
 				>
 					Cancelar
@@ -114,7 +115,7 @@ export function EditUserForm({ user }: Props) {
 					outline={false}
 					form="edit-user-form"
 				>
-					{isPending ? "Editando..." : "Editar"}
+					{isPending ? "Salvando..." : "Salvar"}
 				</Button>
 			</ModalFooter>
 		</>
