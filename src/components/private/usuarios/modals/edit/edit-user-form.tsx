@@ -1,6 +1,5 @@
 "use client"
 
-import { editUser } from "@/actions/users/edit-user"
 import { Button } from "@/components/private/ui/button"
 import { Input } from "@/components/private/ui/input"
 import { ModalFooter } from "@/components/private/ui/modal"
@@ -18,6 +17,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { User } from "@/types/users/user"
+import { updateUser } from "@/actions/users/update-user"
 
 type Props = { user: User | null }
 
@@ -43,8 +43,8 @@ export function EditUserForm({ user }: Props) {
 		})
 	}, [user, reset])
 
-	const { mutateAsync: editUserFn, isPending } = useMutation({
-		mutationFn: editUser,
+	const { mutateAsync: updateUserFn, isPending } = useMutation({
+		mutationFn: updateUser,
 		onSuccess: (data) => {
 			if (data.success) {
 				toast.success("Usuário editado com sucesso!")
@@ -56,7 +56,7 @@ export function EditUserForm({ user }: Props) {
 	})
 
 	async function handleEditUser(payload: EditUserFormData) {
-		await editUserFn(payload)
+		await updateUserFn(payload)
 	}
 
 	return (

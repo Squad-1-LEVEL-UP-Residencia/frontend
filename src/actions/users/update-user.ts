@@ -4,7 +4,7 @@ import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 import type { EditUserFormData } from "@/types/users/edit-user-schema"
 
-export async function editUser({ id, name, email, role }: EditUserFormData) {
+export async function updateUser({ id, name, email, role }: EditUserFormData) {
 	try {
 		const token = await useToken()
 
