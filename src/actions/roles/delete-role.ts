@@ -3,7 +3,7 @@
 import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 
-export async function deleteRole(id: string) {
+export async function deleteRole(id: number) {
 	try {
 		const token = await useToken()
 
@@ -12,14 +12,11 @@ export async function deleteRole(id: string) {
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${token}`
-			},
-			body: JSON.stringify({
-				id: id
-			})
+			}
 		})
-		console.log(res)
+
 		if (!res.ok) {
-			console.log(res)
+			// console.log(res)
 			const err = await res.json().catch(() => ({}))
 			return {
 				success: false,
