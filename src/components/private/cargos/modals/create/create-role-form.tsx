@@ -27,19 +27,18 @@ export function CreateRoleForm() {
 		resolver: zodResolver(createRoleSchema)
 	})
 
-	const { data, isLoading } = useQuery({
+	const { data: permissions, isLoading } = useQuery({
 		queryKey: ["permissions"],
 		queryFn: getPermissions,
 		staleTime: 1000 * 60 * 5
 	})
+	console.log("PERMISSIONS QUERY DATA:", permissions)
 
-	const permissions = data?.permissions || []
-	// console.log(data)
 	const selectedPermissions = watch("permissions") || []
 
-	function handleTogglePermission(permissionId: string) {
+	function handleTogglePermission(permissionId: number) {
 		const updated = selectedPermissions.includes(permissionId)
-			? selectedPermissions.filter((id: string) => id !== permissionId)
+			? selectedPermissions.filter((id: number) => id !== permissionId)
 			: [...selectedPermissions, permissionId]
 		setValue("permissions", updated)
 	}
@@ -84,7 +83,7 @@ export function CreateRoleForm() {
 									checked={selectedPermissions.includes(perm.id)}
 									onChange={() => handleTogglePermission(perm.id)}
 								/>
-								<span className="font-medium text-base">{perm.description}</span>
+								<span className="font-medium text-base">{perm.label}</span>
 							</Label>
 						))}
 					</div>

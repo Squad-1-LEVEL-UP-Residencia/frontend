@@ -13,7 +13,9 @@ import { useSearchParams } from "next/navigation"
 export function RolesList() {
 	const searchParams = useSearchParams()
 	const search = searchParams.get("search") || undefined
-	const { data: roles, isLoading } = useRoles(search)
+	const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1
+
+	const { data: roles, isLoading } = useRoles(page, search)
 
 	function openEdit(r: Role) {
 		window.dispatchEvent(new CustomEvent("role:edit-open", { detail: r }))
@@ -38,7 +40,9 @@ export function RolesList() {
 								<Table.Data className="text-right pr-2 sm:pr-6">
 									<span className="inline-flex items-center gap-2">
 										<ModalTrigger id="edit_role_modal">
-											<Button outline onClick={() => openEdit(r)}>Editar</Button>
+											<Button outline onClick={() => openEdit(r)}>
+												Editar
+											</Button>
 										</ModalTrigger>
 
 										<ModalTrigger id="delete_role_modal">

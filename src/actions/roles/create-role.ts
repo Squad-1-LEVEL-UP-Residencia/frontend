@@ -18,8 +18,7 @@ export async function createRole({ name, description, permissions }: CreateRoleF
 		body: JSON.stringify({
 			name,
 			description,
-			permissionIds: permissions,
-			isSystemRole: false
+			permissions
 		})
 	})
 
@@ -41,15 +40,15 @@ export async function createRole({ name, description, permissions }: CreateRoleF
 	return {
 		success: true,
 		status: response.status,
-		role: {
-			id: data.id,
-			name: data.name,
-			description: data.description,
-			isSystemRole: data.isSystemRole,
-			isActive: data.isActive,
-			createdAt: data.createdAt,
-			permissions: data.permissions
-		} as Role,
+		// role: {
+		// 	id: data.id,
+		// 	name: data.name,
+		// 	description: data.description,
+		// 	isSystemRole: data.isSystemRole,
+		// 	isActive: data.isActive,
+		// 	createdAt: data.createdAt,
+		// 	permissions: data.permissions
+		// } as Role,
 		raw: data
 	}
 }
