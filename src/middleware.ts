@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
 
 	const publicRoute = publicRoutes.find((route) => route.path === pathname)
-	const authToken = request.cookies.get("accessToken")
+	const authToken = request.cookies.get("access_token")
 	const authTokenValue = authToken?.value
 	const isAuthenticated = authTokenValue != null && authTokenValue !== ""
 	if (!isAuthenticated && !publicRoute) {

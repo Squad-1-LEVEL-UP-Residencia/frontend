@@ -1,13 +1,9 @@
 import { boolean, z } from "zod"
 
 export const signInResponseSchema = z.object({
-	userId: z.uuid(),
-	name: z.string(),
-	email: z.email(),
-	roles: z.string(),
-	accessToken: z.string(),
-	refreshToken: z.string(),
-	expiresAt: z.string()
+	access_token: z.string(),
+	token_type: z.string().default("bearer"),
+	expires_in: z.number().default(60 * 15) // 15 minutes
 })
 
 export type SignInResponse = z.infer<typeof signInResponseSchema> | Response

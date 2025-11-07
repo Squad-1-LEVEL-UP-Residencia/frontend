@@ -31,18 +31,19 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
 	const [user, setUser] = useState<User | null>(null)
 
 	useEffect(() => {
-		const token = Cookies.get("accessToken")
-		if (token) {
-			const decoded = jwtDecode<AccessTokenJwtPayload>(token)
-			const parsedUser: User = {
-				id: decoded.userId,
-				name: decoded.name,
-				email: decoded.email,
-				role: decoded.role,
-				avatarUrl: decoded.avatarUrl
-			}
-			login(parsedUser)
-		}
+		// const token = Cookies.get("accessToken")
+		// if (token) {
+		// 	const decoded = jwtDecode<AccessTokenJwtPayload>(token)
+		// 	const parsedUser: User = {
+		// 		id: decoded.userId,
+		// 		name: decoded.name,
+		// 		email: decoded.email,
+		// 		role: decoded.role,
+		// 		avatarUrl: decoded.avatarUrl
+		// 	}
+		// 	login(parsedUser)
+		// }
+		login({ id: "1", name: "Danillo", email: "danillo@example.com", role: "admin" } as User)
 	}, [])
 
 	function login(userData: User) {

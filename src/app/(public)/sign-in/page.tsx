@@ -7,12 +7,6 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SignInProps, signInSchema } from "@/types/auth/authSchemas"
 import { useRouter } from "next/navigation"
-import { User } from "@/types/users/user"
-
-interface SignInResponse {
-	ok: boolean
-	user?: User
-}
 
 export default function SignIn() {
 	const router = useRouter()
@@ -36,8 +30,7 @@ export default function SignIn() {
 				body: JSON.stringify({ email, password, rememberMe })
 			})
 			if (!res.ok) throw new Error("Failed to sign in")
-			const result: SignInResponse = await res.json()
-
+			// console.log("Sign in successful")
 			return router.push("/dashboard")
 		} catch (error) {
 			console.log("Error on sign in:", {

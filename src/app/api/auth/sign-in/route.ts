@@ -1,4 +1,4 @@
-import { SignInProps, signInResponseSchema } from "@/types/auth/authSchemas"
+import { signInResponseSchema, SignInProps } from "@/types/auth/authSchemas"
 import { env } from "@/lib/env"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
 	const body: SignInProps = await request.json()
 
-	const result = await fetch(`${baseURL}/auth/login`, {
+	const result = await fetch(`${baseURL}/auth/sign-in`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -19,30 +19,23 @@ export async function POST(request: NextRequest) {
 			password: body.password
 		})
 	})
-	// console.log(result)
-	if (!result.ok) throw new Error("Auth error")
+
 	const resultJson = await result.json()
+	// console.log("resultJson", resultJson)
+
+	if (!result.ok) throw new Error("Auth error", { cause: resultJson })
 	const parsedResponse = signInResponseSchema.safeParse(resultJson)
 	// console.log(parsedResponse)
-	if (!parsedResponse.data?.accessToken) {
-		return NextResponse.json({ ok: false, status: 500, message: "Error undefined accessToken" })
+	if (!parsedResponse.data?.access_token) {
+		return NextResponse.json({ ok: false, status: 500, message: "Error undefined access_token" })
 	}
-
-	// const user = {
-	// 	id: parsedResponse.data.userId,
-	// 	name: parsedResponse.data.name,
-	// 	email: parsedResponse.data.email,
-	// 	roles: parsedResponse.data.roles
-	// }
 
 	const response = NextResponse.json({ ok: true })
 
-	response.cookies.set("accessToken", parsedResponse.data.accessToken, {
-		httpOnly: false,
+	response.cookies.set("access_token", parsedResponse.data.access_token, {
+		httpOnly: true,
 		path: "/",
-		maxAge: 60 * 15
-		//TODO configurar max age com base no rememberMe ou no refreshToken
-		//* Acho q so devo implementar o refreshToken se tiver com o rememberMe
+		maxAge: parsedResponse.data.expires_in
 	})
 
 	return response
