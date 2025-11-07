@@ -4,10 +4,10 @@ import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
 import { Permission } from "@/types/roles/permission"
 
-export async function getPermissions() {
+export async function getPermissions(): Promise<Permission[]> {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return { permissions: [] } as { permissions: [] }
+		return [] as Permission[]
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL

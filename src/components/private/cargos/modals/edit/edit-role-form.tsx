@@ -24,7 +24,6 @@ export function EditRoleForm({ role }: Props) {
 		register,
 		handleSubmit,
 		watch,
-		control,
 		reset,
 		setValue,
 		formState: { errors }
@@ -32,13 +31,12 @@ export function EditRoleForm({ role }: Props) {
 		resolver: zodResolver(editRoleSchema)
 	})
 
-	const { data, isLoading } = useQuery({
+	const { data: permissions, isLoading } = useQuery({
 		queryKey: ["permissions"],
 		queryFn: getPermissions,
 		staleTime: 1000 * 60 * 5
 	})
 
-	const permissions = data?.permissions || []
 	const selectedPermissions = watch("permissions") || []
 
 	useEffect(() => {
@@ -46,15 +44,14 @@ export function EditRoleForm({ role }: Props) {
 		reset({
 			name: role.name,
 			description: role.description,
-			isActive: role.isActive
-			// permissions: role.permissions.map((p) => p.id) //* colocar apenas a permissions q aquele user tem, tem q fazer o get disso
+			permissions: role.permissions.map((p) => p.id)
 		})
 	}, [role, reset])
 
-	function handleTogglePermission(permissionId: string) {
+	function handleTogglePermission(permissionId: number) {
 		console.log("Toggling permission:", permissionId)
 		const updated = selectedPermissions.includes(permissionId)
-			? selectedPermissions.filter((id: string) => id !== permissionId)
+			? selectedPermissions.filter((id: number) => id !== permissionId)
 			: [...selectedPermissions, permissionId]
 		setValue("permissions", updated)
 		console.log(selectedPermissions)
@@ -68,11 +65,11 @@ export function EditRoleForm({ role }: Props) {
 	}, [watch])
 
 	const { mutateAsync: updateRoleMutation, isPending } = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: EditRoleFormData }) => updateRole(id, data),
+		mutationFn: ({ id, data }: { id: number; data: EditRoleFormData }) => updateRole(id, data),
 		onSuccess: (data) => {
 			if (data.success === true) {
 				toast.success("Cargo atualizado com sucesso!")
-				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
+				queryClient.invalidateQueries({ queryKey: ["roles", ""] }) //TODO passar a page
 			} else {
 				toast.error(`Erro ao atualizar o cargo: ${data.error}`)
 			}
@@ -112,15 +109,6 @@ export function EditRoleForm({ role }: Props) {
 				<Input variant="no-placeholder" {...register("description")} />
 				{errors.description && <SpanError>{errors.description.message as string}</SpanError>}
 
-				<Label className="flex items-center gap-2">
-					<input
-						type="checkbox"
-						className="toggle border-zinc-950 bg-transparent text-zinc-200 checked:border-indigo-600 checked:bg-indigo-500 checked:text-white"
-						{...register("isActive")}
-					/>
-					<span className="font-medium text-base">Cargo ativo</span>
-				</Label>
-
 				{errors.permissions && <SpanError>{errors.permissions.message as string}</SpanError>}
 				{isLoading && <p>Carregando permissões...</p>}
 				{permissions && (
@@ -133,7 +121,7 @@ export function EditRoleForm({ role }: Props) {
 									checked={selectedPermissions.includes(perm.id)}
 									onChange={() => handleTogglePermission(perm.id)}
 								/>
-								<span className="font-medium text-base">{perm.description}</span>
+								<span className="font-medium text-base">{perm.label}</span>
 							</Label>
 						))}
 					</div>

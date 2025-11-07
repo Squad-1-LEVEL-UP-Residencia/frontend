@@ -5,7 +5,7 @@ import { useToken } from "@/hooks/use-token"
 import { EditRoleFormData } from "@/types/roles/edit-role-schema"
 import { Role } from "@/types/roles/role"
 
-export async function updateRole(id: string, { name, description, isActive, permissions }: EditRoleFormData) {
+export async function updateRole(id: number, { name, description, permissions }: EditRoleFormData) {
 	const token = await useToken()
 	console.log("caiu aq")
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
@@ -18,8 +18,7 @@ export async function updateRole(id: string, { name, description, isActive, perm
 		body: JSON.stringify({
 			name,
 			description,
-			isActive,
-			permissionIds: permissions
+			permissions: permissions
 		})
 	})
 
@@ -41,15 +40,6 @@ export async function updateRole(id: string, { name, description, isActive, perm
 	return {
 		success: true,
 		status: response.status,
-		role: {
-			id: data.id,
-			name: data.name,
-			description: data.description,
-			isSystemRole: data.isSystemRole,
-			isActive: data.isActive,
-			createdAt: data.createdAt,
-			permissions: data.permissions
-		} as Role,
 		raw: data
 	}
 }
