@@ -26,7 +26,7 @@ export function DeleteUserModal() {
 	const { mutateAsync: deleteUserMutation, isPending } = useMutation({
 		mutationFn: async () => {
 			if (!user) return { success: false, error: "Usuário não informado" }
-			return removeUser(user.id)
+			return removeUser({ id: user.id })
 		},
 		onSuccess: (res) => {
 			if (res.success) {
@@ -40,6 +40,8 @@ export function DeleteUserModal() {
 
 	async function deleteUser() {
 		await deleteUserMutation()
+
+		queryClient.invalidateQueries({ queryKey: ["users"] })
 	}
 
 	return (

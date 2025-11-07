@@ -2,8 +2,9 @@
 
 import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
+import { DeleteUserFormData } from "@/types/users/delete-user-schema"
 
-export async function removeUser(id: string) {
+export async function removeUser({ id }: DeleteUserFormData) {
 	try {
 		const token = await useToken()
 

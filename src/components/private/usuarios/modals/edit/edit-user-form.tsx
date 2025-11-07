@@ -39,7 +39,7 @@ export function EditUserForm({ user }: Props) {
 			id: user.id,
 			name: user.name,
 			email: user.email,
-			role: Array.isArray(user.role) ? user.role[0] : (user.role as string | undefined)
+			role_id: user.role.id
 		})
 	}, [user, reset])
 
@@ -56,7 +56,12 @@ export function EditUserForm({ user }: Props) {
 	})
 
 	async function handleEditUser(payload: EditUserFormData) {
-		await updateUserFn(payload)
+		await updateUserFn({
+			id: payload.id!,
+			name: payload.name,
+			email: payload.email,
+			role_id: payload.role_id
+		})
 	}
 
 	return (
@@ -79,14 +84,14 @@ export function EditUserForm({ user }: Props) {
 				<Label className="font-medium" htmlFor="cargo">
 					Cargo
 				</Label>
-				<Select id="cargo" defaultValue="Selecione um cargo" {...register("role")}>
-					<option disabled>Selecione um cargo</option>
+				<Select id="cargo" {...register("role_id", { valueAsNumber: true })}>
+					<option value="">Selecione um cargo</option>
 					{isLoading ? (
 						<option disabled>Carregando...</option>
 					) : roles ? (
 						roles.map((r: Role) => (
 							<option key={r.id} value={r.id}>
-								{r.description}
+								{r.name}
 							</option>
 						))
 					) : null}
@@ -94,7 +99,7 @@ export function EditUserForm({ user }: Props) {
 				<Link href="/cargos" className="text-blue-500 hover:underline">
 					Criar novo cargo
 				</Link>
-				{errors.role && <SpanError>{errors.role.message as string}</SpanError>}
+				{errors.role_id && <SpanError>{errors.role_id.message as string}</SpanError>}
 			</form>
 
 			<ModalFooter>

@@ -15,7 +15,7 @@ export async function createUser({ name, email, role_id }: CreateUserFormData) {
 				Authorization: `Bearer ${token}`
 			},
 
-			body: JSON.stringify({ name, email, role_id: 2 })
+			body: JSON.stringify({ name, email, role_id })
 		})
 
 		if (!response.ok) {

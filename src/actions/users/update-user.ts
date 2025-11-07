@@ -2,19 +2,28 @@
 
 import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
-import type { EditUserFormData } from "@/types/users/edit-user-schema"
+import { z } from "zod"
 
-export async function updateUser({ id, name, email, role }: EditUserFormData) {
+const updateUserSchema = z.object({
+	id: z.uuid("ID inválido"),
+	name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres").optional(),
+	email: z.email("Email inválido").optional(),
+	role_id: z.coerce.number().optional()
+})
+
+type UpdateUserSchema = z.infer<typeof updateUserSchema>
+
+export async function updateUser({ id, name, email, role_id }: UpdateUserSchema) {
 	try {
 		const token = await useToken()
-
+		console.log({ id, name, email, role_id })
 		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/users/${id}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${token}`
 			},
-			body: JSON.stringify({ userId: id, name, email, roleIds: [role] })
+			body: JSON.stringify({ name, email, role_id })
 		})
 
 		if (!response.ok) {
@@ -41,13 +50,7 @@ export async function updateUser({ id, name, email, role }: EditUserFormData) {
 		return {
 			success: true,
 			status: response.status,
-			// user: {
-			// 	id: data.id,
-			// 	name: data.name,
-			// 	email: data.email,
-			// 	roles: data.roles,
-			// 	createdAt: data.createdAt
-			// },
+
 			raw: data
 		}
 	} catch (error) {
