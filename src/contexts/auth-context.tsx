@@ -1,6 +1,5 @@
+import { getMe } from "@/actions/me/get-me"
 import { User } from "@/types/users/user"
-import Cookies from "js-cookie"
-import { jwtDecode } from "jwt-decode"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface AuthContextProps {
@@ -31,19 +30,14 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
 	const [user, setUser] = useState<User | null>(null)
 
 	useEffect(() => {
-		// const token = Cookies.get("accessToken")
-		// if (token) {
-		// 	const decoded = jwtDecode<AccessTokenJwtPayload>(token)
-		// 	const parsedUser: User = {
-		// 		id: decoded.userId,
-		// 		name: decoded.name,
-		// 		email: decoded.email,
-		// 		role: decoded.role,
-		// 		avatarUrl: decoded.avatarUrl
-		// 	}
-		// 	login(parsedUser)
-		// }
-		login({ id: "1", name: "Danillo", email: "danillo@example.com", role: "admin" } as User)
+		const fetchData = async () => {
+			const res = await getMe()
+			//TODO lidar com o error
+			if (res && res.ok) {
+				login(res.data)
+			}
+		}
+		fetchData()
 	}, [])
 
 	function login(userData: User) {
