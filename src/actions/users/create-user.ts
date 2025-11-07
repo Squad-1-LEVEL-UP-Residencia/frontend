@@ -4,18 +4,18 @@ import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 import type { CreateUserFormData } from "@/types/users/registerSchema"
 
-export async function createUser({ name, email, role }: CreateUserFormData) {
+export async function createUser({ name, email, role_id }: CreateUserFormData) {
 	try {
 		const token = await useToken()
-		console.log(role)
-		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/register`, {
+
+		const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/sign-up`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${token}`
 			},
-			//TODO mudar o role para usar o id quando consertar no backend
-			body: JSON.stringify({ name, email, roleId: role })
+
+			body: JSON.stringify({ name, email, role_id: 2 })
 		})
 
 		if (!response.ok) {
@@ -42,13 +42,13 @@ export async function createUser({ name, email, role }: CreateUserFormData) {
 		return {
 			success: true,
 			status: response.status,
-			user: {
-				id: data.id,
-				name: data.name,
-				email: data.email,
-				roles: data.roles,
-				createdAt: data.createdAt
-			},
+			// user: {
+			// 	id: data.id,
+			// 	name: data.name,
+			// 	email: data.email,
+			// 	roles: data.roles,
+			// 	createdAt: data.createdAt
+			// },
 			raw: data
 		}
 	} catch (error) {

@@ -19,7 +19,7 @@ import { Select } from "@/components/private/ui/select"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
-
+	console.log("Roles in CreateUserForm:", roles)
 	const {
 		register,
 		handleSubmit,
@@ -43,8 +43,8 @@ export function CreateUserForm() {
 		}
 	})
 
-	async function handleCreateUser({ role, email, name }: CreateUserFormData) {
-		await createUserFn({ name, email, role })
+	async function handleCreateUser({ role_id, email, name }: CreateUserFormData) {
+		await createUserFn({ name, email, role_id })
 		reset()
 	}
 
@@ -66,7 +66,7 @@ export function CreateUserForm() {
 				<Label className="font-medium" htmlFor="cargo">
 					Cargo
 				</Label>
-				<Select defaultValue="Selecione um cargo" id="cargo" {...register("role")}>
+				<Select defaultValue="Selecione um cargo" id="cargo" {...register("role_id")}>
 					<option disabled={true}>Selecione um cargo</option>
 					{isLoading ? (
 						<option disabled={true} value={undefined}>
@@ -75,7 +75,7 @@ export function CreateUserForm() {
 					) : roles ? (
 						roles.map((role: Role) => (
 							<option key={role.id} value={role.id}>
-								{role.description}
+								{role.name}
 							</option>
 						))
 					) : null}
@@ -83,7 +83,7 @@ export function CreateUserForm() {
 				<Link href="/cargos" className="text-blue-500 hover:underline">
 					Criar novo cargo
 				</Link>
-				{errors.role && <SpanError>{errors.role.message as string}</SpanError>}
+				{errors.role_id && <SpanError>{errors.role_id.message as string}</SpanError>}
 			</form>
 			<ModalFooter>
 				<>
