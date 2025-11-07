@@ -30,6 +30,6 @@ export async function getMe() {
 	}
 
 	const me = await result.json()
-	console.log("Usuário encontrado:", me)
+	// console.log("Usuário encontrado:", me)
 	return { ok: true, status: result.status, data: me }
 }

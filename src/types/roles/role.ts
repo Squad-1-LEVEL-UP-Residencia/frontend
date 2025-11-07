@@ -1,11 +1,12 @@
 import { Permission } from "./permission"
 
 export type Role = {
-	id: string // UUID
+	id: number
+	slug: string
 	name: string
-	description: string
-	isSystemRole: boolean
-	isActive: boolean
-	createdAt: string // ISO datetime
+	is_system_role: boolean
+	created_at: string
+	updated_at: string
+	deleted_at: string | null
 	permissions: Permission[]
 }

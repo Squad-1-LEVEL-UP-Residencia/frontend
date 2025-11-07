@@ -23,7 +23,7 @@ export async function getUsers(search?: string) {
 	}
 
 	const users = await result.json()
-
+	console.log(users)
 	if (search) {
 		return users.filter((user: { name: string; email: string }) => {
 			const lowerSearch = search.toLowerCase()
