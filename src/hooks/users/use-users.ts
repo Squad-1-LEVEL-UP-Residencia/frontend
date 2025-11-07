@@ -22,8 +22,8 @@ export function useUsers(search?: string, page: number = 1) {
 	const searchKey = search ?? ""
 
 	return useQuery<PaginatedUsers>({
-		queryKey: ["users", searchKey],
-		queryFn: () => getUsers(searchKey),
+		queryKey: ["users", page, searchKey],
+		queryFn: () => getUsers(page, searchKey),
 		staleTime: 5000 // 5 minutos
 	})
 }

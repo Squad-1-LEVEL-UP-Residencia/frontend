@@ -3,14 +3,14 @@
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
 
-export async function getUsers(search?: string) {
+export async function getUsers(page: number, search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
 		return null
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
-	const result = await fetch(`${api}/users`, {
+	const result = await fetch(`${api}/users?page=${page}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
