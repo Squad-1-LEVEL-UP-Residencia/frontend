@@ -45,7 +45,7 @@ export function UsersList() {
 
 								<Table.Data>{u.email}</Table.Data>
 
-								<Table.Data>{u.role.name || "-"}</Table.Data>
+								<Table.Data>{u.role ? u.role.name : "-"}</Table.Data>
 
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_user_modal">
