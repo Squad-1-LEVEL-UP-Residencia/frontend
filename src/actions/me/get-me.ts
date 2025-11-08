@@ -11,7 +11,7 @@ export async function getMe() {
 
 	const api = env.NEXT_PUBLIC_API_URL
 	const result = await fetch(`${api}/auth/me`, {
-		method: "POST",
+		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${accessToken}`
