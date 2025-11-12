@@ -69,7 +69,7 @@ export function EditRoleForm({ role }: Props) {
 		onSuccess: (data) => {
 			if (data.success === true) {
 				toast.success("Cargo atualizado com sucesso!")
-				queryClient.invalidateQueries({ queryKey: ["roles", ""] }) //TODO passar a page
+				queryClient.invalidateQueries({ queryKey: ["roles"] }) //TODO passar a page
 			} else {
 				toast.error(`Erro ao atualizar o cargo: ${data.error}`)
 			}

@@ -31,7 +31,7 @@ export function DeleteUserModal() {
 		onSuccess: (res) => {
 			if (res.success) {
 				toast.success("Usuário removido com sucesso!")
-				queryClient.invalidateQueries({ queryKey: ["users", ""] })
+				queryClient.invalidateQueries({ queryKey: ["users"] })
 			} else {
 				toast.error(res.error ?? "Erro ao remover usuário")
 			}
