@@ -1,6 +1,6 @@
 import { ClientsList } from "@/components/private/clientes/clients-list"
-import { CreateClientModal } from "@/components/private/clientes/modals/create-client-modal"
-import { DeleteClientModal } from "@/components/private/clientes/modals/delete-client-modal"
+import { CreateClientModal } from "@/components/private/clientes/modals/create/create-client-modal"
+import { DeleteClientModal } from "@/components/private/clientes/modals/delete/delete-client-modal"
 import { EditClientModal } from "@/components/private/clientes/modals/edit/edit-client-modal"
 import { ClientsSearch } from "@/components/private/clientes/clients-search"
 import { Button } from "@/components/private/ui/button"
