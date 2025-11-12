@@ -21,7 +21,7 @@ const handleOpenModal = (id: string) => {
 function ModalFooter({ children, className, ...props }: ComponentProps<"div">) {
 	return (
 		<div className={`modal-action ${className}`} {...props}>
-			<form method="dialog" className="flex items-center gap-2">
+			<form id="close-modal" method="dialog" className="flex items-center gap-2">
 				{/* <div className="flex items-center gap-2"> */}
 				{children}
 			</form>

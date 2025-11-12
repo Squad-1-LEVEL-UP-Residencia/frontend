@@ -14,8 +14,16 @@ import { useSearchParams } from "next/navigation"
 export function ClientsList() {
 	const searchParams = useSearchParams()
 	const search = searchParams.get("search") || undefined
+	const page = Number(searchParams.get("page")) || 1
 
-	const { data: clients, isLoading } = useClients(search)
+	const { data: clients, isLoading } = useClients(page, search)
+
+	function openEdit(u: Client) {
+		window.dispatchEvent(new CustomEvent("client:edit-open", { detail: u }))
+	}
+	function openDelete(u: Client) {
+		window.dispatchEvent(new CustomEvent("client:delete-open", { detail: u }))
+	}
 
 	return (
 		<Container variant="page">
@@ -36,10 +44,17 @@ export function ClientsList() {
 								<Table.Data>{client.phone}</Table.Data>
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_client_modal">
-										<Button outline={true}>Editar</Button>
+										<Button outline={true} onClick={() => openEdit(client)}>
+											Editar
+										</Button>
 									</ModalTrigger>
 									<ModalTrigger id="delete_client_modal">
-										<Button outline={false} color="transparent" className="hover:text-red-500">
+										<Button
+											outline={false}
+											color="transparent"
+											className="hover:text-red-500"
+											onClick={() => openDelete(client)}
+										>
 											<Trash2Icon width={16} height={16} />
 										</Button>
 									</ModalTrigger>
