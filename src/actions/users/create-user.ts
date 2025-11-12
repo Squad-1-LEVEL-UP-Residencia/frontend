@@ -2,9 +2,17 @@
 
 import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
-import type { CreateUserFormData } from "@/types/users/registerSchema"
+import z from "zod"
 
-export async function createUser({ name, email, role_id }: CreateUserFormData) {
+const storeUserSchema = z.object({
+	name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
+	email: z.email("Email inválido"),
+	role_id: z.coerce.number()
+})
+
+type StoreUserSchema = z.infer<typeof storeUserSchema>
+
+export async function createUser({ name, email, role_id }: StoreUserSchema) {
 	try {
 		const token = await useToken()
 

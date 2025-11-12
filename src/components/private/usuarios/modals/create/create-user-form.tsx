@@ -66,7 +66,7 @@ export function CreateUserForm() {
 				<Label className="font-medium" htmlFor="cargo">
 					Cargo
 				</Label>
-				<Select defaultValue="Selecione um cargo" id="cargo" {...register("role_id")}>
+				<Select defaultValue="Selecione um cargo" id="cargo" {...register("role_id", { valueAsNumber: true })}>
 					<option disabled={true}>Selecione um cargo</option>
 					{isLoading ? (
 						<option disabled={true} value={undefined}>
