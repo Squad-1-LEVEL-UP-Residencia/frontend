@@ -3,9 +3,14 @@ import FlapIconSvg from "../../public/flap-icon"
 import { Briefcase, Building, ClipboardList, LayoutDashboardIcon, LogOutIcon, Settings, Users } from "lucide-react"
 import { SidebarLi } from "./sidebar-li"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { PermissionsConstant } from "@/constants/permissions"
+import { hasPermission } from "@/data/helpers/hasPermission"
 
 export function Sidebar({ collapsed }: { collapsed: boolean }) {
 	const pathname = usePathname()
+	const { user } = useAuth()
+	const permissions = user?.role?.permissions ?? []
 
 	return (
 		<aside
@@ -26,42 +31,51 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 						<li className="p-2 mb-8">
 							<FlapIconSvg />
 						</li>
-						<SidebarLi
-							pageName="Dashboard"
-							icon={<LayoutDashboardIcon />}
-							path="dashboard"
-							isSelected={pathname === "/dashboard"}
-							collapsed={collapsed}
-						/>
-						<SidebarLi
-							pageName="Tarefas"
-							icon={<ClipboardList />}
-							path="tarefas"
-							isSelected={pathname === "/tarefas"}
-							collapsed={collapsed}
-						/>
-						<SidebarLi
-							pageName="Usuários"
-							icon={<Users />}
-							path="usuarios"
-							isSelected={pathname === "/usuarios"}
-							collapsed={collapsed}
-						/>
-						<SidebarLi
-							pageName="Clientes"
-							icon={<Building />}
-							path="clientes"
-							isSelected={pathname === "/clientes"}
-							collapsed={collapsed}
-						/>
-						{/* TODO criar validacao de perfil de usuario  */}
-						<SidebarLi
-							pageName="Cargos"
-							icon={<Briefcase />}
-							path="cargos"
-							isSelected={pathname === "/cargos"}
-							collapsed={collapsed}
-						/>
+						{hasPermission(permissions, PermissionsConstant.VIEW_JOB) && (
+							<SidebarLi
+								pageName="Dashboard"
+								icon={<LayoutDashboardIcon />}
+								path="dashboard"
+								isSelected={pathname === "/dashboard"}
+								collapsed={collapsed}
+							/>
+						)}
+						{hasPermission(permissions, PermissionsConstant.VIEW_JOB) && (
+							<SidebarLi
+								pageName="Tarefas"
+								icon={<ClipboardList />}
+								path="tarefas"
+								isSelected={pathname === "/tarefas"}
+								collapsed={collapsed}
+							/>
+						)}
+						{hasPermission(permissions, PermissionsConstant.VIEW_USER) && (
+							<SidebarLi
+								pageName="Usuários"
+								icon={<Users />}
+								path="usuarios"
+								isSelected={pathname === "/usuarios"}
+								collapsed={collapsed}
+							/>
+						)}
+						{hasPermission(permissions, PermissionsConstant.VIEW_CLIENT) && (
+							<SidebarLi
+								pageName="Clientes"
+								icon={<Building />}
+								path="clientes"
+								isSelected={pathname === "/clientes"}
+								collapsed={collapsed}
+							/>
+						)}
+						{hasPermission(permissions, PermissionsConstant.VIEW_ROLE) && (
+							<SidebarLi
+								pageName="Cargos"
+								icon={<Briefcase />}
+								path="cargos"
+								isSelected={pathname === "/cargos"}
+								collapsed={collapsed}
+							/>
+						)}
 						<SidebarLi
 							pageName="Configurações"
 							icon={<Settings />}
