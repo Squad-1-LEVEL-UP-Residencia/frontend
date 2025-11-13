@@ -25,8 +25,9 @@ export default function CargosNewPage() {
 				</ModalTrigger>
 			</PageHeader>
 
-			<RolesSearch />
 			<Suspense fallback={<div>Loading...</div>}>
+				<RolesSearch />
+
 				<RolesList />
 			</Suspense>
 

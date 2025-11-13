@@ -24,9 +24,9 @@ export default function Users() {
 				</ModalTrigger>
 			</PageHeader>
 
-			<UserSearch />
-
 			<Suspense fallback={<div>Carregando...</div>}>
+				<UserSearch />
+
 				<UsersList />
 			</Suspense>
 

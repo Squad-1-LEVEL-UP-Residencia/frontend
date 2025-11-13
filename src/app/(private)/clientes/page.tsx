@@ -23,9 +23,10 @@ export default function Clients() {
 					</Button>
 				</ModalTrigger>
 			</PageHeader>
-			<ClientsSearch />
 
 			<Suspense fallback={<div>Carregando...</div>}>
+				<ClientsSearch />
+
 				<ClientsList />
 			</Suspense>
 
