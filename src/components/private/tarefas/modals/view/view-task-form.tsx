@@ -129,9 +129,10 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
   const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0
 
   return (
-    <form id="view-task-form" onSubmit={handleSubmit(onSubmit)} className="flex gap-6">
-      {/* Coluna Principal (Esquerda) */}
-      <div className="flex-1 flex flex-col gap-6">
+    <form id="view-task-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <div className="flex gap-6 flex-col lg:flex-row">
+        {/* Coluna Principal (Esquerda) */}
+        <div className="flex-1 flex flex-col gap-6">
         {/* Título */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="title">Título da Tarefa</Label>
@@ -299,7 +300,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
                 }
               }}
             />
-            <Button type="button" color="indigo" onClick={addChecklistItem}>
+            <Button type="button" outline={false} color="indigo" onClick={addChecklistItem}>
               <Plus width={16} height={16} />
             </Button>
           </div>
@@ -307,7 +308,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
       </div>
 
       {/* Coluna Lateral (Direita) */}
-      <div className="w-80 flex flex-col gap-4">
+      <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
         {/* Status */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="status">Status</Label>
@@ -380,16 +381,17 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
           />
         </div>
       </div>
+      </div>
 
       {/* Footer buttons */}
-      <ModalFooter className="col-span-2">
-        <Button type="button" color="danger" onClick={handleDeleteTask}>
+      <ModalFooter>
+        <Button type="button" outline={false} color="danger" onClick={handleDeleteTask}>
           Excluir tarefa
         </Button>
         <div className="flex gap-2">
           <Button
             type="button"
-            outline
+            outline={true}
             color="transparent"
             onClick={() => {
               const modal = document.getElementById("view_task_modal") as HTMLDialogElement
@@ -398,7 +400,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
           >
             Cancelar
           </Button>
-          <Button type="submit" color="indigo" form="view-task-form">
+          <Button type="submit" outline={false} color="indigo" form="view-task-form">
             Salvar alterações
           </Button>
         </div>

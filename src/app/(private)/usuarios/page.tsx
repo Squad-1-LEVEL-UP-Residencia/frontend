@@ -6,6 +6,7 @@ import { TitleSection } from "@/components/private/ui/title-section"
 import { CreateUserModal } from "@/components/private/usuarios/modals/create/create-user-modal"
 import { DeleteUserModal } from "@/components/private/usuarios/modals/delete/delete-user-modal"
 import { EditUserModal } from "@/components/private/usuarios/modals/edit/edit-user-modal"
+import { ViewUserModal } from "@/components/private/usuarios/modals/view/view-user-modal"
 import { UsersList } from "@/components/private/usuarios/users-list"
 import { UserSearch } from "@/components/private/usuarios/users-search"
 import { Plus } from "lucide-react"
@@ -30,10 +31,11 @@ export default function Users() {
 				<UsersList />
 			</Suspense>
 
-			{/* Modal de cadastro de usuario */}
+			{/* Modais */}
 			<CreateUserModal />
 			<EditUserModal />
 			<DeleteUserModal />
+			<ViewUserModal />
 		</PageContainer>
 	)
 }

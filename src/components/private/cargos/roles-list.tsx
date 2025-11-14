@@ -17,6 +17,10 @@ export function RolesList() {
 
 	const { data: roles, isLoading } = useRoles(page, search)
 
+	function openView(r: Role) {
+		window.dispatchEvent(new CustomEvent("role:view-open", { detail: r }))
+	}
+
 	function openEdit(r: Role) {
 		window.dispatchEvent(new CustomEvent("role:edit-open", { detail: r }))
 	}
@@ -35,8 +39,22 @@ export function RolesList() {
 						roles &&
 						roles.map((r: Role) => (
 							<Table.Row key={r.id} variant="row">
-								<Table.Data className="w-2/5">{r.name}</Table.Data>
-								<Table.Data className="w-full">{r.description}</Table.Data>
+								<ModalTrigger id="view_role_modal">
+									<Table.Data
+										className="w-2/5 cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(r)}
+									>
+										{r.name}
+									</Table.Data>
+								</ModalTrigger>
+								<ModalTrigger id="view_role_modal">
+									<Table.Data
+										className="w-full cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(r)}
+									>
+										{r.description}
+									</Table.Data>
+								</ModalTrigger>
 								<Table.Data className="text-right pr-2 sm:pr-6">
 									<span className="inline-flex items-center gap-2">
 										<ModalTrigger id="edit_role_modal">

@@ -108,7 +108,7 @@ export function CreateTaskForm({ columnStatus }: CreateTaskFormProps) {
       <ModalFooter>
         <Button
           type="button"
-          outline
+          outline={true}
           color="transparent"
           onClick={() => {
             const modal = document.getElementById("create_task_modal") as HTMLDialogElement
@@ -117,7 +117,7 @@ export function CreateTaskForm({ columnStatus }: CreateTaskFormProps) {
         >
           Cancelar
         </Button>
-        <Button type="submit" color="indigo" form="create-task-form">
+        <Button type="submit" outline={false} color="indigo" form="create-task-form">
           Criar tarefa
         </Button>
       </ModalFooter>
