@@ -18,6 +18,9 @@ export function ClientsList() {
 
 	const { data: clients, isLoading } = useClients(page, search)
 
+	function openView(c: Client) {
+		window.dispatchEvent(new CustomEvent("client:view-open", { detail: c }))
+	}
 	function openEdit(u: Client) {
 		window.dispatchEvent(new CustomEvent("client:edit-open", { detail: u }))
 	}
@@ -35,13 +38,39 @@ export function ClientsList() {
 						clients &&
 						clients.map((client: Client) => (
 							<Table.Row key={client.id} variant="row">
-								<Table.Data className="flex justify-start items-center gap-2">
-									<Avatar name={client.companyName} />
-									{client.companyName}
-								</Table.Data>
-								<Table.Data>{client.email}</Table.Data>
-								<Table.Data>{client.primaryContact}</Table.Data>
-								<Table.Data>{client.phone}</Table.Data>
+								<ModalTrigger id="view_client_modal">
+									<Table.Data
+										className="flex justify-start items-center gap-2 cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(client)}
+									>
+										<Avatar name={client.companyName} />
+										{client.companyName}
+									</Table.Data>
+								</ModalTrigger>
+								<ModalTrigger id="view_client_modal">
+									<Table.Data
+										className="cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(client)}
+									>
+										{client.email}
+									</Table.Data>
+								</ModalTrigger>
+								<ModalTrigger id="view_client_modal">
+									<Table.Data
+										className="cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(client)}
+									>
+										{client.primaryContact}
+									</Table.Data>
+								</ModalTrigger>
+								<ModalTrigger id="view_client_modal">
+									<Table.Data
+										className="cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(client)}
+									>
+										{client.phone}
+									</Table.Data>
+								</ModalTrigger>
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_client_modal">
 										<Button outline={true} onClick={() => openEdit(client)}>

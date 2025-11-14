@@ -21,6 +21,9 @@ export function UsersList() {
 
 	const users = response ? response.data : []
 
+	function openView(u: User) {
+		window.dispatchEvent(new CustomEvent("user:view-open", { detail: u }))
+	}
 	function openEdit(u: User) {
 		window.dispatchEvent(new CustomEvent("user:edit-open", { detail: u }))
 	}
@@ -38,14 +41,33 @@ export function UsersList() {
 						users &&
 						users.map((u: User) => (
 							<Table.Row key={u.id} variant="row">
-								<Table.Data className="flex justify-start items-center gap-2">
-									<Avatar name={u.name} />
-									{u.name}
-								</Table.Data>
+								<ModalTrigger id="view_user_modal">
+									<Table.Data
+										className="flex justify-start items-center gap-2 cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(u)}
+									>
+										<Avatar name={u.name} />
+										{u.name}
+									</Table.Data>
+								</ModalTrigger>
 
-								<Table.Data>{u.email}</Table.Data>
+								<ModalTrigger id="view_user_modal">
+									<Table.Data
+										className="cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(u)}
+									>
+										{u.email}
+									</Table.Data>
+								</ModalTrigger>
 
-								<Table.Data>{u.role ? u.role.name : "-"}</Table.Data>
+								<ModalTrigger id="view_user_modal">
+									<Table.Data
+										className="cursor-pointer hover:bg-background transition-colors"
+										onClick={() => openView(u)}
+									>
+										{u.role ? u.role.name : "-"}
+									</Table.Data>
+								</ModalTrigger>
 
 								<Table.Data className="flex justify-start items-center space-x-2">
 									<ModalTrigger id="edit_user_modal">

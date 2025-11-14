@@ -63,52 +63,54 @@ export function CreateTaskForm({ columnStatus }: CreateTaskFormProps) {
 	}
 
 	return (
-		<form id="create-task-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-			{/* Nome da tarefa */}
-			<div className="flex flex-col gap-2">
-				<Label htmlFor="title">Nome da tarefa</Label>
-				<Input id="title" variant="no-placeholder" placeholder="Nome da tarefa" {...register("title")} />
-				{errors.title && <SpanError>{errors.title.message}</SpanError>}
-			</div>
+		<>
+			<form id="create-task-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+				{/* Nome da tarefa */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="title">Nome da tarefa</Label>
+					<Input id="title" variant="no-placeholder" placeholder="Nome da tarefa" {...register("title")} />
+					{errors.title && <SpanError>{errors.title.message}</SpanError>}
+				</div>
 
-			{/* Descrição */}
-			<div className="flex flex-col gap-2">
-				<Label htmlFor="description">Descrição</Label>
-				<textarea
-					id="description"
-					placeholder="Adicione uma descrição"
-					className="w-full rounded-xl border border-light-grey px-4 py-2
+				{/* Descrição */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="description">Descrição</Label>
+					<textarea
+						id="description"
+						placeholder="Adicione uma descrição"
+						className="w-full rounded-xl border border-light-grey px-4 py-2
                      text-sm text-text-primary placeholder:text-text-secondary
                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                      resize-none min-h-[100px]"
-					{...register("description")}
-				/>
-				{errors.description && <SpanError>{errors.description.message}</SpanError>}
-			</div>
-
-			{/* Link ChatGPT */}
-			<div className="flex flex-col gap-2">
-				<Label htmlFor="chatGptLink">Link ChatGPT</Label>
-				<div className="relative">
-					<div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
-						<Bot width={18} height={18} />
-					</div>
-					<Input
-						id="chatGptLink"
-						variant="no-placeholder"
-						placeholder="Link Chat"
-						className="pl-10"
-						{...register("chatGptLink")}
+						{...register("description")}
 					/>
+					{errors.description && <SpanError>{errors.description.message}</SpanError>}
 				</div>
-				{errors.chatGptLink && <SpanError>{errors.chatGptLink.message}</SpanError>}
-			</div>
 
-			{/* Footer buttons */}
+				{/* Link ChatGPT */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="chatGptLink">Link ChatGPT</Label>
+					<div className="relative">
+						<div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+							<Bot width={18} height={18} />
+						</div>
+						<Input
+							id="chatGptLink"
+							variant="no-placeholder"
+							placeholder="Link Chat"
+							className="pl-10"
+							{...register("chatGptLink")}
+						/>
+					</div>
+					{errors.chatGptLink && <SpanError>{errors.chatGptLink.message}</SpanError>}
+				</div>
+
+				{/* Footer buttons */}
+			</form>
 			<ModalFooter>
 				<Button
 					type="button"
-					outline
+					outline={true}
 					color="transparent"
 					onClick={() => {
 						const modal = document.getElementById("create_task_modal") as HTMLDialogElement
@@ -121,6 +123,6 @@ export function CreateTaskForm({ columnStatus }: CreateTaskFormProps) {
 					Criar tarefa
 				</Button>
 			</ModalFooter>
-		</form>
+		</>
 	)
 }
