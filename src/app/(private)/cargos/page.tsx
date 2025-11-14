@@ -1,7 +1,6 @@
 import { CreateRoleModal } from "@/components/private/cargos/modals/create/create-role-modal"
 import { DeleteRoleModal } from "@/components/private/cargos/modals/delete/delete-role-modal"
 import { EditRoleModal } from "@/components/private/cargos/modals/edit/edit-role-modal"
-import { ViewRoleModal } from "@/components/private/cargos/modals/view/view-role-modal"
 import { RolesList } from "@/components/private/cargos/roles-list"
 import { RolesSearch } from "@/components/private/cargos/roles-search"
 import { Button } from "@/components/private/ui/button"
@@ -35,7 +34,6 @@ export default function CargosNewPage() {
 			<CreateRoleModal />
 			<EditRoleModal />
 			<DeleteRoleModal />
-			<ViewRoleModal />
 		</PageContainer>
 	)
 }
