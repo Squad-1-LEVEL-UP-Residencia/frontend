@@ -18,17 +18,18 @@ export default function Clients() {
       <PageHeader>
         <TitleSection title="Clientes" paragraph="Gerenciar clientes" />
 
-        <ModalTrigger id="create_client_modal">
-          <Button outline={false} color="indigo" className="gap-2 px-4">
-            <Plus /> Adicionar cliente
-          </Button>
-        </ModalTrigger>
-      </PageHeader>
-      <ClientsSearch />
+				<ModalTrigger id="create_client_modal">
+					<Button outline={false} color="indigo" className="gap-2 px-4">
+						<Plus /> Adicionar cliente
+					</Button>
+				</ModalTrigger>
+			</PageHeader>
 
-      <Suspense fallback={<div>Carregando...</div>}>
-        <ClientsList />
-      </Suspense>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<ClientsSearch />
+
+				<ClientsList />
+			</Suspense>
 
       <CreateClientModal />
       <EditClientModal />

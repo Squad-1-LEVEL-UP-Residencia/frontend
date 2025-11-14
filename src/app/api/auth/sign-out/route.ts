@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return null
+		return NextResponse.redirect(url)
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -24,11 +24,7 @@ export async function GET(request: NextRequest) {
 		const errorText = await result.text()
 		console.log("Erro ao deslogar o usuário")
 		console.log(result)
-		return {
-			ok: false,
-			status: result.status,
-			error: errorText
-		}
+		return NextResponse.json({ ok: false, status: result.status, error: errorText }, { status: result.status })
 	}
 	const response = NextResponse.redirect(url)
 	response.cookies.delete("access_token")

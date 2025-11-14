@@ -16,395 +16,387 @@ import type { Task, TaskChecklistItem } from "@/types/tasks/task"
 import { useEffect, useState } from "react"
 
 interface ViewTaskFormProps {
-  task: Task
+	task: Task
 }
 
 const statusLabels = {
-  todo: "A Fazer",
-  doing: "Fazendo",
-  done: "Concluído"
+	todo: "A Fazer",
+	doing: "Fazendo",
+	done: "Concluído"
 }
 
 const priorityLabels = {
-  low: "Baixa",
-  medium: "Média",
-  high: "Alta"
+	low: "Baixa",
+	medium: "Média",
+	high: "Alta"
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
-  const [checklist, setChecklist] = useState<TaskChecklistItem[]>(task.checklist)
-  const [newChecklistItem, setNewChecklistItem] = useState("")
+	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(task.checklist)
+	const [newChecklistItem, setNewChecklistItem] = useState("")
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<EditTaskFormData>({
-    resolver: zodResolver(editTaskSchema),
-    defaultValues: {
-      title: task.title,
-      description: task.description,
-      chatGptLink: task.chatGptLink || "",
-      status: task.status,
-      priority: task.priority,
-      campaign: task.campaign || "",
-      dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : "",
-      tags: task.tags,
-      members: task.members.map(m => m.id),
-      checklist: task.checklist
-    }
-  })
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset
+	} = useForm<EditTaskFormData>({
+		resolver: zodResolver(editTaskSchema),
+		defaultValues: {
+			title: task.title,
+			description: task.description,
+			chatGptLink: task.chatGptLink || "",
+			status: task.status,
+			priority: task.priority,
+			campaign: task.campaign || "",
+			dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+			tags: task.tags,
+			members: task.members.map((m) => m.id),
+			checklist: task.checklist
+		}
+	})
 
-  useEffect(() => {
-    reset({
-      title: task.title,
-      description: task.description,
-      chatGptLink: task.chatGptLink || "",
-      status: task.status,
-      priority: task.priority,
-      campaign: task.campaign || "",
-      dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : "",
-      tags: task.tags,
-      members: task.members.map(m => m.id),
-      checklist: task.checklist
-    })
-    setChecklist(task.checklist)
-  }, [task, reset])
+	useEffect(() => {
+		reset({
+			title: task.title,
+			description: task.description,
+			chatGptLink: task.chatGptLink || "",
+			status: task.status,
+			priority: task.priority,
+			campaign: task.campaign || "",
+			dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+			tags: task.tags,
+			members: task.members.map((m) => m.id),
+			checklist: task.checklist
+		})
+		setChecklist(task.checklist)
+	}, [task, reset])
 
-  const onSubmit = async (data: EditTaskFormData) => {
-    try {
-      // Aqui você fará a atualização real da tarefa via server action ou API
-      const updatedTask = {
-        ...task,
-        ...data,
-        checklist,
-        updatedAt: new Date()
-      }
+	const onSubmit = async (data: EditTaskFormData) => {
+		try {
+			// Aqui você fará a atualização real da tarefa via server action ou API
+			const updatedTask = {
+				...task,
+				...data,
+				checklist,
+				updatedAt: new Date()
+			}
 
-      // Disparar evento para atualizar a lista
-      window.dispatchEvent(new CustomEvent("task:updated", { detail: updatedTask }))
+			// Disparar evento para atualizar a lista
+			window.dispatchEvent(new CustomEvent("task:updated", { detail: updatedTask }))
 
-      toast.success("Tarefa atualizada com sucesso!")
+			toast.success("Tarefa atualizada com sucesso!")
 
-      // Fechar modal
-      const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-      modal?.close()
-    } catch (error) {
-      toast.error("Erro ao atualizar tarefa")
-      console.error(error)
-    }
-  }
+			// Fechar modal
+			const modal = document.getElementById("view_task_modal") as HTMLDialogElement
+			modal?.close()
+		} catch (error) {
+			toast.error("Erro ao atualizar tarefa")
+			console.error(error)
+		}
+	}
 
-  const handleDeleteTask = () => {
-    if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
-      window.dispatchEvent(new CustomEvent("task:deleted", { detail: task.id }))
-      toast.success("Tarefa excluída com sucesso!")
-      const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-      modal?.close()
-    }
-  }
+	const handleDeleteTask = () => {
+		if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+			window.dispatchEvent(new CustomEvent("task:deleted", { detail: task.id }))
+			toast.success("Tarefa excluída com sucesso!")
+			const modal = document.getElementById("view_task_modal") as HTMLDialogElement
+			modal?.close()
+		}
+	}
 
-  const toggleChecklistItem = (itemId: string) => {
-    setChecklist(prev =>
-      prev.map(item =>
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      )
-    )
-  }
+	const toggleChecklistItem = (itemId: string) => {
+		setChecklist((prev) => prev.map((item) => (item.id === itemId ? { ...item, completed: !item.completed } : item)))
+	}
 
-  const addChecklistItem = () => {
-    if (!newChecklistItem.trim()) return
+	const addChecklistItem = () => {
+		if (!newChecklistItem.trim()) return
 
-    const newItem: TaskChecklistItem = {
-      id: crypto.randomUUID(),
-      content: newChecklistItem,
-      completed: false
-    }
+		const newItem: TaskChecklistItem = {
+			id: crypto.randomUUID(),
+			content: newChecklistItem,
+			completed: false
+		}
 
-    setChecklist(prev => [...prev, newItem])
-    setNewChecklistItem("")
-  }
+		setChecklist((prev) => [...prev, newItem])
+		setNewChecklistItem("")
+	}
 
-  const removeChecklistItem = (itemId: string) => {
-    setChecklist(prev => prev.filter(item => item.id !== itemId))
-  }
+	const removeChecklistItem = (itemId: string) => {
+		setChecklist((prev) => prev.filter((item) => item.id !== itemId))
+	}
 
-  const completedCount = checklist.filter(item => item.completed).length
-  const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0
+	const completedCount = checklist.filter((item) => item.completed).length
+	const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0
 
-  return (
-    <form id="view-task-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="flex gap-6 flex-col lg:flex-row">
-        {/* Coluna Principal (Esquerda) */}
-        <div className="flex-1 flex flex-col gap-6">
-        {/* Título */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="title">Título da Tarefa</Label>
-          <Input
-            id="title"
-            variant="no-placeholder"
-            className="text-xl font-semibold"
-            {...register("title")}
-          />
-          {errors.title && <SpanError>{errors.title.message}</SpanError>}
-        </div>
+	return (
+		<form id="view-task-form" onSubmit={handleSubmit(onSubmit)} className="flex gap-6">
+			{/* Coluna Principal (Esquerda) */}
+			<div className="flex-1 flex flex-col gap-6">
+				{/* Título */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="title">Título da Tarefa</Label>
+					<Input id="title" variant="no-placeholder" className="text-xl font-semibold" {...register("title")} />
+					{errors.title && <SpanError>{errors.title.message}</SpanError>}
+				</div>
 
-        {/* Status e Campanha */}
-        <div className="flex items-center gap-4 text-sm text-text-secondary">
-          {task.campaign && (
-            <span>em <span className="font-medium text-text-primary">{task.campaign}</span></span>
-          )}
-          {task.dueDate && (
-            <div className="flex items-center gap-1">
-              <Calendar width={14} height={14} />
-              <span>{new Date(task.dueDate).toLocaleDateString('pt-BR')}</span>
-            </div>
-          )}
-        </div>
+				{/* Status e Campanha */}
+				<div className="flex items-center gap-4 text-sm text-text-secondary">
+					{task.campaign && (
+						<span>
+							em <span className="font-medium text-text-primary">{task.campaign}</span>
+						</span>
+					)}
+					{task.dueDate && (
+						<div className="flex items-center gap-1">
+							<Calendar width={14} height={14} />
+							<span>{new Date(task.dueDate).toLocaleDateString("pt-BR")}</span>
+						</div>
+					)}
+				</div>
 
-        {/* Descrição */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="description">Descrição</Label>
-          <textarea
-            id="description"
-            className="w-full rounded-xl border border-light-grey px-4 py-2
+				{/* Descrição */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="description">Descrição</Label>
+					<textarea
+						id="description"
+						className="w-full rounded-xl border border-light-grey px-4 py-2
                        text-sm text-text-primary placeholder:text-text-secondary
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                        resize-none min-h-[120px]"
-            {...register("description")}
-          />
-          {errors.description && <SpanError>{errors.description.message}</SpanError>}
-        </div>
+						{...register("description")}
+					/>
+					{errors.description && <SpanError>{errors.description.message}</SpanError>}
+				</div>
 
-        {/* Link ChatGPT */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="chatGptLink">Link ChatGPT</Label>
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
-              <Bot width={18} height={18} />
-            </div>
-            <Input
-              id="chatGptLink"
-              variant="no-placeholder"
-              placeholder="https://chat.openai.com/..."
-              className="pl-10"
-              {...register("chatGptLink")}
-            />
-            {task.chatGptLink && (
-              <a
-                href={task.chatGptLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-primary hover:text-indigo-600"
-              >
-                <ExternalLink width={18} height={18} />
-              </a>
-            )}
-          </div>
-          {errors.chatGptLink && <SpanError>{errors.chatGptLink.message}</SpanError>}
-        </div>
+				{/* Link ChatGPT */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="chatGptLink">Link ChatGPT</Label>
+					<div className="relative">
+						<div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+							<Bot width={18} height={18} />
+						</div>
+						<Input
+							id="chatGptLink"
+							variant="no-placeholder"
+							placeholder="https://chat.openai.com/..."
+							className="pl-10"
+							{...register("chatGptLink")}
+						/>
+						{task.chatGptLink && (
+							<a
+								href={task.chatGptLink}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-primary hover:text-indigo-600"
+							>
+								<ExternalLink width={18} height={18} />
+							</a>
+						)}
+					</div>
+					{errors.chatGptLink && <SpanError>{errors.chatGptLink.message}</SpanError>}
+				</div>
 
-        {/* Membros */}
-        <div className="flex flex-col gap-2">
-          <Label>Membros</Label>
-          <div className="flex items-center gap-2 flex-wrap">
-            {task.members.map((member) => (
-              <div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
-                <Avatar name={member.name} />
-                <span className="text-sm font-medium">{member.name}</span>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
+				{/* Membros */}
+				<div className="flex flex-col gap-2">
+					<Label>Membros</Label>
+					<div className="flex items-center gap-2 flex-wrap">
+						{task.members.map((member) => (
+							<div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
+								<Avatar name={member.name} />
+								<span className="text-sm font-medium">{member.name}</span>
+							</div>
+						))}
+						<button
+							type="button"
+							className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
                          text-sm text-text-secondary hover:bg-background transition-colors"
-            >
-              <Plus width={16} height={16} />
-              Adicionar
-            </button>
-          </div>
-        </div>
+						>
+							<Plus width={16} height={16} />
+							Adicionar
+						</button>
+					</div>
+				</div>
 
-        {/* Anexos */}
-        <div className="flex flex-col gap-2">
-          <Label>Anexos</Label>
-          <div className="flex flex-col gap-2">
-            {task.attachments.map((attachment) => (
-              <div key={attachment.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
-                <Paperclip width={16} height={16} className="text-text-secondary" />
-                <span className="text-sm flex-1">{attachment.name}</span>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="flex items-center gap-1 px-3 py-2 border border-dashed border-light-grey rounded-lg
+				{/* Anexos */}
+				<div className="flex flex-col gap-2">
+					<Label>Anexos</Label>
+					<div className="flex flex-col gap-2">
+						{task.attachments.map((attachment) => (
+							<div key={attachment.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
+								<Paperclip width={16} height={16} className="text-text-secondary" />
+								<span className="text-sm flex-1">{attachment.name}</span>
+							</div>
+						))}
+						<button
+							type="button"
+							className="flex items-center gap-1 px-3 py-2 border border-dashed border-light-grey rounded-lg
                          text-sm text-text-secondary hover:bg-background transition-colors justify-center"
-            >
-              <Plus width={16} height={16} />
-              Adicionar anexo
-            </button>
-          </div>
-        </div>
+						>
+							<Plus width={16} height={16} />
+							Adicionar anexo
+						</button>
+					</div>
+				</div>
 
-        {/* Checklist */}
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <Label>Checklist</Label>
-            <span className="text-sm text-text-secondary font-medium">
-              {completedCount}/{checklist.length} ({Math.round(progressPercent)}%)
-            </span>
-          </div>
+				{/* Checklist */}
+				<div className="flex flex-col gap-3">
+					<div className="flex items-center justify-between">
+						<Label>Checklist</Label>
+						<span className="text-sm text-text-secondary font-medium">
+							{completedCount}/{checklist.length} ({Math.round(progressPercent)}%)
+						</span>
+					</div>
 
-          {/* Progress bar */}
-          {checklist.length > 0 && (
-            <div className="w-full bg-grey-primary rounded-full h-2">
-              <div
-                className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          )}
+					{/* Progress bar */}
+					{checklist.length > 0 && (
+						<div className="w-full bg-grey-primary rounded-full h-2">
+							<div
+								className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
+								style={{ width: `${progressPercent}%` }}
+							/>
+						</div>
+					)}
 
-          {/* Checklist items */}
-          <div className="flex flex-col gap-2">
-            {checklist.map((item) => (
-              <div key={item.id} className="flex items-center gap-2 group">
-                <input
-                  type="checkbox"
-                  checked={item.completed}
-                  onChange={() => toggleChecklistItem(item.id)}
-                  className="w-4 h-4 rounded border-zinc-950 text-indigo-primary
+					{/* Checklist items */}
+					<div className="flex flex-col gap-2">
+						{checklist.map((item) => (
+							<div key={item.id} className="flex items-center gap-2 group">
+								<input
+									type="checkbox"
+									checked={item.completed}
+									onChange={() => toggleChecklistItem(item.id)}
+									className="w-4 h-4 rounded border-zinc-950 text-indigo-primary
                              focus:ring-2 focus:ring-indigo-500"
-                />
-                <span className={`text-sm flex-1 ${item.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
-                  {item.content}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeChecklistItem(item.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
-                >
-                  <Trash2Icon width={14} height={14} />
-                </button>
-              </div>
-            ))}
-          </div>
+								/>
+								<span
+									className={`text-sm flex-1 ${
+										item.completed ? "line-through text-text-secondary" : "text-text-primary"
+									}`}
+								>
+									{item.content}
+								</span>
+								<button
+									type="button"
+									onClick={() => removeChecklistItem(item.id)}
+									className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+								>
+									<Trash2Icon width={14} height={14} />
+								</button>
+							</div>
+						))}
+					</div>
 
-          {/* Add new item */}
-          <div className="flex gap-2">
-            <Input
-              variant="no-placeholder"
-              placeholder="Adicionar item..."
-              value={newChecklistItem}
-              onChange={(e) => setNewChecklistItem(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addChecklistItem()
-                }
-              }}
-            />
-            <Button type="button" outline={false} color="indigo" onClick={addChecklistItem}>
-              <Plus width={16} height={16} />
-            </Button>
-          </div>
-        </div>
-      </div>
+					{/* Add new item */}
+					<div className="flex gap-2">
+						<Input
+							variant="no-placeholder"
+							placeholder="Adicionar item..."
+							value={newChecklistItem}
+							onChange={(e) => setNewChecklistItem(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									e.preventDefault()
+									addChecklistItem()
+								}
+							}}
+						/>
+						<Button outline type="button" color="indigo" onClick={addChecklistItem}>
+							<Plus width={16} height={16} />
+						</Button>
+					</div>
+				</div>
+			</div>
 
-      {/* Coluna Lateral (Direita) */}
-      <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
-        {/* Status */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="status">Status</Label>
-          <Select id="status" {...register("status")}>
-            {Object.entries(statusLabels).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </Select>
-        </div>
+			{/* Coluna Lateral (Direita) */}
+			<div className="w-80 flex flex-col gap-4">
+				{/* Status */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="status">Status</Label>
+					<Select id="status" {...register("status")}>
+						{Object.entries(statusLabels).map(([value, label]) => (
+							<option key={value} value={value}>
+								{label}
+							</option>
+						))}
+					</Select>
+				</div>
 
-        {/* Prioridade */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="priority">Prioridade</Label>
-          <Select id="priority" {...register("priority")}>
-            {Object.entries(priorityLabels).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </Select>
-        </div>
+				{/* Prioridade */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="priority">Prioridade</Label>
+					<Select id="priority" {...register("priority")}>
+						{Object.entries(priorityLabels).map(([value, label]) => (
+							<option key={value} value={value}>
+								{label}
+							</option>
+						))}
+					</Select>
+				</div>
 
-        {/* Campanha */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="campaign">Campanha/Projeto</Label>
-          <Input
-            id="campaign"
-            variant="no-placeholder"
-            placeholder="Nome da campanha"
-            {...register("campaign")}
-          />
-        </div>
+				{/* Campanha */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="campaign">Campanha/Projeto</Label>
+					<Input id="campaign" variant="no-placeholder" placeholder="Nome da campanha" {...register("campaign")} />
+				</div>
 
-        {/* Data de entrega */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="dueDate">Data de Entrega</Label>
-          <Input
-            id="dueDate"
-            type="date"
-            variant="no-placeholder"
-            {...register("dueDate")}
-          />
-        </div>
+				{/* Data de entrega */}
+				<div className="flex flex-col gap-2">
+					<Label htmlFor="dueDate">Data de Entrega</Label>
+					<Input id="dueDate" type="date" variant="no-placeholder" {...register("dueDate")} />
+				</div>
 
-        {/* Comentários e Atividade */}
-        <div className="flex flex-col gap-3 mt-4">
-          <Label>Atividade</Label>
-          <div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
-            {task.comments.map((comment) => (
-              <div key={comment.id} className="flex gap-2">
-                <Avatar name={comment.author.name} />
-                <div className="flex-1 flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{comment.author.name}</span>
-                    <span className="text-xs text-text-secondary">
-                      {new Date(comment.createdAt).toLocaleDateString('pt-BR')}
-                    </span>
-                  </div>
-                  <p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">
-                    {comment.content}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <textarea
-            placeholder="Escrever um comentário..."
-            className="w-full rounded-xl border border-light-grey px-3 py-2
+				{/* Comentários e Atividade */}
+				<div className="flex flex-col gap-3 mt-4">
+					<Label>Atividade</Label>
+					<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
+						{task.comments.map((comment) => (
+							<div key={comment.id} className="flex gap-2">
+								<Avatar name={comment.author.name} />
+								<div className="flex-1 flex flex-col gap-1">
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-medium">{comment.author.name}</span>
+										<span className="text-xs text-text-secondary">
+											{new Date(comment.createdAt).toLocaleDateString("pt-BR")}
+										</span>
+									</div>
+									<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>
+								</div>
+							</div>
+						))}
+					</div>
+					<textarea
+						placeholder="Escrever um comentário..."
+						className="w-full rounded-xl border border-light-grey px-3 py-2
                        text-sm text-text-primary placeholder:text-text-secondary
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                        resize-none min-h-[60px]"
-          />
-        </div>
-      </div>
-      </div>
+					/>
+				</div>
+			</div>
 
-      {/* Footer buttons */}
-      <ModalFooter>
-        <Button type="button" outline={false} color="danger" onClick={handleDeleteTask}>
-          Excluir tarefa
-        </Button>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            outline={true}
-            color="transparent"
-            onClick={() => {
-              const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-              modal?.close()
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" outline={false} color="indigo" form="view-task-form">
-            Salvar alterações
-          </Button>
-        </div>
-      </ModalFooter>
-    </form>
-  )
+			{/* Footer buttons */}
+			<ModalFooter className="col-span-2">
+				<Button outline type="button" color="danger" onClick={handleDeleteTask}>
+					Excluir tarefa
+				</Button>
+				<div className="flex gap-2">
+					<Button
+						type="button"
+						outline
+						color="transparent"
+						onClick={() => {
+							const modal = document.getElementById("view_task_modal") as HTMLDialogElement
+							modal?.close()
+						}}
+					>
+						Cancelar
+					</Button>
+					<Button outline type="submit" color="indigo" form="view-task-form">
+						Salvar alterações
+					</Button>
+				</div>
+			</ModalFooter>
+		</form>
+	)
 }
