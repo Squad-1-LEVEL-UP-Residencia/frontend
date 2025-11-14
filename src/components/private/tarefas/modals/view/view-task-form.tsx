@@ -287,6 +287,26 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						))}
 					</div>
 
+          {/* Add new item */}
+          <div className="flex gap-2">
+            <Input
+              variant="no-placeholder"
+              placeholder="Adicionar item..."
+              value={newChecklistItem}
+              onChange={(e) => setNewChecklistItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  addChecklistItem()
+                }
+              }}
+            />
+            <Button type="button" outline={false} color="indigo" onClick={addChecklistItem}>
+              <Plus width={16} height={16} />
+            </Button>
+          </div>
+        </div>
+      </div>
 					{/* Add new item */}
 					<div className="flex gap-2">
 						<Input
