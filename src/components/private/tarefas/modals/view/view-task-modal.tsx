@@ -19,8 +19,8 @@ export function ViewTaskModal() {
   }, [])
 
   return (
-    <Modal id="view_task_modal" variant="lg" hasCloseButton>
-      <div className="flex flex-col gap-4">
+    <Modal id="view_task_modal" variant="lg" hasCloseButton className="max-w-6xl">
+      <div className="flex flex-col gap-6">
         <Title variant="sm">Detalhes da Tarefa</Title>
         {task && <ViewTaskForm task={task} />}
       </div>
