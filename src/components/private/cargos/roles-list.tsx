@@ -33,7 +33,7 @@ export function RolesList() {
 					isLoading={isLoading}
 					body={
 						roles &&
-						roles.map((r: Role) => (
+						roles.data.map((r: Role) => (
 							<Table.Row key={r.id} variant="row">
 								<Table.Data className="w-2/5">{r.name}</Table.Data>
 								<Table.Data className="w-full">{r.description}</Table.Data>

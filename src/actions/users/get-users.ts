@@ -2,11 +2,12 @@
 
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
+import { PaginatedUsers, User } from "@/types/users/user"
 
 export async function getUsers(page: number, search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return null
+		return {} as PaginatedUsers
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -19,17 +20,21 @@ export async function getUsers(page: number, search?: string) {
 	})
 
 	if (!result.ok) {
-		return null
+		return {} as PaginatedUsers
 	}
 
-	const users = await result.json()
-	// console.log(users)
-	if (search) {
-		return users.filter((user: { name: string; email: string }) => {
-			const lowerSearch = search.toLowerCase()
-			return user.name.toLowerCase().includes(lowerSearch) || user.email.toLowerCase().includes(lowerSearch)
-		})
+	const response = await result.json()
+	console.log("Users fetched:", response.data)
+	if (response.data && search) {
+		console.log("Filtering users with search:", search)
+		const filteredUsers = response.data.filter(
+			(user: User) =>
+				user.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
+				user.email.toLowerCase().includes(search.toLocaleLowerCase())
+		)
+
+		response.data = filteredUsers
 	}
 
-	return users
+	return response as PaginatedUsers
 }

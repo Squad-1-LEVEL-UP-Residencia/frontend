@@ -89,7 +89,7 @@ export function EditUserForm({ user }: Props) {
 					{isLoading ? (
 						<option disabled>Carregando...</option>
 					) : roles ? (
-						roles.map((r: Role) => (
+						roles.data.map((r: Role) => (
 							<option key={r.id} value={r.id}>
 								{r.name}
 							</option>

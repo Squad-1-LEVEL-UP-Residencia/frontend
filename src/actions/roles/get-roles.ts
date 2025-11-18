@@ -2,12 +2,12 @@
 
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
-import { Role } from "@/types/roles/role"
+import { PaginatedRoles, Role } from "@/types/roles/role"
 
 export async function getRoles(page: number, search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return [] as Role[]
+		return {} as PaginatedRoles
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -18,19 +18,18 @@ export async function getRoles(page: number, search?: string) {
 			Authorization: `Bearer ${accessToken}`
 		}
 	})
-	const data = await result.json()
-	// console.log("Roles fetched:", data.data)
+	const response = await result.json()
 
 	if (!result.ok) {
-		return [] as Role[]
+		return {} as PaginatedRoles
 	}
-	if (data.roles && search) {
-		const filteredRoles = data.roles.filter(
+	if (response.data && search) {
+		const filteredRoles = response.data.filter(
 			(role: Role) =>
 				role.name.toLowerCase().includes(search.toLowerCase()) || role.slug.toLowerCase().includes(search.toLowerCase())
 		)
-		return filteredRoles as Role[]
+		response.data = filteredRoles
 	}
 
-	return data.data as Role[]
+	return response as PaginatedRoles
 }

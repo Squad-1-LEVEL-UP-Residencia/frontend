@@ -5,7 +5,6 @@ import { Button } from "../button"
 import { Input } from "../input"
 import { ComponentProps } from "react"
 
-// TODO implementar strategy
 interface SearchBarProps extends ComponentProps<"div"> {
 	search?: string
 	placeholder: string
