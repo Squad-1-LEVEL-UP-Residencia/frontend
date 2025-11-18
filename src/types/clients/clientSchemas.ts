@@ -7,7 +7,6 @@ export const createClientFormSchema = z.object({
 	primaryContact: z.string().min(2, "Contato principal obrigatório"),
 	phone: z.string().min(8, "Telefone obrigatório"),
 	email: z.email("E-mail inválido"),
-	avatarUrl: z.url("URL do avatar inválida").optional(),
 	agentUrl: z.url("URL do agente inválida").optional()
 })
 
@@ -23,7 +22,6 @@ export const editClientFormSchema = z.object({
 	primaryContact: z.string().min(2, "Contato principal obrigatório"),
 	phone: z.string().min(8, "Telefone obrigatório"),
 	email: z.email("E-mail inválido"),
-	avatarUrl: z.url("URL do avatar inválida").optional(),
 	agentUrl: z.url("URL do agente inválida").optional()
 })
 

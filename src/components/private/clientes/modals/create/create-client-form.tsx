@@ -82,14 +82,14 @@ export function CreateClientForm() {
 				<Label className="font-medium" htmlFor="agentUrl">
 					URL do agente
 				</Label>
-				<Input id="agentUrl" variant="no-placeholder" {...register("agentUrl")} />
+				<Input
+					id="agentUrl"
+					variant="no-placeholder"
+					{...register("agentUrl", {
+						setValueAs: (v) => (v === "" ? undefined : v)
+					})}
+				/>
 				{errors.agentUrl && <SpanError>{errors.agentUrl.message as string}</SpanError>}
-
-				<Label className="font-medium" htmlFor="avatarUrl">
-					URL do avatar
-				</Label>
-				<Input id="avatarUrl" variant="no-placeholder" {...register("avatarUrl")} />
-				{errors.avatarUrl && <SpanError>{errors.avatarUrl.message as string}</SpanError>}
 			</form>
 			<ModalFooter>
 				<Button
