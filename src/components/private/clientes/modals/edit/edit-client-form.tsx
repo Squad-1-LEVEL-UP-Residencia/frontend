@@ -40,8 +40,7 @@ export function EditClientForm({ client }: Props) {
 			phone: client.phone,
 			address: client.address,
 			cnpj: client.cnpj,
-			agentUrl: client.agentUrl,
-			avatarUrl: client.avatarUrl
+			agentUrl: client.agentUrl
 		})
 	}, [client, reset])
 
@@ -92,7 +91,13 @@ export function EditClientForm({ client }: Props) {
 				{errors.cnpj && <SpanError>{errors.cnpj.message as string}</SpanError>}
 
 				<Label htmlFor="agentUrl">URL do agente</Label>
-				<Input id="agentUrl" variant="no-placeholder" {...register("agentUrl")} />
+				<Input
+					id="agentUrl"
+					variant="no-placeholder"
+					{...register("agentUrl", {
+						setValueAs: (v) => (v === "" ? undefined : v)
+					})}
+				/>
 				{errors.agentUrl && <SpanError>{errors.agentUrl.message as string}</SpanError>}
 			</form>
 			<ModalFooter>
