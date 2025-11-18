@@ -33,7 +33,7 @@ export function ClientsList() {
 					head={["Empresa", "E-mail", "Contato", "Telefone", "Ações"]}
 					body={
 						clients &&
-						clients.map((client: Client) => (
+						clients.data.map((client: Client) => (
 							<Table.Row key={client.id} variant="row">
 								<Table.Data className="flex justify-start items-center gap-2">
 									<Avatar name={client.companyName} />

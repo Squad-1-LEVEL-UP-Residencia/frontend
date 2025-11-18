@@ -15,8 +15,8 @@ export function UsersList() {
 	const searchParams = useSearchParams()
 
 	const { data: response, isLoading } = useUsers(
-		searchParams.get("search") || "",
-		searchParams.get("page") ? Number(searchParams.get("page")) : 1
+		searchParams.get("page") ? Number(searchParams.get("page")) : 1,
+		searchParams.get("search") || ""
 	)
 
 	const users = response ? response.data : []

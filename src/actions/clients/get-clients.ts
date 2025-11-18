@@ -2,12 +2,12 @@
 
 import { env } from "@/lib/env"
 import { useToken } from "@/hooks/use-token"
-import { Client } from "@/types/clients/client"
+import { Client, PaginatedClients } from "@/types/clients/client"
 
 export async function getClients(page: number, search?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return [] as Client[]
+		return {} as PaginatedClients
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
@@ -18,21 +18,23 @@ export async function getClients(page: number, search?: string) {
 			Authorization: `Bearer ${accessToken}`
 		}
 	})
-	const data = await result.json()
+	const response = await result.json()
 	// console.log("Roles fetched:", data.data)
 
 	if (!result.ok) {
-		return [] as Client[]
+		return {} as PaginatedClients
 	}
-	if (data.clients && search) {
-		const filteredClients = data.clients.filter(
+	console.log("Clients fetched:", response.data)
+
+	if (response.data && search) {
+		const filteredClients = response.data.filter(
 			(client: Client) =>
 				client.companyName.toLowerCase().includes(search.toLowerCase()) ||
 				client.cnpj.toLowerCase().includes(search.toLowerCase()) ||
 				client.email.toLowerCase().includes(search.toLowerCase())
 		)
-		return filteredClients as Client[]
+		response.data = filteredClients
 	}
 
-	return data.data as Client[]
+	return response as PaginatedClients
 }

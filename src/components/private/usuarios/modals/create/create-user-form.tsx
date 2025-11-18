@@ -73,7 +73,7 @@ export function CreateUserForm() {
 							Carregando...
 						</option>
 					) : roles ? (
-						roles.map((role: Role) => (
+						roles.data.map((role: Role) => (
 							<option key={role.id} value={role.id}>
 								{role.name}
 							</option>
