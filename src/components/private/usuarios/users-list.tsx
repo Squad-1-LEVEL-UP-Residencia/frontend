@@ -21,6 +21,9 @@ export function UsersList() {
 
 	const users = response ? response.data : []
 
+	function openView(u: User) {
+		window.dispatchEvent(new CustomEvent("user:view-open", { detail: u }))
+	}
 	function openEdit(u: User) {
 		window.dispatchEvent(new CustomEvent("user:edit-open", { detail: u }))
 	}
@@ -37,7 +40,7 @@ export function UsersList() {
 					body={
 						users &&
 						users.map((u: User) => (
-							<Table.Row key={u.id} variant="row">
+							<Table.Row key={u.id} variant="row" onClick={() => openView(u)} className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150">
 								<Table.Data className="flex justify-start items-center gap-2">
 									<Avatar name={u.name} />
 									{u.name}
@@ -47,7 +50,7 @@ export function UsersList() {
 
 								<Table.Data>{u.role ? u.role.name : "-"}</Table.Data>
 
-								<Table.Data className="flex justify-start items-center space-x-2">
+								<Table.Data className="flex justify-start items-center space-x-2" onClick={(e) => e.stopPropagation()}>
 									<ModalTrigger id="edit_user_modal">
 										<Button outline={true} onClick={() => openEdit(u)}>
 											Editar

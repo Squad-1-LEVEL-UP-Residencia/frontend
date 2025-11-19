@@ -1,4 +1,10 @@
-export type TaskStatus = "todo" | "doing" | "done"
+export type TaskStatus = string
+
+export const DEFAULT_TASK_STATUSES = {
+  TODO: "todo",
+  DOING: "doing",
+  DONE: "done"
+} as const
 
 export type TaskPriority = "low" | "medium" | "high"
 
@@ -48,7 +54,8 @@ export interface Task {
 }
 
 export interface TaskColumn {
-  id: TaskStatus
+  id: string
   title: string
   tasks: Task[]
+  isDefault?: boolean
 }

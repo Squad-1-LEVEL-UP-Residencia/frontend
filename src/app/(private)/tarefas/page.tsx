@@ -4,6 +4,7 @@ import { TitleSection } from "@/components/private/ui/title-section"
 import { TaskBoard } from "@/components/private/tarefas/task-board"
 import { CreateTaskModal } from "@/components/private/tarefas/modals/create/create-task-modal"
 import { ViewTaskModal } from "@/components/private/tarefas/modals/view/view-task-modal"
+import { CreateColumnModal } from "@/components/private/tarefas/modals/create-column/create-column-modal"
 
 export default function Tasks() {
   return (
@@ -21,6 +22,7 @@ export default function Tasks() {
 
       <CreateTaskModal />
       <ViewTaskModal />
+      <CreateColumnModal />
     </PageContainer>
   )
 }
