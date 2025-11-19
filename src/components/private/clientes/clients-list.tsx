@@ -18,6 +18,9 @@ export function ClientsList() {
 
 	const { data: clients, isLoading } = useClients(page, search)
 
+	function openView(u: Client) {
+		window.dispatchEvent(new CustomEvent("client:view-open", { detail: u }))
+	}
 	function openEdit(u: Client) {
 		window.dispatchEvent(new CustomEvent("client:edit-open", { detail: u }))
 	}
@@ -34,7 +37,7 @@ export function ClientsList() {
 					body={
 						clients &&
 						clients.data.map((client: Client) => (
-							<Table.Row key={client.id} variant="row">
+							<Table.Row key={client.id} variant="row" onClick={() => openView(client)} className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150">
 								<Table.Data className="flex justify-start items-center gap-2">
 									<Avatar name={client.companyName} />
 									{client.companyName}
@@ -42,7 +45,7 @@ export function ClientsList() {
 								<Table.Data>{client.email}</Table.Data>
 								<Table.Data>{client.primaryContact}</Table.Data>
 								<Table.Data>{client.phone}</Table.Data>
-								<Table.Data className="flex justify-start items-center space-x-2">
+								<Table.Data className="flex justify-start items-center space-x-2" onClick={(e) => e.stopPropagation()}>
 									<ModalTrigger id="edit_client_modal">
 										<Button outline={true} onClick={() => openEdit(client)}>
 											Editar
