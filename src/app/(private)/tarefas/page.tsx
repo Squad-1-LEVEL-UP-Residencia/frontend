@@ -4,25 +4,22 @@ import { TitleSection } from "@/components/private/ui/title-section"
 import { TaskBoard } from "@/components/private/tarefas/task-board"
 import { CreateTaskModal } from "@/components/private/tarefas/modals/create/create-task-modal"
 import { ViewTaskModal } from "@/components/private/tarefas/modals/view/view-task-modal"
-import { CreateColumnModal } from "@/components/private/tarefas/modals/create-column/create-column-modal"
+import { CreateListModal } from "@/components/private/tarefas/modals/create-list/create-list-modal"
 
 export default function Tasks() {
-  return (
-    <PageContainer>
-      <PageHeader>
-        <TitleSection
-          title="Tarefas"
-          paragraph="Gerencie todas as tarefas do projeto no estilo Kanban"
-        />
-      </PageHeader>
+	return (
+		<PageContainer>
+			<PageHeader>
+				<TitleSection title="Tarefas" paragraph="Gerencie todas as tarefas do projeto no estilo Kanban" />
+			</PageHeader>
 
-      <div className="flex-1 overflow-auto">
-        <TaskBoard />
-      </div>
+			<div className="flex-1 overflow-auto">
+				<TaskBoard />
+			</div>
 
-      <CreateTaskModal />
-      <ViewTaskModal />
-      <CreateColumnModal />
-    </PageContainer>
-  )
+			<CreateTaskModal />
+			<ViewTaskModal />
+			<CreateListModal />
+		</PageContainer>
+	)
 }

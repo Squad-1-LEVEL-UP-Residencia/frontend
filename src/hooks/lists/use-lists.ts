@@ -6,7 +6,7 @@ export function useLists(page: number = 1, search?: string) {
 	const searchKey = search ?? ""
 
 	return useQuery<PaginatedLists>({
-		queryKey: ["lists", searchKey],
+		queryKey: ["lists"],
 		queryFn: () => getLists(page, searchKey),
 		staleTime: 1000 * 60 * 5 // 5 minutos
 	})

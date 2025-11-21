@@ -60,8 +60,8 @@ export function TaskBoard() {
 		window.dispatchEvent(new CustomEvent("task:view-open", { detail: task }))
 	}
 
-	const openCreateColumnModal = () => {
-		Modal.handleOpen("create_column_modal")
+	const openCreateListModal = () => {
+		Modal.handleOpen("create_list_modal")
 	}
 
 	const deleteColumn = async (columnId: string) => {
@@ -102,7 +102,7 @@ export function TaskBoard() {
 			{columns.length > 0 &&
 				columns.map((column, index) => (
 					<div
-						key={column.id}
+						key={column.id ?? `column-${index}`}
 						onDragOver={handleColumnDragOver}
 						onDrop={(e) => handleColumnDrop(e, column.id)}
 						className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
@@ -115,7 +115,7 @@ export function TaskBoard() {
 							<div className="flex items-center gap-2">
 								<h2 className="font-semibold text-lg text-text-primary">{column.name}</h2>
 								<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
-									{column.tasks.length}
+									{Array.isArray(column.tasks) ? column.tasks.length : 0}
 								</span>
 							</div>
 						</div>
@@ -129,8 +129,13 @@ export function TaskBoard() {
 						>
 							{column.tasks &&
 								column.tasks.length > 0 &&
-								column.tasks.map((task) => (
-									<TaskCard key={task.id} task={task} onCardClick={openViewModal} onDragStart={handleDragStart} />
+								column.tasks.map((task, idx) => (
+									<TaskCard
+										key={task.id ?? `task-${idx}`}
+										task={task}
+										onCardClick={openViewModal}
+										onDragStart={handleDragStart}
+									/>
 								))}
 
 							{/* Add Card Button */}
@@ -150,7 +155,7 @@ export function TaskBoard() {
 
 			<div className="flex-shrink-0 w-80">
 				<button
-					onClick={openCreateColumnModal}
+					onClick={openCreateListModal}
 					className="w-full h-32 flex flex-col items-center justify-center gap-3 p-4 rounded-xl
                      border-2 border-dashed border-light-grey
                      text-text-secondary hover:text-indigo-primary hover:border-indigo-primary
