@@ -4,208 +4,24 @@ import { useState, useEffect } from "react"
 import { TaskCard } from "./task-card"
 import { Plus } from "lucide-react"
 import { Modal } from "@/components/private/ui/modal"
-import type { Task, List, TaskStatus } from "@/types/tasks/task"
+import type { Task, TaskStatus } from "@/types/tasks/task"
+import type { List } from "@/types/lists/list"
+import { useLists } from "@/hooks/lists/use-lists"
 
-const getInitialColumns = (): List[] => {
-	const defaultColumns: List[] = [
-		{
-			id: "todo",
-			title: "A Fazer",
-			tasks: [],
-			isDefault: true
-		},
-		{
-			id: "doing",
-			title: "Fazendo",
-			tasks: [],
-			isDefault: true
-		},
-		{
-			id: "done",
-			title: "Concluído",
-			tasks: [],
-			isDefault: true
-		}
-	]
-
-	if (typeof window === "undefined") return defaultColumns
-
-	try {
-		const savedColumns = localStorage.getItem("taskColumns")
-		if (savedColumns) {
-			const parsed = JSON.parse(savedColumns)
-			if (Array.isArray(parsed) && parsed.length > 0) {
-				return parsed.map((col: any) => ({
-					id: col.id || crypto.randomUUID(),
-					title: col.title || "Sem título",
-					tasks: [],
-					isDefault: col.isDefault || false
-				}))
-			}
-		}
-	} catch (error) {
-		console.error("Erro ao carregar colunas do localStorage:", error)
-		localStorage.removeItem("taskColumns")
-	}
-
-	return defaultColumns
-}
-
-// Mock data para demonstração
-const mockClient = {
-	id: 1,
-	companyName: "Empresa Exemplo",
-	cnpj: "00.000.000/0001-00",
-	address: "Rua Exemplo, 123",
-	primaryContact: "João Exemplo",
-	phone: "(11) 99999-9999",
-	email: "contato@exemplo.com",
-	created_at: new Date().toISOString(),
-	updated_at: new Date().toISOString(),
-	deleted_at: null
-}
-
-const mockTasks: Task[] = [
-	{
-		id: "1",
-		title: "Criar página de login",
-		description: "Desenvolver interface de autenticação com validação de formulário",
-		status: "todo",
-		priority: "high",
-		tags: ["Frontend", "UI"],
-		campaign: "MVP Sistema",
-		start_date: new Date("2025-11-10"),
-		members: [
-			{ id: "1", name: "João Silva" },
-			{ id: "2", name: "Maria Santos" }
-		],
-		attachments: [],
-		comments: [],
-		checklist: [
-			{ id: "1", content: "Criar formulário", completed: true },
-			{ id: "2", content: "Adicionar validação", completed: false },
-			{ id: "3", content: "Integrar com API", completed: false }
-		],
-		progress: 33,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: "2",
-		title: "Implementar dashboard",
-		description: "Criar dashboard com gráficos e métricas",
-		status: "doing",
-		priority: "medium",
-		tags: ["Frontend", "Charts"],
-		members: [{ id: "1", name: "João Silva" }],
-		attachments: [{ id: "1", name: "mockup.png", url: "#", uploadedAt: new Date() }],
-		comments: [
-			{
-				id: "1",
-				author: { id: "1", name: "João Silva" },
-				content: "Começando implementação",
-				createdAt: new Date()
-			}
-		],
-		checklist: [],
-		progress: 50,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: "3",
-		title: "Revisar código do backend",
-		description: "Code review das APIs criadas",
-		status: "done",
-		priority: "low",
-		tags: ["Backend", "Review"],
-		members: [],
-		attachments: [],
-		comments: [],
-		checklist: [],
-		progress: 100,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	}
-]
 export function TaskBoard() {
-	const [columns, setColumns] = useState<List[]>([])
+	const { data, isLoading, error } = useLists(1)
 	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
 
-	// Inicializar com mock data
-	useEffect(() => {
-		try {
-			const initialCols = getInitialColumns()
+	const columns = data?.lists || []
 
-			if (!Array.isArray(initialCols) || initialCols.length === 0) {
-				console.error("Colunas iniciais inválidas, usando padrões")
-				localStorage.removeItem("taskColumns")
-				localStorage.removeItem("taskBoardTasks")
-				window.location.reload()
-				return
-			}
+	if (isLoading) {
+		return <div className="flex items-center justify-center h-full">Carregando...</div>
+	}
 
-			const savedTasks = localStorage.getItem("taskBoardTasks")
-
-			let tasksToUse = mockTasks
-			if (savedTasks) {
-				try {
-					const parsed = JSON.parse(savedTasks)
-					if (Array.isArray(parsed) && parsed.length > 0) {
-						tasksToUse = parsed.map((task: any) => ({
-							...task,
-							createdAt: new Date(task.createdAt),
-							updatedAt: new Date(task.updatedAt),
-							dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-							members: Array.isArray(task.members) ? task.members : [],
-							attachments: Array.isArray(task.attachments) ? task.attachments : [],
-							comments: Array.isArray(task.comments) ? task.comments : [],
-							checklist: Array.isArray(task.checklist) ? task.checklist : [],
-							tags: Array.isArray(task.tags) ? task.tags : []
-						}))
-					}
-				} catch (e) {
-					console.error("Erro ao carregar tarefas:", e)
-					localStorage.removeItem("taskBoardTasks")
-				}
-			}
-
-			const newColumns = initialCols.map((col) => ({
-				...col,
-				tasks: Array.isArray(tasksToUse) ? tasksToUse.filter((task) => task && task.status === col.id) : []
-			}))
-
-			setColumns(newColumns)
-		} catch (error) {
-			console.error("Erro ao inicializar colunas:", error)
-			localStorage.removeItem("taskColumns")
-			localStorage.removeItem("taskBoardTasks")
-			window.location.reload()
-		}
-	}, [])
-
-	// Salvar colunas e tarefas no localStorage sempre que mudarem
-	useEffect(() => {
-		if (columns && columns.length > 0) {
-			try {
-				const columnsStructure = columns.map((col) => ({
-					id: col.id,
-					title: col.title,
-					isDefault: col.isDefault || false
-				}))
-				localStorage.setItem("taskColumns", JSON.stringify(columnsStructure))
-
-				const allTasks = columns.flatMap((col) => col.tasks)
-				localStorage.setItem("taskBoardTasks", JSON.stringify(allTasks))
-			} catch (error) {
-				console.error("Erro ao salvar colunas:", error)
-			}
-		}
-	}, [columns])
+	if (error) {
+		return <div className="flex items-center justify-center h-full">Erro ao carregar listas</div>
+	}
 
 	// Escutar eventos de criação, atualização e exclusão
 	useEffect(() => {
@@ -395,31 +211,6 @@ export function TaskBoard() {
 								{column.tasks.length}
 							</span>
 						</div>
-						{!column.isDefault && (
-							<button
-								onClick={(e) => {
-									e.stopPropagation()
-									deleteColumn(column.id)
-								}}
-								className="text-text-secondary hover:text-red-500 transition-colors p-1"
-								title="Deletar lista"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M18 6 6 18"></path>
-									<path d="m6 6 12 12"></path>
-								</svg>
-							</button>
-						)}
 					</div>
 
 					{/* Tasks Container */}

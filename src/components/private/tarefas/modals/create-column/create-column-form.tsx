@@ -32,8 +32,7 @@ export function CreateColumnForm() {
 			const newColumn: List = {
 				id: crypto.randomUUID(),
 				title: data.title,
-				tasks: [],
-				isDefault: false
+				tasks: []
 			}
 
 			window.dispatchEvent(new CustomEvent("column:created", { detail: newColumn }))

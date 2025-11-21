@@ -1,3 +1,4 @@
+import { Paginated } from "../global/paginated"
 import { Role } from "../roles/role"
 
 export type User = {
@@ -13,18 +14,6 @@ export type User = {
 	role: Role
 }
 
-export type PaginatedUsers = {
-	current_page: number
+export interface PaginatedUsers extends Paginated {
 	data: User[]
-	first_page_url: string
-	from: number
-	last_page: number
-	last_page_url: string
-	links: Array<{ url: string | null; label: string; active: boolean }>
-	next_page_url: string | null
-	path: string
-	per_page: number
-	prev_page_url: string | null
-	to: number
-	total: number
 }
