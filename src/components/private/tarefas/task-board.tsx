@@ -7,11 +7,16 @@ import { Modal } from "@/components/private/ui/modal"
 import type { Task, TaskStatus } from "@/types/tasks/task"
 import type { List } from "@/types/lists/list"
 import { useLists } from "@/hooks/lists/use-lists"
+import { deleteList } from "@/actions/lists/delete-list"
+import { updateList } from "@/actions/lists/update-list"
+import toast from "react-hot-toast"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists(1)
 	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
+	const [editingColumnId, setEditingColumnId] = useState<string | null>(null)
+	const [editingColumnName, setEditingColumnName] = useState<string>("")
 
 	const columns = data?.data || []
 
@@ -66,8 +71,42 @@ export function TaskBoard() {
 
 	const deleteColumn = async (columnId: string) => {
 		if (window.confirm("Tem certeza que deseja deletar esta lista? Todas as tarefas serão perdidas.")) {
-			// Disparar ação de exclusão na API
-			// Exemplo: await deleteList(columnId)
+			const result = await deleteList({ id: columnId })
+
+			if (result.success) {
+				toast.success("Lista deletada com sucesso!")
+				window.location.reload() // Recarrega para atualizar a lista
+			} else {
+				toast.error(result.error || "Erro ao deletar lista")
+			}
+		}
+	}
+
+	const startEditingColumn = (columnId: string, currentName: string) => {
+		setEditingColumnId(columnId)
+		setEditingColumnName(currentName)
+	}
+
+	const cancelEditingColumn = () => {
+		setEditingColumnId(null)
+		setEditingColumnName("")
+	}
+
+	const saveColumnName = async (columnId: string) => {
+		if (!editingColumnName.trim()) {
+			toast.error("Nome da lista não pode ser vazio")
+			return
+		}
+
+		const result = await updateList({ id: columnId, name: editingColumnName })
+
+		if (result.success) {
+			toast.success("Lista atualizada com sucesso!")
+			setEditingColumnId(null)
+			setEditingColumnName("")
+			window.location.reload() // Recarrega para atualizar a lista
+		} else {
+			toast.error(result.error || "Erro ao atualizar lista")
 		}
 	}
 
@@ -108,16 +147,72 @@ export function TaskBoard() {
 						className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
 					>
 						<div
-							draggable
+							draggable={editingColumnId !== column.id}
 							onDragStart={(e) => handleColumnDragStart(e, column.id)}
 							className="flex items-center justify-between mb-4 px-2 cursor-move"
 						>
-							<div className="flex items-center gap-2">
-								<h2 className="font-semibold text-lg text-text-primary">{column.name}</h2>
-								<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
-									{Array.isArray(column.tasks) ? column.tasks.length : 0}
-								</span>
+							<div className="flex items-center gap-2 flex-1">
+								{editingColumnId === column.id ? (
+									<div className="flex items-center gap-2 flex-1">
+										<input
+											type="text"
+											value={editingColumnName}
+											onChange={(e) => setEditingColumnName(e.target.value)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") saveColumnName(column.id)
+												if (e.key === "Escape") cancelEditingColumn()
+											}}
+											className="flex-1 px-2 py-1 text-sm border border-indigo-primary rounded focus:outline-none"
+											autoFocus
+										/>
+										<button
+											onClick={() => saveColumnName(column.id)}
+											className="p-1 text-green-600 hover:bg-green-50 rounded"
+											title="Salvar"
+										>
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+										</button>
+										<button
+											onClick={cancelEditingColumn}
+											className="p-1 text-red-600 hover:bg-red-50 rounded"
+											title="Cancelar"
+										>
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+										</button>
+									</div>
+								) : (
+									<>
+										<h2 className="font-semibold text-lg text-text-primary">{column.name}</h2>
+										<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
+											{Array.isArray(column.tasks) ? column.tasks.length : 0}
+										</span>
+									</>
+								)}
 							</div>
+							{editingColumnId !== column.id && (
+								<div className="flex items-center gap-1">
+									<button
+										onClick={(e) => {
+											e.stopPropagation()
+											startEditingColumn(column.id, column.name)
+										}}
+										className="p-1 text-text-secondary hover:text-indigo-primary hover:bg-indigo-50 rounded transition-colors"
+										title="Editar lista"
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+									</button>
+									<button
+										onClick={(e) => {
+											e.stopPropagation()
+											deleteColumn(column.id)
+										}}
+										className="p-1 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+										title="Deletar lista"
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+									</button>
+								</div>
+							)}
 						</div>
 
 						{/* Tasks Container */}
