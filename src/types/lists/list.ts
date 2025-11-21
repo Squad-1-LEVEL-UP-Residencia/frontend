@@ -3,7 +3,7 @@ import { Task } from "../tasks/task"
 
 export interface List {
 	id: string
-	title: string
+	name: string
 	tasks: Task[]
 }
 

@@ -24,8 +24,8 @@ const priorityLabels = {
 }
 
 export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
-	const completedChecklist = task.checklist.filter((item) => item.completed).length
-	const totalChecklist = task.checklist.length
+	const completedChecklist = task.checklist ? task.checklist.filter((item) => item.completed).length : 0
+	const totalChecklist = task.checklist ? task.checklist.length : 0
 	const progressPercent = totalChecklist > 0 ? (completedChecklist / totalChecklist) * 100 : 0
 
 	return (

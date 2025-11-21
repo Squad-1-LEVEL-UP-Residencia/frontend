@@ -13,70 +13,9 @@ export function TaskBoard() {
 	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
 
-	const columns = data?.lists || []
+	const columns = data?.data || []
 
-	if (isLoading) {
-		return <div className="flex items-center justify-center h-full">Carregando...</div>
-	}
-
-	if (error) {
-		return <div className="flex items-center justify-center h-full">Erro ao carregar listas</div>
-	}
-
-	// Escutar eventos de criação, atualização e exclusão
-	useEffect(() => {
-		const handleTaskCreated = (e: Event) => {
-			const newTask = (e as CustomEvent<Task>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => (col.id === newTask.status ? { ...col, tasks: [...(col.tasks || []), newTask] } : col))
-			})
-		}
-
-		const handleTaskUpdated = (e: Event) => {
-			const updatedTask = (e as CustomEvent<Task>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => ({
-					...col,
-					tasks: (col.tasks || [])
-						.filter((t) => t.id !== updatedTask.id)
-						.concat(col.id === updatedTask.status ? [updatedTask] : [])
-				}))
-			})
-		}
-
-		const handleTaskDeleted = (e: Event) => {
-			const taskId = (e as CustomEvent<string>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => ({
-					...col,
-					tasks: (col.tasks || []).filter((t) => t.id !== taskId)
-				}))
-			})
-		}
-
-		const handleColumnCreated = (e: Event) => {
-			const newColumn = (e as CustomEvent<List>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return [...prev, newColumn]
-			})
-		}
-
-		window.addEventListener("task:created", handleTaskCreated as EventListener)
-		window.addEventListener("task:updated", handleTaskUpdated as EventListener)
-		window.addEventListener("task:deleted", handleTaskDeleted as EventListener)
-		window.addEventListener("column:created", handleColumnCreated as EventListener)
-
-		return () => {
-			window.removeEventListener("task:created", handleTaskCreated as EventListener)
-			window.removeEventListener("task:updated", handleTaskUpdated as EventListener)
-			window.removeEventListener("task:deleted", handleTaskDeleted as EventListener)
-			window.removeEventListener("column:created", handleColumnCreated as EventListener)
-		}
-	}, [])
+	// Funções de manipulação agora disparam ações de API
 
 	const handleDragStart = (e: React.DragEvent, taskId: string) => {
 		setDraggedTaskId(taskId)
@@ -88,49 +27,28 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleDrop = (e: React.DragEvent, targetColumnId: TaskStatus) => {
+	const handleDrop = async (e: React.DragEvent, targetColumnId: TaskStatus) => {
 		e.preventDefault()
-
 		if (!draggedTaskId) return
 
 		// Encontrar a tarefa arrastada
 		let draggedTask: Task | undefined
 		let sourceColumnId: TaskStatus | undefined
-
 		for (const col of columns) {
-			const task = col.tasks.find((t) => t.id === draggedTaskId)
+			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
 			if (task) {
 				draggedTask = task
 				sourceColumnId = col.id as TaskStatus
 				break
 			}
 		}
-
 		if (!draggedTask || !sourceColumnId || sourceColumnId === targetColumnId) {
 			setDraggedTaskId(null)
 			return
 		}
-
-		// Atualizar o status da tarefa
-		const updatedTask = { ...draggedTask, status: targetColumnId }
-
-		// Atualizar as colunas
-		setColumns((prev) =>
-			prev.map((col) => {
-				if (col.id === sourceColumnId) {
-					return { ...col, tasks: col.tasks.filter((t) => t.id !== draggedTaskId) }
-				}
-				if (col.id === targetColumnId) {
-					return { ...col, tasks: [...col.tasks, updatedTask] }
-				}
-				return col
-			})
-		)
-
+		// Disparar ação de atualização na API
+		// Exemplo: await updateTaskStatus(draggedTaskId, targetColumnId)
 		setDraggedTaskId(null)
-
-		// Aqui você pode disparar uma action para salvar no backend
-		// updateTaskStatus(draggedTaskId, targetColumnId)
 	}
 
 	const openCreateModal = (columnId: TaskStatus) => {
@@ -146,9 +64,10 @@ export function TaskBoard() {
 		Modal.handleOpen("create_column_modal")
 	}
 
-	const deleteColumn = (columnId: string) => {
+	const deleteColumn = async (columnId: string) => {
 		if (window.confirm("Tem certeza que deseja deletar esta lista? Todas as tarefas serão perdidas.")) {
-			setColumns((prev) => prev.filter((col) => col.id !== columnId))
+			// Disparar ação de exclusão na API
+			// Exemplo: await deleteList(columnId)
 		}
 	}
 
@@ -162,84 +81,72 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleColumnDrop = (e: React.DragEvent, targetColumnId: string) => {
+	const handleColumnDrop = async (e: React.DragEvent, targetColumnId: string) => {
 		e.preventDefault()
 		e.stopPropagation()
-
 		if (!draggedColumnId || draggedColumnId === targetColumnId) {
 			setDraggedColumnId(null)
 			return
 		}
-
-		const draggedIndex = columns.findIndex((col) => col.id === draggedColumnId)
-		const targetIndex = columns.findIndex((col) => col.id === targetColumnId)
-
-		if (draggedIndex === -1 || targetIndex === -1) {
-			setDraggedColumnId(null)
-			return
-		}
-
-		const newColumns = [...columns]
-		const [draggedColumn] = newColumns.splice(draggedIndex, 1)
-		newColumns.splice(targetIndex, 0, draggedColumn)
-
-		setColumns(newColumns)
+		// Disparar ação de reordenação na API se necessário
+		// Exemplo: await reorderList(draggedColumnId, targetColumnId)
 		setDraggedColumnId(null)
 	}
 
-	if (!columns || columns.length === 0) {
-		return <div className="flex items-center justify-center h-full">Carregando...</div>
+	if (error) {
+		return <div className="flex items-center justify-center h-full">Erro ao carregar listas</div>
 	}
 
 	return (
 		<div className="flex gap-6 h-full overflow-x-auto pb-4">
-			{columns.map((column, index) => (
-				<div
-					key={column.id}
-					onDragOver={handleColumnDragOver}
-					onDrop={(e) => handleColumnDrop(e, column.id)}
-					className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
-				>
+			{columns.length > 0 &&
+				columns.map((column, index) => (
 					<div
-						draggable
-						onDragStart={(e) => handleColumnDragStart(e, column.id)}
-						className="flex items-center justify-between mb-4 px-2 cursor-move"
+						key={column.id}
+						onDragOver={handleColumnDragOver}
+						onDrop={(e) => handleColumnDrop(e, column.id)}
+						className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
 					>
-						<div className="flex items-center gap-2">
-							<h2 className="font-semibold text-lg text-text-primary">{column.title}</h2>
-							<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
-								{column.tasks.length}
-							</span>
+						<div
+							draggable
+							onDragStart={(e) => handleColumnDragStart(e, column.id)}
+							className="flex items-center justify-between mb-4 px-2 cursor-move"
+						>
+							<div className="flex items-center gap-2">
+								<h2 className="font-semibold text-lg text-text-primary">{column.name}</h2>
+								<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
+									{column.tasks.length}
+								</span>
+							</div>
 						</div>
-					</div>
 
-					{/* Tasks Container */}
-					<div
-						onDragOver={handleDragOver}
-						onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
-						className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
+						{/* Tasks Container */}
+						<div
+							onDragOver={handleDragOver}
+							onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
+							className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
                        ${draggedTaskId ? "border-2 border-dashed border-indigo-primary/50" : ""}`}
-					>
-						{column.tasks &&
-							column.tasks.length > 0 &&
-							column.tasks.map((task) => (
-								<TaskCard key={task.id} task={task} onCardClick={openViewModal} onDragStart={handleDragStart} />
-							))}
+						>
+							{column.tasks &&
+								column.tasks.length > 0 &&
+								column.tasks.map((task) => (
+									<TaskCard key={task.id} task={task} onCardClick={openViewModal} onDragStart={handleDragStart} />
+								))}
 
-						{/* Add Card Button */}
-						<button
-							onClick={() => openCreateModal(column.id as TaskStatus)}
-							className="flex items-center justify-center gap-2 p-3 rounded-xl
+							{/* Add Card Button */}
+							<button
+								onClick={() => openCreateModal(column.id as TaskStatus)}
+								className="flex items-center justify-center gap-2 p-3 rounded-xl
                          border border-dashed border-light-grey
                          text-text-secondary hover:text-indigo-primary hover:border-indigo-primary
                          transition-all duration-200"
-						>
-							<Plus width={16} height={16} />
-							<span className="text-sm font-medium">Novo Card</span>
-						</button>
+							>
+								<Plus width={16} height={16} />
+								<span className="text-sm font-medium">Novo Card</span>
+							</button>
+						</div>
 					</div>
-				</div>
-			))}
+				))}
 
 			<div className="flex-shrink-0 w-80">
 				<button

@@ -27,7 +27,7 @@ export async function getLists(page: number, search?: string) {
 	console.log("Lists fetched:", response.data)
 
 	if (response.data && search) {
-		const filteredLists = response.data.filter((list: List) => list.title.toLowerCase().includes(search.toLowerCase()))
+		const filteredLists = response.data.filter((list: List) => list.name.toLowerCase().includes(search.toLowerCase()))
 		response.data = filteredLists
 	}
 
