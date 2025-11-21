@@ -7,7 +7,7 @@ import { Modal } from "@/components/private/ui/modal"
 import type { Task, TaskStatus } from "@/types/tasks/task"
 import type { List } from "@/types/lists/list"
 import { useLists } from "@/hooks/lists/use-lists"
-import { deleteList } from "@/actions/lists/delete-list"
+import { deleteList, DeleteListFormData } from "@/actions/lists/delete-list"
 import { updateList, UpdateListFormData } from "@/actions/lists/update-list"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
@@ -72,16 +72,32 @@ export function TaskBoard() {
 		Modal.handleOpen("create_list_modal")
 	}
 
+	const { mutate: deleteListMutation, error: deleteListError } = useMutation({
+		mutationFn: async (data: DeleteListFormData) => {
+			const res = await deleteList({ id: data.id })
+			if (res.success) {
+				toast.success("Lista deletada com sucesso!")
+				return data.id
+			} else {
+				console.log(deleteListError)
+				toast.error("Erro ao deletar lista: " + (res.error || "Erro desconhecido"))
+			}
+		},
+		onSuccess: (id) => {
+			queryClient.setQueryData(["lists"], (old: any) => {
+				if (!old || !old.data) return { data: [] }
+				const newData = old.data.filter((list: List) => String(list.id) && String(list.id) !== id)
+				return {
+					...old,
+					data: newData
+				}
+			})
+		}
+	})
+
 	const deleteColumn = async (columnId: string) => {
 		if (window.confirm("Tem certeza que deseja deletar esta lista? Todas as tarefas serão perdidas.")) {
-			const result = await deleteList({ id: columnId })
-
-			if (result.success) {
-				toast.success("Lista deletada com sucesso!")
-				window.location.reload() // Recarrega para atualizar a lista
-			} else {
-				toast.error(result.error || "Erro ao deletar lista")
-			}
+			deleteListMutation({ id: columnId })
 		}
 	}
 
@@ -97,12 +113,11 @@ export function TaskBoard() {
 	const { mutate: updateListMutation } = useMutation({
 		mutationFn: async (data: UpdateListFormData) => {
 			const res = await updateList({ id: data.id, name: data.name })
-			console.log("res.list", res.list)
 			if (res.success && res.list) {
 				toast.success("Lista atualizada com sucesso!")
 				return res
 			} else {
-				toast.error("Erro ao atualizar lista")
+				toast.error("Erro ao atualizar lista: " + (res.error || "Erro desconhecido"))
 			}
 		},
 		onSuccess: (res) => {
@@ -268,7 +283,7 @@ export function TaskBoard() {
 									<button
 										onClick={(e) => {
 											e.stopPropagation()
-											deleteColumn(column.id)
+											deleteColumn(column.id.toString())
 										}}
 										className="p-1 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
 										title="Deletar lista"

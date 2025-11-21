@@ -3,7 +3,7 @@
 import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 
-type DeleteListFormData = { id: string }
+export type DeleteListFormData = { id: string }
 
 export async function deleteList({ id }: DeleteListFormData) {
 	try {
