@@ -19,15 +19,18 @@ export async function GET(request: NextRequest) {
 			Authorization: `Bearer ${accessToken}`
 		}
 	})
+	const response = NextResponse.redirect(url)
 
 	if (!result.ok) {
+		if (result.status === 401) {
+			response.cookies.delete("access_token")
+			return response
+		}
 		const errorText = await result.text()
-		console.log("Erro ao deslogar o usuário")
+		console.log("Erro ao deslogar o usuário da api", errorText)
 		console.log(result)
-		return NextResponse.json({ ok: false, status: result.status, error: errorText }, { status: result.status })
+		return NextResponse.json({ error: "Erro ao deslogar o usuário", details: errorText }, { status: 500 })
 	}
-	const response = NextResponse.redirect(url)
 	response.cookies.delete("access_token")
-
 	return response
 }
