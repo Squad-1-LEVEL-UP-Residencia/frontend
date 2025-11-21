@@ -4,263 +4,26 @@ import { useState, useEffect } from "react"
 import { TaskCard } from "./task-card"
 import { Plus } from "lucide-react"
 import { Modal } from "@/components/private/ui/modal"
-import type { Task, List, TaskStatus } from "@/types/tasks/task"
+import type { Task, TaskStatus } from "@/types/tasks/task"
+import type { List } from "@/types/lists/list"
+import { useLists } from "@/hooks/lists/use-lists"
+import { deleteList, DeleteListFormData } from "@/actions/lists/delete-list"
+import { updateList, UpdateListFormData } from "@/actions/lists/update-list"
+import toast from "react-hot-toast"
+import { useMutation } from "@tanstack/react-query"
+import { CreateListFormData } from "./modals/create-list/create-list-form"
+import { queryClient } from "@/lib/react-query"
 
-const getInitialColumns = (): List[] => {
-	const defaultColumns: List[] = [
-		{
-			id: "todo",
-			title: "A Fazer",
-			tasks: [],
-			isDefault: true
-		},
-		{
-			id: "doing",
-			title: "Fazendo",
-			tasks: [],
-			isDefault: true
-		},
-		{
-			id: "done",
-			title: "Concluído",
-			tasks: [],
-			isDefault: true
-		}
-	]
-
-	if (typeof window === "undefined") return defaultColumns
-
-	try {
-		const savedColumns = localStorage.getItem("taskColumns")
-		if (savedColumns) {
-			const parsed = JSON.parse(savedColumns)
-			if (Array.isArray(parsed) && parsed.length > 0) {
-				return parsed.map((col: any) => ({
-					id: col.id || crypto.randomUUID(),
-					title: col.title || "Sem título",
-					tasks: [],
-					isDefault: col.isDefault || false
-				}))
-			}
-		}
-	} catch (error) {
-		console.error("Erro ao carregar colunas do localStorage:", error)
-		localStorage.removeItem("taskColumns")
-	}
-
-	return defaultColumns
-}
-
-// Mock data para demonstração
-const mockClient = {
-	id: 1,
-	companyName: "Empresa Exemplo",
-	cnpj: "00.000.000/0001-00",
-	address: "Rua Exemplo, 123",
-	primaryContact: "João Exemplo",
-	phone: "(11) 99999-9999",
-	email: "contato@exemplo.com",
-	created_at: new Date().toISOString(),
-	updated_at: new Date().toISOString(),
-	deleted_at: null
-}
-
-const mockTasks: Task[] = [
-	{
-		id: "1",
-		title: "Criar página de login",
-		description: "Desenvolver interface de autenticação com validação de formulário",
-		status: "todo",
-		priority: "high",
-		tags: ["Frontend", "UI"],
-		campaign: "MVP Sistema",
-		start_date: new Date("2025-11-10"),
-		members: [
-			{ id: "1", name: "João Silva" },
-			{ id: "2", name: "Maria Santos" }
-		],
-		attachments: [],
-		comments: [],
-		checklist: [
-			{ id: "1", content: "Criar formulário", completed: true },
-			{ id: "2", content: "Adicionar validação", completed: false },
-			{ id: "3", content: "Integrar com API", completed: false }
-		],
-		progress: 33,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: "2",
-		title: "Implementar dashboard",
-		description: "Criar dashboard com gráficos e métricas",
-		status: "doing",
-		priority: "medium",
-		tags: ["Frontend", "Charts"],
-		members: [{ id: "1", name: "João Silva" }],
-		attachments: [{ id: "1", name: "mockup.png", url: "#", uploadedAt: new Date() }],
-		comments: [
-			{
-				id: "1",
-				author: { id: "1", name: "João Silva" },
-				content: "Começando implementação",
-				createdAt: new Date()
-			}
-		],
-		checklist: [],
-		progress: 50,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	},
-	{
-		id: "3",
-		title: "Revisar código do backend",
-		description: "Code review das APIs criadas",
-		status: "done",
-		priority: "low",
-		tags: ["Backend", "Review"],
-		members: [],
-		attachments: [],
-		comments: [],
-		checklist: [],
-		progress: 100,
-		client: mockClient,
-		createdAt: new Date(),
-		updatedAt: new Date()
-	}
-]
 export function TaskBoard() {
-	const [columns, setColumns] = useState<List[]>([])
+	const { data, isLoading, error } = useLists(1)
 	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
+	const [editingColumnId, setEditingColumnId] = useState<string | null>(null)
+	const [editingColumnName, setEditingColumnName] = useState<string>("")
 
-	// Inicializar com mock data
-	useEffect(() => {
-		try {
-			const initialCols = getInitialColumns()
+	const columns = data?.data || []
 
-			if (!Array.isArray(initialCols) || initialCols.length === 0) {
-				console.error("Colunas iniciais inválidas, usando padrões")
-				localStorage.removeItem("taskColumns")
-				localStorage.removeItem("taskBoardTasks")
-				window.location.reload()
-				return
-			}
-
-			const savedTasks = localStorage.getItem("taskBoardTasks")
-
-			let tasksToUse = mockTasks
-			if (savedTasks) {
-				try {
-					const parsed = JSON.parse(savedTasks)
-					if (Array.isArray(parsed) && parsed.length > 0) {
-						tasksToUse = parsed.map((task: any) => ({
-							...task,
-							createdAt: new Date(task.createdAt),
-							updatedAt: new Date(task.updatedAt),
-							dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-							members: Array.isArray(task.members) ? task.members : [],
-							attachments: Array.isArray(task.attachments) ? task.attachments : [],
-							comments: Array.isArray(task.comments) ? task.comments : [],
-							checklist: Array.isArray(task.checklist) ? task.checklist : [],
-							tags: Array.isArray(task.tags) ? task.tags : []
-						}))
-					}
-				} catch (e) {
-					console.error("Erro ao carregar tarefas:", e)
-					localStorage.removeItem("taskBoardTasks")
-				}
-			}
-
-			const newColumns = initialCols.map((col) => ({
-				...col,
-				tasks: Array.isArray(tasksToUse) ? tasksToUse.filter((task) => task && task.status === col.id) : []
-			}))
-
-			setColumns(newColumns)
-		} catch (error) {
-			console.error("Erro ao inicializar colunas:", error)
-			localStorage.removeItem("taskColumns")
-			localStorage.removeItem("taskBoardTasks")
-			window.location.reload()
-		}
-	}, [])
-
-	// Salvar colunas e tarefas no localStorage sempre que mudarem
-	useEffect(() => {
-		if (columns && columns.length > 0) {
-			try {
-				const columnsStructure = columns.map((col) => ({
-					id: col.id,
-					title: col.title,
-					isDefault: col.isDefault || false
-				}))
-				localStorage.setItem("taskColumns", JSON.stringify(columnsStructure))
-
-				const allTasks = columns.flatMap((col) => col.tasks)
-				localStorage.setItem("taskBoardTasks", JSON.stringify(allTasks))
-			} catch (error) {
-				console.error("Erro ao salvar colunas:", error)
-			}
-		}
-	}, [columns])
-
-	// Escutar eventos de criação, atualização e exclusão
-	useEffect(() => {
-		const handleTaskCreated = (e: Event) => {
-			const newTask = (e as CustomEvent<Task>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => (col.id === newTask.status ? { ...col, tasks: [...(col.tasks || []), newTask] } : col))
-			})
-		}
-
-		const handleTaskUpdated = (e: Event) => {
-			const updatedTask = (e as CustomEvent<Task>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => ({
-					...col,
-					tasks: (col.tasks || [])
-						.filter((t) => t.id !== updatedTask.id)
-						.concat(col.id === updatedTask.status ? [updatedTask] : [])
-				}))
-			})
-		}
-
-		const handleTaskDeleted = (e: Event) => {
-			const taskId = (e as CustomEvent<string>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return prev.map((col) => ({
-					...col,
-					tasks: (col.tasks || []).filter((t) => t.id !== taskId)
-				}))
-			})
-		}
-
-		const handleColumnCreated = (e: Event) => {
-			const newColumn = (e as CustomEvent<List>).detail
-			setColumns((prev) => {
-				if (!Array.isArray(prev)) return prev
-				return [...prev, newColumn]
-			})
-		}
-
-		window.addEventListener("task:created", handleTaskCreated as EventListener)
-		window.addEventListener("task:updated", handleTaskUpdated as EventListener)
-		window.addEventListener("task:deleted", handleTaskDeleted as EventListener)
-		window.addEventListener("column:created", handleColumnCreated as EventListener)
-
-		return () => {
-			window.removeEventListener("task:created", handleTaskCreated as EventListener)
-			window.removeEventListener("task:updated", handleTaskUpdated as EventListener)
-			window.removeEventListener("task:deleted", handleTaskDeleted as EventListener)
-			window.removeEventListener("column:created", handleColumnCreated as EventListener)
-		}
-	}, [])
+	// Funções de manipulação agora disparam ações de API
 
 	const handleDragStart = (e: React.DragEvent, taskId: string) => {
 		setDraggedTaskId(taskId)
@@ -272,49 +35,28 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleDrop = (e: React.DragEvent, targetColumnId: TaskStatus) => {
+	const handleDrop = async (e: React.DragEvent, targetColumnId: TaskStatus) => {
 		e.preventDefault()
-
 		if (!draggedTaskId) return
 
 		// Encontrar a tarefa arrastada
 		let draggedTask: Task | undefined
 		let sourceColumnId: TaskStatus | undefined
-
 		for (const col of columns) {
-			const task = col.tasks.find((t) => t.id === draggedTaskId)
+			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
 			if (task) {
 				draggedTask = task
 				sourceColumnId = col.id as TaskStatus
 				break
 			}
 		}
-
 		if (!draggedTask || !sourceColumnId || sourceColumnId === targetColumnId) {
 			setDraggedTaskId(null)
 			return
 		}
-
-		// Atualizar o status da tarefa
-		const updatedTask = { ...draggedTask, status: targetColumnId }
-
-		// Atualizar as colunas
-		setColumns((prev) =>
-			prev.map((col) => {
-				if (col.id === sourceColumnId) {
-					return { ...col, tasks: col.tasks.filter((t) => t.id !== draggedTaskId) }
-				}
-				if (col.id === targetColumnId) {
-					return { ...col, tasks: [...col.tasks, updatedTask] }
-				}
-				return col
-			})
-		)
-
+		// Disparar ação de atualização na API
+		// Exemplo: await updateTaskStatus(draggedTaskId, targetColumnId)
 		setDraggedTaskId(null)
-
-		// Aqui você pode disparar uma action para salvar no backend
-		// updateTaskStatus(draggedTaskId, targetColumnId)
 	}
 
 	const openCreateModal = (columnId: TaskStatus) => {
@@ -326,14 +68,87 @@ export function TaskBoard() {
 		window.dispatchEvent(new CustomEvent("task:view-open", { detail: task }))
 	}
 
-	const openCreateColumnModal = () => {
-		Modal.handleOpen("create_column_modal")
+	const openCreateListModal = () => {
+		Modal.handleOpen("create_list_modal")
 	}
 
-	const deleteColumn = (columnId: string) => {
-		if (window.confirm("Tem certeza que deseja deletar esta lista? Todas as tarefas serão perdidas.")) {
-			setColumns((prev) => prev.filter((col) => col.id !== columnId))
+	const { mutate: deleteListMutation, error: deleteListError } = useMutation({
+		mutationFn: async (data: DeleteListFormData) => {
+			const res = await deleteList({ id: data.id })
+			if (res.success) {
+				toast.success("Lista deletada com sucesso!")
+				return data.id
+			} else {
+				console.log(deleteListError)
+				toast.error("Erro ao deletar lista: " + (res.error || "Erro desconhecido"))
+			}
+		},
+		onSuccess: (id) => {
+			queryClient.setQueryData(["lists"], (old: any) => {
+				if (!old || !old.data) return { data: [] }
+				const newData = old.data.filter((list: List) => String(list.id) && String(list.id) !== id)
+				return {
+					...old,
+					data: newData
+				}
+			})
 		}
+	})
+
+	const deleteColumn = async (columnId: string) => {
+		if (window.confirm("Tem certeza que deseja deletar esta lista? Todas as tarefas serão perdidas.")) {
+			deleteListMutation({ id: columnId })
+		}
+	}
+
+	const startEditingColumn = (columnId: string, currentName: string) => {
+		setEditingColumnId(columnId)
+		setEditingColumnName(currentName)
+	}
+
+	const cancelEditingColumn = () => {
+		setEditingColumnId(null)
+		setEditingColumnName("")
+	}
+	const { mutate: updateListMutation } = useMutation({
+		mutationFn: async (data: UpdateListFormData) => {
+			const res = await updateList({ id: data.id, name: data.name })
+			if (res.success && res.list) {
+				toast.success("Lista atualizada com sucesso!")
+				return res
+			} else {
+				toast.error("Erro ao atualizar lista: " + (res.error || "Erro desconhecido"))
+			}
+		},
+		onSuccess: (res) => {
+			console.log(res)
+			queryClient.setQueryData(["lists"], (old: any) => {
+				if (!old || !old.data) return { data: [res!.list] }
+				return { ...old, data: old.data.map((list: List) => (list.id === res!.list.id ? res!.list : list)) }
+			})
+			setEditingColumnId(null)
+			setEditingColumnName("")
+		}
+	})
+
+	const saveColumnName = async (columnId: string) => {
+		if (!editingColumnName.trim()) {
+			toast.error("Nome da lista não pode ser vazio")
+			return
+		}
+		console.log("foi")
+
+		updateListMutation({ id: columnId, name: editingColumnName })
+		// const result = await updateList({ id: columnId, name: editingColumnName })
+
+		// if (result.success) {
+		// 	toast.success("Lista atualizada com sucesso!")
+		// 	setEditingColumnId(null)
+		// 	setEditingColumnName("")
+		// 	window.location.reload() // Recarrega para atualizar a lista
+		// } else {
+		// 	toast.error(result.error || "Erro ao atualizar lista")
+		// }
 	}
 
 	const handleColumnDragStart = (e: React.DragEvent, columnId: string) => {
@@ -346,113 +161,189 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleColumnDrop = (e: React.DragEvent, targetColumnId: string) => {
+	const handleColumnDrop = async (e: React.DragEvent, targetColumnId: string) => {
 		e.preventDefault()
 		e.stopPropagation()
-
 		if (!draggedColumnId || draggedColumnId === targetColumnId) {
 			setDraggedColumnId(null)
 			return
 		}
-
-		const draggedIndex = columns.findIndex((col) => col.id === draggedColumnId)
-		const targetIndex = columns.findIndex((col) => col.id === targetColumnId)
-
-		if (draggedIndex === -1 || targetIndex === -1) {
-			setDraggedColumnId(null)
-			return
-		}
-
-		const newColumns = [...columns]
-		const [draggedColumn] = newColumns.splice(draggedIndex, 1)
-		newColumns.splice(targetIndex, 0, draggedColumn)
-
-		setColumns(newColumns)
+		// Disparar ação de reordenação na API se necessário
+		// Exemplo: await reorderList(draggedColumnId, targetColumnId)
 		setDraggedColumnId(null)
 	}
 
-	if (!columns || columns.length === 0) {
-		return <div className="flex items-center justify-center h-full">Carregando...</div>
+	if (error) {
+		return <div className="flex items-center justify-center h-full">Erro ao carregar listas</div>
 	}
 
 	return (
 		<div className="flex gap-6 h-full overflow-x-auto pb-4">
-			{columns.map((column, index) => (
-				<div
-					key={column.id}
-					onDragOver={handleColumnDragOver}
-					onDrop={(e) => handleColumnDrop(e, column.id)}
-					className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
-				>
+			{columns.length > 0 &&
+				columns.map((column, index) => (
 					<div
-						draggable
-						onDragStart={(e) => handleColumnDragStart(e, column.id)}
-						className="flex items-center justify-between mb-4 px-2 cursor-move"
+						key={column.id ?? `column-${index}`}
+						onDragOver={handleColumnDragOver}
+						onDrop={(e) => handleColumnDrop(e, column.id)}
+						className={`flex-shrink-0 w-80 flex flex-col ${draggedColumnId === column.id ? "opacity-50" : ""}`}
 					>
-						<div className="flex items-center gap-2">
-							<h2 className="font-semibold text-lg text-text-primary">{column.title}</h2>
-							<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
-								{column.tasks.length}
-							</span>
+						<div
+							draggable={editingColumnId !== column.id}
+							onDragStart={(e) => handleColumnDragStart(e, column.id)}
+							className="flex items-center justify-between mb-4 px-2 cursor-move"
+						>
+							<div className="flex items-center gap-2 flex-1">
+								{editingColumnId === column.id ? (
+									<div className="flex items-center gap-2 flex-1">
+										<input
+											type="text"
+											value={editingColumnName}
+											onChange={(e) => setEditingColumnName(e.target.value)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") saveColumnName(column.id)
+												if (e.key === "Escape") cancelEditingColumn()
+											}}
+											className="flex-1 px-2 py-1 text-sm border border-indigo-primary rounded focus:outline-none"
+											autoFocus
+										/>
+										<button
+											onClick={() => saveColumnName(column.id)}
+											className="p-1 text-green-600 hover:bg-green-50 rounded"
+											title="Salvar"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
+												<polyline points="20 6 9 17 4 12"></polyline>
+											</svg>
+										</button>
+										<button
+											onClick={cancelEditingColumn}
+											className="p-1 text-red-600 hover:bg-red-50 rounded"
+											title="Cancelar"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
+												<line x1="18" y1="6" x2="6" y2="18"></line>
+												<line x1="6" y1="6" x2="18" y2="18"></line>
+											</svg>
+										</button>
+									</div>
+								) : (
+									<>
+										<h2 className="font-semibold text-lg text-text-primary">{column.name}</h2>
+										<span className="px-2 py-0.5 text-xs font-medium rounded-full bg-grey-primary text-text-secondary">
+											{Array.isArray(column.tasks) ? column.tasks.length : 0}
+										</span>
+									</>
+								)}
+							</div>
+							{editingColumnId !== column.id && (
+								<div className="flex items-center gap-1">
+									<button
+										onClick={(e) => {
+											e.stopPropagation()
+											startEditingColumn(column.id, column.name)
+										}}
+										className="p-1 text-text-secondary hover:text-indigo-primary hover:bg-indigo-50 rounded transition-colors"
+										title="Editar lista"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+											<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+										</svg>
+									</button>
+									<button
+										onClick={(e) => {
+											e.stopPropagation()
+											deleteColumn(column.id.toString())
+										}}
+										className="p-1 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+										title="Deletar lista"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M3 6h18"></path>
+											<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+											<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+										</svg>
+									</button>
+								</div>
+							)}
 						</div>
-						{!column.isDefault && (
-							<button
-								onClick={(e) => {
-									e.stopPropagation()
-									deleteColumn(column.id)
-								}}
-								className="text-text-secondary hover:text-red-500 transition-colors p-1"
-								title="Deletar lista"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M18 6 6 18"></path>
-									<path d="m6 6 12 12"></path>
-								</svg>
-							</button>
-						)}
-					</div>
 
-					{/* Tasks Container */}
-					<div
-						onDragOver={handleDragOver}
-						onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
-						className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
+						{/* Tasks Container */}
+						<div
+							onDragOver={handleDragOver}
+							onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
+							className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
                        ${draggedTaskId ? "border-2 border-dashed border-indigo-primary/50" : ""}`}
-					>
-						{column.tasks &&
-							column.tasks.length > 0 &&
-							column.tasks.map((task) => (
-								<TaskCard key={task.id} task={task} onCardClick={openViewModal} onDragStart={handleDragStart} />
-							))}
+						>
+							{column.tasks &&
+								column.tasks.length > 0 &&
+								column.tasks.map((task, idx) => (
+									<TaskCard
+										key={task.id ?? `task-${idx}`}
+										task={task}
+										onCardClick={openViewModal}
+										onDragStart={handleDragStart}
+									/>
+								))}
 
-						{/* Add Card Button */}
-						<button
-							onClick={() => openCreateModal(column.id as TaskStatus)}
-							className="flex items-center justify-center gap-2 p-3 rounded-xl
+							{/* Add Card Button */}
+							<button
+								onClick={() => openCreateModal(column.id as TaskStatus)}
+								className="flex items-center justify-center gap-2 p-3 rounded-xl
                          border border-dashed border-light-grey
                          text-text-secondary hover:text-indigo-primary hover:border-indigo-primary
                          transition-all duration-200"
-						>
-							<Plus width={16} height={16} />
-							<span className="text-sm font-medium">Novo Card</span>
-						</button>
+							>
+								<Plus width={16} height={16} />
+								<span className="text-sm font-medium">Novo Card</span>
+							</button>
+						</div>
 					</div>
-				</div>
-			))}
+				))}
 
 			<div className="flex-shrink-0 w-80">
 				<button
-					onClick={openCreateColumnModal}
+					onClick={openCreateListModal}
 					className="w-full h-32 flex flex-col items-center justify-center gap-3 p-4 rounded-xl
                      border-2 border-dashed border-light-grey
                      text-text-secondary hover:text-indigo-primary hover:border-indigo-primary

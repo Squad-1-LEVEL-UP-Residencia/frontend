@@ -1,3 +1,5 @@
+import { Client } from "../clients/client"
+
 export const DEFAULT_TASK_STATUSES = {
 	TODO: "todo",
 	DOING: "doing",
@@ -49,14 +51,7 @@ export interface Task {
 	comments: TaskComment[]
 	checklist: TaskChecklistItem[]
 	progress: number
-	client: import("@/types/clients/client").Client
+	client: Client
 	createdAt: Date
 	updatedAt: Date
-}
-
-export interface List {
-	id: string
-	title: string
-	tasks: Task[]
-	isDefault?: boolean
 }

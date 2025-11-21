@@ -32,7 +32,7 @@ const priorityLabels = {
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
-	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(task.checklist)
+	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(Array.isArray(task.checklist) ? task.checklist : [])
 	const [newChecklistItem, setNewChecklistItem] = useState("")
 
 	const {
@@ -50,9 +50,9 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			campaign: task.campaign || "",
 			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
 			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
-			tags: task.tags,
-			members: task.members.map((m) => m.id),
-			checklist: task.checklist
+			tags: Array.isArray(task.tags) ? task.tags : [],
+			members: Array.isArray(task.members) ? task.members.map((m) => m.id) : [],
+			checklist: Array.isArray(task.checklist) ? task.checklist : []
 		}
 	})
 
@@ -65,11 +65,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			campaign: task.campaign || "",
 			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
 			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
-			tags: task.tags,
-			members: task.members.map((m) => m.id),
-			checklist: task.checklist
+			tags: Array.isArray(task.tags) ? task.tags : [],
+			members: Array.isArray(task.members) ? task.members.map((m) => m.id) : [],
+			checklist: Array.isArray(task.checklist) ? task.checklist : []
 		})
-		setChecklist(task.checklist)
+		setChecklist(Array.isArray(task.checklist) ? task.checklist : [])
 	}, [task, reset])
 
 	const onSubmit = async (data: EditTaskFormData) => {
@@ -126,8 +126,9 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setChecklist((prev) => prev.filter((item) => item.id !== itemId))
 	}
 
-	const completedCount = checklist.filter((item) => item.completed).length
-	const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0
+	const completedCount = Array.isArray(checklist) ? checklist.filter((item) => item.completed).length : 0
+	const progressPercent =
+		Array.isArray(checklist) && checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -182,16 +183,17 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Membros</Label>
 						<div className="flex items-center gap-2 flex-wrap">
-							{task.members.map((member) => (
-								<div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
-									<Avatar name={member.name} />
-									<span className="text-sm font-medium">{member.name}</span>
-								</div>
-							))}
+							{Array.isArray(task.members) &&
+								task.members.map((member) => (
+									<div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
+										<Avatar name={member.name} />
+										<span className="text-sm font-medium">{member.name}</span>
+									</div>
+								))}
 							<button
 								type="button"
 								className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
-                         text-sm text-text-secondary hover:bg-background transition-colors"
+								 text-sm text-text-secondary hover:bg-background transition-colors"
 							>
 								<Plus width={16} height={16} />
 								Adicionar
@@ -203,16 +205,17 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Anexos</Label>
 						<div className="flex flex-col gap-2">
-							{task.attachments.map((attachment) => (
-								<div key={attachment.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
-									<Paperclip width={16} height={16} className="text-text-secondary" />
-									<span className="text-sm flex-1">{attachment.name}</span>
-								</div>
-							))}
+							{Array.isArray(task.attachments) &&
+								task.attachments.map((attachment) => (
+									<div key={attachment.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
+										<Paperclip width={16} height={16} className="text-text-secondary" />
+										<span className="text-sm flex-1">{attachment.name}</span>
+									</div>
+								))}
 							<button
 								type="button"
 								className="flex items-center gap-1 px-3 py-2 border border-dashed border-light-grey rounded-lg
-                         text-sm text-text-secondary hover:bg-background transition-colors justify-center"
+								 text-sm text-text-secondary hover:bg-background transition-colors justify-center"
 							>
 								<Plus width={16} height={16} />
 								Adicionar anexo
@@ -335,27 +338,28 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-3 mt-4">
 						<Label>Atividade</Label>
 						<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
-							{task.comments.map((comment) => (
-								<div key={comment.id} className="flex gap-2">
-									<Avatar name={comment.author.name} />
-									<div className="flex-1 flex flex-col gap-1">
-										<div className="flex items-center gap-2">
-											<span className="text-sm font-medium">{comment.author.name}</span>
-											<span className="text-xs text-text-secondary">
-												{new Date(comment.createdAt).toLocaleDateString("pt-BR")}
-											</span>
+							{Array.isArray(task.comments) &&
+								task.comments.map((comment) => (
+									<div key={comment.id} className="flex gap-2">
+										<Avatar name={comment.author.name} />
+										<div className="flex-1 flex flex-col gap-1">
+											<div className="flex items-center gap-2">
+												<span className="text-sm font-medium">{comment.author.name}</span>
+												<span className="text-xs text-text-secondary">
+													{new Date(comment.createdAt).toLocaleDateString("pt-BR")}
+												</span>
+											</div>
+											<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>
 										</div>
-										<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>
 									</div>
-								</div>
-							))}
+								))}
 						</div>
 						<textarea
 							placeholder="Escrever um comentário..."
 							className="w-full rounded-xl border border-light-grey px-3 py-2
-                       text-sm text-text-primary placeholder:text-text-secondary
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                       resize-none min-h-[60px]"
+							   text-sm text-text-primary placeholder:text-text-secondary
+							   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+							   resize-none min-h-[60px]"
 						/>
 					</div>
 				</div>

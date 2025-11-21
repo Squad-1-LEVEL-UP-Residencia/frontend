@@ -24,8 +24,8 @@ const priorityLabels = {
 }
 
 export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
-	const completedChecklist = task.checklist.filter((item) => item.completed).length
-	const totalChecklist = task.checklist.length
+	const completedChecklist = Array.isArray(task.checklist) ? task.checklist.filter((item) => item.completed).length : 0
+	const totalChecklist = Array.isArray(task.checklist) ? task.checklist.length : 0
 	const progressPercent = totalChecklist > 0 ? (completedChecklist / totalChecklist) * 100 : 0
 
 	return (
@@ -35,21 +35,21 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 				onDragStart={(e) => onDragStart(e, task.id)}
 				onClick={() => onCardClick(task)}
 				className="bg-white rounded-xl border border-light-grey p-4 cursor-pointer
-                   hover:shadow-md hover:border-indigo-primary/30
-                   transition-all duration-200 ease-in-out
-                   active:cursor-grabbing"
+				   hover:shadow-md hover:border-indigo-primary/30
+				   transition-all duration-200 ease-in-out
+				   active:cursor-grabbing"
 			>
 				{/* Título */}
 				<h3 className="font-semibold text-base text-text-primary mb-2">{task.title}</h3>
 
 				{/* Tags */}
-				{task.tags.length > 0 && (
+				{Array.isArray(task.tags) && task.tags.length > 0 && (
 					<div className="flex flex-wrap gap-1 mb-3">
 						{task.tags.map((tag, index) => (
 							<span
 								key={index}
 								className="px-2 py-0.5 text-xs font-medium rounded-full
-                           bg-blue-primary/10 text-blue-primary border border-blue-primary/20"
+						   bg-blue-primary/10 text-blue-primary border border-blue-primary/20"
 							>
 								{tag}
 							</span>
@@ -59,8 +59,8 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 
 				{/* Prioridade */}
 				<div className="mb-3">
-					<span className={`px-2 py-1 text-xs font-medium rounded-md border ${priorityColors[task.priority]}`}>
-						{priorityLabels[task.priority]}
+					<span className={`px-2 py-1 text-xs font-medium rounded-md border ${priorityColors[task.priority ?? "low"]}`}>
+						{priorityLabels[task.priority ?? "low"]}
 					</span>
 				</div>
 
@@ -86,13 +86,13 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 				<div className="flex items-center justify-between mt-3 pt-3 border-t border-light-grey">
 					{/* Icons */}
 					<div className="flex items-center gap-3">
-						{task.attachments.length > 0 && (
+						{Array.isArray(task.attachments) && task.attachments.length > 0 && (
 							<div className="flex items-center gap-1 text-text-secondary">
 								<Paperclip width={14} height={14} />
 								<span className="text-xs">{task.attachments.length}</span>
 							</div>
 						)}
-						{task.comments.length > 0 && (
+						{Array.isArray(task.comments) && task.comments.length > 0 && (
 							<div className="flex items-center gap-1 text-text-secondary">
 								<MessageSquare width={14} height={14} />
 								<span className="text-xs">{task.comments.length}</span>
@@ -101,7 +101,7 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 					</div>
 
 					{/* Members */}
-					{task.members.length > 0 && (
+					{Array.isArray(task.members) && task.members.length > 0 && (
 						<div className="flex -space-x-2">
 							{task.members.slice(0, 3).map((member) => (
 								<div key={member.id} className="ring-2 ring-white rounded-full" title={member.name}>
@@ -111,7 +111,7 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 							{task.members.length > 3 && (
 								<div
 									className="w-8 h-8 rounded-full bg-grey-primary border-2 border-white
-                                flex items-center justify-center text-xs font-medium text-text-secondary"
+								flex items-center justify-center text-xs font-medium text-text-secondary"
 								>
 									+{task.members.length - 3}
 								</div>
