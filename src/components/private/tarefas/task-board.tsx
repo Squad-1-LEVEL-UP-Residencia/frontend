@@ -8,8 +8,11 @@ import type { Task, TaskStatus } from "@/types/tasks/task"
 import type { List } from "@/types/lists/list"
 import { useLists } from "@/hooks/lists/use-lists"
 import { deleteList } from "@/actions/lists/delete-list"
-import { updateList } from "@/actions/lists/update-list"
+import { updateList, UpdateListFormData } from "@/actions/lists/update-list"
 import toast from "react-hot-toast"
+import { useMutation } from "@tanstack/react-query"
+import { CreateListFormData } from "./modals/create-list/create-list-form"
+import { queryClient } from "@/lib/react-query"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists(1)
@@ -91,23 +94,46 @@ export function TaskBoard() {
 		setEditingColumnId(null)
 		setEditingColumnName("")
 	}
+	const { mutate: updateListMutation } = useMutation({
+		mutationFn: async (data: UpdateListFormData) => {
+			const res = await updateList({ id: data.id, name: data.name })
+			console.log("res.list", res.list)
+			if (res.success && res.list) {
+				toast.success("Lista atualizada com sucesso!")
+				return res
+			} else {
+				toast.error("Erro ao atualizar lista")
+			}
+		},
+		onSuccess: (res) => {
+			console.log(res)
+			queryClient.setQueryData(["lists"], (old: any) => {
+				if (!old || !old.data) return { data: [res!.list] }
+				return { ...old, data: old.data.map((list: List) => (list.id === res!.list.id ? res!.list : list)) }
+			})
+			setEditingColumnId(null)
+			setEditingColumnName("")
+		}
+	})
 
 	const saveColumnName = async (columnId: string) => {
 		if (!editingColumnName.trim()) {
 			toast.error("Nome da lista não pode ser vazio")
 			return
 		}
+		console.log("foi")
 
-		const result = await updateList({ id: columnId, name: editingColumnName })
+		updateListMutation({ id: columnId, name: editingColumnName })
+		// const result = await updateList({ id: columnId, name: editingColumnName })
 
-		if (result.success) {
-			toast.success("Lista atualizada com sucesso!")
-			setEditingColumnId(null)
-			setEditingColumnName("")
-			window.location.reload() // Recarrega para atualizar a lista
-		} else {
-			toast.error(result.error || "Erro ao atualizar lista")
-		}
+		// if (result.success) {
+		// 	toast.success("Lista atualizada com sucesso!")
+		// 	setEditingColumnId(null)
+		// 	setEditingColumnName("")
+		// 	window.location.reload() // Recarrega para atualizar a lista
+		// } else {
+		// 	toast.error(result.error || "Erro ao atualizar lista")
+		// }
 	}
 
 	const handleColumnDragStart = (e: React.DragEvent, columnId: string) => {
@@ -170,14 +196,39 @@ export function TaskBoard() {
 											className="p-1 text-green-600 hover:bg-green-50 rounded"
 											title="Salvar"
 										>
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
+												<polyline points="20 6 9 17 4 12"></polyline>
+											</svg>
 										</button>
 										<button
 											onClick={cancelEditingColumn}
 											className="p-1 text-red-600 hover:bg-red-50 rounded"
 											title="Cancelar"
 										>
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
+												<line x1="18" y1="6" x2="6" y2="18"></line>
+												<line x1="6" y1="6" x2="18" y2="18"></line>
+											</svg>
 										</button>
 									</div>
 								) : (
@@ -199,7 +250,20 @@ export function TaskBoard() {
 										className="p-1 text-text-secondary hover:text-indigo-primary hover:bg-indigo-50 rounded transition-colors"
 										title="Editar lista"
 									>
-										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+											<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+										</svg>
 									</button>
 									<button
 										onClick={(e) => {
@@ -209,7 +273,21 @@ export function TaskBoard() {
 										className="p-1 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
 										title="Deletar lista"
 									>
-										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M3 6h18"></path>
+											<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+											<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+										</svg>
 									</button>
 								</div>
 							)}

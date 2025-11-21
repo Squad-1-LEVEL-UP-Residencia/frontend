@@ -18,7 +18,7 @@ const createListSchema = z.object({
 	name: z.string().min(1, "Nome da lista é obrigatório").min(2, "Mínimo 2 caracteres").max(30, "Máximo 30 caracteres")
 })
 
-type CreateListFormData = z.infer<typeof createListSchema>
+export type CreateListFormData = z.infer<typeof createListSchema>
 
 export function CreateListForm() {
 	const {
