@@ -45,11 +45,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		defaultValues: {
 			title: task.title,
 			description: task.description,
-			chatGptLink: task.chatGptLink || "",
 			status: task.status,
 			priority: task.priority,
 			campaign: task.campaign || "",
-			dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
+			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
 			tags: task.tags,
 			members: task.members.map((m) => m.id),
 			checklist: task.checklist
@@ -60,11 +60,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		reset({
 			title: task.title,
 			description: task.description,
-			chatGptLink: task.chatGptLink || "",
 			status: task.status,
 			priority: task.priority,
 			campaign: task.campaign || "",
-			dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
+			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
 			tags: task.tags,
 			members: task.members.map((m) => m.id),
 			checklist: task.checklist
@@ -141,17 +141,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						{errors.title && <SpanError>{errors.title.message}</SpanError>}
 					</div>
 
-					{/* Status e Campanha */}
+					{/* Status, Campanha e Datas */}
 					<div className="flex items-center gap-4 text-sm text-text-secondary">
 						{task.campaign && (
 							<span>
 								em <span className="font-medium text-text-primary">{task.campaign}</span>
 							</span>
 						)}
-						{task.dueDate && (
+						{task.start_date && (
 							<div className="flex items-center gap-1">
 								<Calendar width={14} height={14} />
-								<span>{new Date(task.dueDate).toLocaleDateString("pt-BR")}</span>
+								<span>Início: {new Date(task.start_date).toLocaleDateString("pt-BR")}</span>
+							</div>
+						)}
+						{task.end_date && (
+							<div className="flex items-center gap-1">
+								<Calendar width={14} height={14} />
+								<span>Fim: {new Date(task.end_date).toLocaleDateString("pt-BR")}</span>
 							</div>
 						)}
 					</div>
@@ -170,33 +176,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						{errors.description && <SpanError>{errors.description.message}</SpanError>}
 					</div>
 
-					{/* Link ChatGPT */}
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="chatGptLink">Link ChatGPT</Label>
-						<div className="relative">
-							<div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
-								<Bot width={18} height={18} />
-							</div>
-							<Input
-								id="chatGptLink"
-								variant="no-placeholder"
-								placeholder="https://chat.openai.com/..."
-								className="pl-10"
-								{...register("chatGptLink")}
-							/>
-							{task.chatGptLink && (
-								<a
-									href={task.chatGptLink}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-primary hover:text-indigo-600"
-								>
-									<ExternalLink width={18} height={18} />
-								</a>
-							)}
-						</div>
-						{errors.chatGptLink && <SpanError>{errors.chatGptLink.message}</SpanError>}
-					</div>
+					{/* Removido campo Link ChatGPT */}
 
 					{/* Membros */}
 					<div className="flex flex-col gap-2">
@@ -341,10 +321,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						<Input id="campaign" variant="no-placeholder" placeholder="Nome da campanha" {...register("campaign")} />
 					</div>
 
-					{/* Data de entrega */}
+					{/* Datas de início e fim */}
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="dueDate">Data de Entrega</Label>
-						<Input id="dueDate" type="date" variant="no-placeholder" {...register("dueDate")} />
+						<Label htmlFor="start_date">Data de Início</Label>
+						<Input id="start_date" type="date" variant="no-placeholder" {...register("start_date")} />
+					</div>
+					<div className="flex flex-col gap-2">
+						<Label htmlFor="end_date">Data de Fim</Label>
+						<Input id="end_date" type="date" variant="no-placeholder" {...register("end_date")} />
 					</div>
 
 					{/* Comentários e Atividade */}
