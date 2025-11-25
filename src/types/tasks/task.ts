@@ -8,7 +8,7 @@ export const DEFAULT_TASK_STATUSES = {
 
 export type TaskStatus = (typeof DEFAULT_TASK_STATUSES)[keyof typeof DEFAULT_TASK_STATUSES]
 
-export type TaskPriority = "low" | "medium" | "high"
+export type TaskPriority = 0 | 1 | 2
 
 export interface TaskMember {
 	id: string
@@ -39,18 +39,19 @@ export interface TaskChecklistItem {
 export interface Task {
 	id: string
 	title: string
-	description: string
+	description?: string
 	status: TaskStatus
 	priority: TaskPriority
-	tags: string[]
-	campaign?: string
+	tags?: string[]
+	position?: number
+	campaign?: string //TODO apagar isso aq
 	start_date?: Date
 	end_date?: Date
-	members: TaskMember[]
-	attachments: TaskAttachment[]
-	comments: TaskComment[]
-	checklist: TaskChecklistItem[]
-	progress: number
+	members?: TaskMember[]
+	attachments?: TaskAttachment[]
+	comments?: TaskComment[]
+	checklist?: TaskChecklistItem[]
+	progress?: number
 	client: Client
 	createdAt: Date
 	updatedAt: Date

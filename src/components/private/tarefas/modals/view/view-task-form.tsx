@@ -26,9 +26,9 @@ const statusLabels = {
 }
 
 const priorityLabels = {
-	low: "Baixa",
-	medium: "Média",
-	high: "Alta"
+	0: "Baixa",
+	1: "Média",
+	2: "Alta"
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
