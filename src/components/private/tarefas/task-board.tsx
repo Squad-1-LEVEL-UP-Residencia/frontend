@@ -43,7 +43,10 @@ export function TaskBoard() {
 		onSuccess: (res, vars) => {
 			// atualiza o cache das listas para refletir a mudança (remove da fonte e insere no destino no topo)
 			queryClient.invalidateQueries({ queryKey: ["lists"] })
-			toast.success("Tarefa movida")
+			if (res.status !== 200 && res.status !== 201) {
+				toast.error(res.raw.message)
+			}
+			toast.success(res.raw.message)
 		},
 		onError: (err) => {
 			console.error(err)
