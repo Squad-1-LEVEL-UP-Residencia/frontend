@@ -13,6 +13,7 @@ import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { CreateListFormData } from "./modals/create-list/create-list-form"
 import { queryClient } from "@/lib/react-query"
+import { moveTask, MoveTaskFormData } from "@/actions/tasks/move-task"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists()
@@ -34,7 +35,21 @@ export function TaskBoard() {
 		e.preventDefault()
 		e.dataTransfer.dropEffect = "move"
 	}
-
+	const { mutateAsync: moveTaskMutation } = useMutation({
+		mutationFn: async ({ listId, position, taskId }: MoveTaskFormData) => {
+			// chama a action que comunica com a API
+			return await moveTask({ listId, position, taskId })
+		},
+		onSuccess: (res, vars) => {
+			// atualiza o cache das listas para refletir a mudança (remove da fonte e insere no destino no topo)
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
+			toast.success("Tarefa movida")
+		},
+		onError: (err) => {
+			console.error(err)
+			toast.error("Erro ao mover tarefa")
+		}
+	})
 	const handleDrop = async (e: React.DragEvent, targetColumnId: number) => {
 		e.preventDefault()
 		if (!draggedTaskId) return
@@ -54,9 +69,17 @@ export function TaskBoard() {
 			setDraggedTaskId(null)
 			return
 		}
-		// Disparar ação de atualização na API
-		// Exemplo: await updateTaskStatus(draggedTaskId, targetColumnId)
-		setDraggedTaskId(null)
+		try {
+			await moveTaskMutation({
+				listId: targetColumnId,
+				position: draggedTask.position!,
+				taskId: draggedTask.id
+			})
+		} catch (error) {
+			console.error("Erro ao mover task:", error)
+		} finally {
+			setDraggedTaskId(null)
+		}
 	}
 
 	const openCreateModal = (columnId: number) => {
