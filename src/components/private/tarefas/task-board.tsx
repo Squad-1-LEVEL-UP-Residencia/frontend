@@ -9,6 +9,7 @@ import type { List } from "@/types/lists/list"
 import { useLists } from "@/hooks/lists/use-lists"
 import { deleteList, DeleteListFormData } from "@/actions/lists/delete-list"
 import { updateList, UpdateListFormData } from "@/actions/lists/update-list"
+import { moveTask, MoveTaskData } from "@/actions/tasks/move-task"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { CreateListFormData } from "./modals/create-list/create-list-form"
@@ -20,10 +21,26 @@ export function TaskBoard() {
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
 	const [editingColumnId, setEditingColumnId] = useState<string | null>(null)
 	const [editingColumnName, setEditingColumnName] = useState<string>("")
+	const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null)
 
 	const columns = data?.data || []
 
-	// Funções de manipulação agora disparam ações de API
+	// Mutation para mover tasks
+	const { mutate: moveTaskMutation } = useMutation({
+		mutationFn: async (data: MoveTaskData) => {
+			const res = await moveTask(data)
+			if (res.success) {
+				toast.success("Tarefa movida com sucesso!")
+				return res
+			} else {
+				toast.error("Erro ao mover tarefa: " + (res.error || "Erro desconhecido"))
+				throw new Error(res.error)
+			}
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
+		}
+	})
 
 	const handleDragStart = (e: React.DragEvent, taskId: string) => {
 		setDraggedTaskId(taskId)
@@ -35,27 +52,132 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleDrop = async (e: React.DragEvent, targetColumnId: TaskStatus) => {
+	const handleTaskDragOver = (e: React.DragEvent, taskId: string) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setDragOverTaskId(taskId)
+	}
+
+	const handleTaskDrop = async (e: React.DragEvent, targetTask: Task, targetListId: string) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setDragOverTaskId(null)
+
+		if (!draggedTaskId) return
+
+		// Encontrar a tarefa arrastada
+		let draggedTask: Task | undefined
+		let sourceListId: string | undefined
+		for (const col of columns) {
+			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
+			if (task) {
+				draggedTask = task
+				sourceListId = col.id
+				break
+			}
+		}
+
+		if (!draggedTask || !sourceListId) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Se for a mesma task, não fazer nada
+		if (draggedTask.id === targetTask.id) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Calcular nova posição baseada na task alvo
+		const targetList = columns.find((col) => col.id === targetListId)
+		if (!targetList) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Encontrar o índice da task alvo
+		const targetIndex = targetList.tasks.findIndex((t: Task) => t.id === targetTask.id)
+		let newPosition = targetTask.position
+
+		// Se estamos na mesma lista, ajustar a posição
+		if (sourceListId === targetListId) {
+			const sourceIndex = targetList.tasks.findIndex((t: Task) => t.id === draggedTask.id)
+			if (sourceIndex < targetIndex) {
+				// Movendo para baixo: pegar a posição entre a task alvo e a próxima
+				if (targetIndex < targetList.tasks.length - 1) {
+					newPosition = (targetTask.position + targetList.tasks[targetIndex + 1].position) / 2
+				} else {
+					newPosition = targetTask.position + 1
+				}
+			} else {
+				// Movendo para cima: pegar a posição entre a task anterior e a alvo
+				if (targetIndex > 0) {
+					newPosition = (targetList.tasks[targetIndex - 1].position + targetTask.position) / 2
+				} else {
+					newPosition = targetTask.position - 1
+				}
+			}
+		} else {
+			// Movendo para outra lista: inserir antes da task alvo
+			if (targetIndex > 0) {
+				newPosition = (targetList.tasks[targetIndex - 1].position + targetTask.position) / 2
+			} else {
+				newPosition = targetTask.position - 1
+			}
+		}
+
+		// Mover a tarefa
+		moveTaskMutation({
+			taskId: draggedTask.id,
+			listId: targetListId,
+			position: newPosition
+		})
+
+		setDraggedTaskId(null)
+	}
+
+	const handleDrop = async (e: React.DragEvent, targetColumnId: string) => {
 		e.preventDefault()
 		if (!draggedTaskId) return
 
 		// Encontrar a tarefa arrastada
 		let draggedTask: Task | undefined
-		let sourceColumnId: TaskStatus | undefined
+		let sourceColumnId: string | undefined
 		for (const col of columns) {
 			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
 			if (task) {
 				draggedTask = task
-				sourceColumnId = col.id as TaskStatus
+				sourceColumnId = col.id
 				break
 			}
 		}
-		if (!draggedTask || !sourceColumnId || sourceColumnId === targetColumnId) {
+
+		if (!draggedTask || !sourceColumnId) {
 			setDraggedTaskId(null)
 			return
 		}
-		// Disparar ação de atualização na API
-		// Exemplo: await updateTaskStatus(draggedTaskId, targetColumnId)
+
+		// Se for a mesma lista e não houve drop em uma task, não fazer nada
+		if (sourceColumnId === targetColumnId) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Mover para o final da lista alvo
+		const targetList = columns.find((col) => col.id === targetColumnId)
+		if (!targetList) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		const lastPosition = targetList.tasks.length > 0 ? targetList.tasks[targetList.tasks.length - 1].position : 0
+
+		moveTaskMutation({
+			taskId: draggedTask.id,
+			listId: targetColumnId,
+			position: lastPosition + 1
+		})
+
 		setDraggedTaskId(null)
 	}
 
@@ -311,7 +433,7 @@ export function TaskBoard() {
 						{/* Tasks Container */}
 						<div
 							onDragOver={handleDragOver}
-							onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
+							onDrop={(e) => handleDrop(e, column.id)}
 							className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
                        ${draggedTaskId ? "border-2 border-dashed border-indigo-primary/50" : ""}`}
 						>
@@ -321,8 +443,12 @@ export function TaskBoard() {
 									<TaskCard
 										key={task.id ?? `task-${idx}`}
 										task={task}
+										listId={column.id}
 										onCardClick={openViewModal}
 										onDragStart={handleDragStart}
+										onDragOver={handleTaskDragOver}
+										onDrop={handleTaskDrop}
+										isDraggedOver={dragOverTaskId === task.id}
 									/>
 								))}
 

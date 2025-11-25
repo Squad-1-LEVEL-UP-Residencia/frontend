@@ -51,6 +51,8 @@ export interface Task {
 	comments: TaskComment[]
 	checklist: TaskChecklistItem[]
 	progress: number
+	position: number
+	list_id: string
 	client: Client
 	createdAt: Date
 	updatedAt: Date

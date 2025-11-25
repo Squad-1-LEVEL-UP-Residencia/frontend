@@ -9,6 +9,10 @@ interface TaskCardProps {
 	task: Task
 	onCardClick: (task: Task) => void
 	onDragStart: (e: React.DragEvent, taskId: string) => void
+	onDragOver?: (e: React.DragEvent, taskId: string) => void
+	onDrop?: (e: React.DragEvent, task: Task, listId: string) => void
+	listId: string
+	isDraggedOver?: boolean
 }
 
 const priorityColors = {
@@ -23,7 +27,7 @@ const priorityLabels = {
 	high: "Alta"
 }
 
-export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
+export function TaskCard({ task, onCardClick, onDragStart, onDragOver, onDrop, listId, isDraggedOver }: TaskCardProps) {
 	const completedChecklist = Array.isArray(task.checklist) ? task.checklist.filter((item) => item.completed).length : 0
 	const totalChecklist = Array.isArray(task.checklist) ? task.checklist.length : 0
 	const progressPercent = totalChecklist > 0 ? (completedChecklist / totalChecklist) * 100 : 0
@@ -33,11 +37,14 @@ export function TaskCard({ task, onCardClick, onDragStart }: TaskCardProps) {
 			<div
 				draggable
 				onDragStart={(e) => onDragStart(e, task.id)}
+				onDragOver={(e) => onDragOver?.(e, task.id)}
+				onDrop={(e) => onDrop?.(e, task, listId)}
 				onClick={() => onCardClick(task)}
-				className="bg-white rounded-xl border border-light-grey p-4 cursor-pointer
+				className={`bg-white rounded-xl border border-light-grey p-4 cursor-pointer
 				   hover:shadow-md hover:border-indigo-primary/30
 				   transition-all duration-200 ease-in-out
-				   active:cursor-grabbing"
+				   active:cursor-grabbing
+				   ${isDraggedOver ? "border-2 border-indigo-primary border-dashed" : ""}`}
 			>
 				{/* Título */}
 				<h3 className="font-semibold text-base text-text-primary mb-2">{task.title}</h3>
