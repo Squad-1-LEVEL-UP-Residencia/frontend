@@ -20,7 +20,7 @@ interface ViewTaskFormProps {
 }
 
 const statusLabels = {
-	todo: "A Fazer",
+	pending: "A Fazer",
 	doing: "Fazendo",
 	done: "Concluído"
 }

@@ -1,9 +1,9 @@
 import { Client } from "../clients/client"
 
 export const DEFAULT_TASK_STATUSES = {
-	TODO: "todo",
-	DOING: "doing",
-	DONE: "done"
+	pending: "todo",
+	doing: "doing",
+	done: "done"
 } as const
 
 export type TaskStatus = (typeof DEFAULT_TASK_STATUSES)[keyof typeof DEFAULT_TASK_STATUSES]
