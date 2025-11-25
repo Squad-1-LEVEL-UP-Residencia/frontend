@@ -37,7 +37,7 @@ export async function createList({ name }: { name: string }) {
 	return {
 		success: true,
 		status: response.status,
-		list: data.lista as List,
+		list: data.list as List,
 		raw: data
 	}
 }

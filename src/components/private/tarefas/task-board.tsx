@@ -328,7 +328,7 @@ export function TaskBoard() {
 
 							{/* Add Card Button */}
 							<button
-								onClick={() => openCreateModal(Number(column.id) as number)}
+								onClick={() => openCreateModal(column.id)}
 								className="flex items-center justify-center gap-2 p-3 rounded-xl
                          border border-dashed border-light-grey
                          text-text-secondary hover:text-indigo-primary hover:border-indigo-primary

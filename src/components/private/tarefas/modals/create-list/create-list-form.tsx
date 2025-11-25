@@ -35,8 +35,6 @@ export function CreateListForm() {
 			const res = await createList({ name: data.name })
 			console.log("res.list", res.list)
 			if (res.success && res.list) {
-				toast.success("Lista criada com sucesso!")
-				reset()
 				return res
 			} else {
 				toast.error("Erro ao criar lista")
@@ -44,6 +42,9 @@ export function CreateListForm() {
 		},
 		onSuccess: (res) => {
 			console.log(res)
+			toast.success("Lista criada com sucesso!")
+			reset()
+
 			queryClient.setQueryData(["lists"], (old: any) => {
 				if (!old || !old.data) return { data: [res!.list] }
 				return { ...old, data: [...old.data, res!.list] }
@@ -51,6 +52,10 @@ export function CreateListForm() {
 
 			const modal = document.getElementById("create_list_modal") as HTMLDialogElement
 			modal?.close()
+		},
+		onError: (error) => {
+			toast.error("Erro ao criar lista")
+			console.error(error)
 		}
 	})
 

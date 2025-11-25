@@ -46,7 +46,7 @@ export async function updateList(formData: UpdateListFormData) {
 		return {
 			success: true,
 			status: response.status,
-			list: { ...data.lista },
+			list: { ...data.list },
 			raw: data
 		}
 	} catch (error) {

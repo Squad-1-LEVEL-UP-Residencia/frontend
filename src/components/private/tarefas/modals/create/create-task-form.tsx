@@ -15,6 +15,10 @@ import { Select } from "@/components/private/ui/select"
 import { Client } from "@/types/clients/client"
 import { useClients } from "@/hooks/clients/use-clients"
 import { List } from "@/types/lists/list"
+import { useMutation } from "@tanstack/react-query"
+import { createTask } from "@/actions/tasks/create-task"
+import { useEffect } from "react"
+import { queryClient } from "@/lib/react-query"
 
 interface CreateTaskFormProps {
 	list_id: number
@@ -23,27 +27,58 @@ interface CreateTaskFormProps {
 export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 	const { data: clients, isLoading: isLoadingClients } = useClients()
 
+	useEffect(() => {
+		setValue("list_id", Number(list_id), { shouldValidate: true })
+	}, [list_id])
+
 	const {
 		register,
 		handleSubmit,
+		setValue,
 		formState: { errors },
 		reset
 	} = useForm<CreateTaskFormData>({
-		resolver: zodResolver(createTaskSchema)
+		resolver: zodResolver(createTaskSchema),
+		defaultValues: {
+			list_id: list_id
+		}
+	})
+
+	const { mutateAsync: createTaskMutation } = useMutation({
+		mutationFn: createTask,
+		onSuccess: (data) => {
+			console.log(data)
+			queryClient.setQueryData(["lists"], (old: any) => {
+				console.log("Cache antigo (old):", old) // Verifique se existe 'old.data' ou se é apenas um array
+				console.log("Resposta da API (data):", data) // Verifique se 'data.task' existe mesmo
+				if (!old || !old.data) return
+				const updatedData = old.data.map((list: List) => {
+					if (list.id === list_id && data.success && data.task) {
+						const tasks = Array.isArray(list.tasks) ? [data.task, ...list.tasks] : [data.task]
+						return { ...list, tasks }
+					}
+					return list
+				})
+				return { ...old, data: updatedData }
+			})
+
+			const modal = document.getElementById("create_list_modal") as HTMLDialogElement
+			modal?.close()
+		},
+		onError: (error) => {
+			toast.error("Erro ao criar tarefa")
+			console.error(error)
+		}
 	})
 
 	const onSubmit = async (data: CreateTaskFormData) => {
 		try {
-			// Aqui você fará a criação real da tarefa via server action ou API
-			// Por enquanto, vamos simular e disparar evento
-
-			// Disparar evento para atualizar a lista
-			// window.dispatchEvent(new CustomEvent("task:created", { detail: newTask }))
-
+			data.list_id = list_id
+			await createTaskMutation(data)
 			toast.success("Tarefa criada com sucesso!")
 			reset()
 
-			// Fechar modal
+			// // Fechar modal
 			const modal = document.getElementById("create_task_modal") as HTMLDialogElement
 			modal?.close()
 		} catch (error) {
@@ -51,11 +86,16 @@ export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 			console.error(error)
 		}
 	}
-
+	const onInvalid = (errors: any) => {
+		console.log("erros de validação no submit:", errors)
+		console.log(list_id, typeof list_id)
+	}
 	return (
-		<form id="create-task-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+		<form id="create-task-form" onSubmit={handleSubmit(onSubmit, onInvalid)} className="flex flex-col gap-4">
 			{/* Nome da tarefa */}
-			<input type="hidden" {...register("list_id")} value={list_id} />
+
+			<input type="hidden" {...register("list_id", { valueAsNumber: true })} />
+
 			<div className="flex flex-col gap-2">
 				<Label htmlFor="title">Nome da tarefa</Label>
 				<Input id="title" variant="no-placeholder" placeholder="Nome da tarefa" {...register("title")} />
@@ -88,7 +128,7 @@ export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 						<option disabled={true} value={undefined}>
 							Carregando...
 						</option>
-					) : clients ? (
+					) : clients && clients.data.length > 0 ? (
 						clients.data.map((client: Client) => (
 							<option key={client.id} value={client.id}>
 								{client.companyName}
