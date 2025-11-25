@@ -8,7 +8,7 @@ import { ModalTrigger } from "@/components/private/ui/modal"
 interface TaskCardProps {
 	task: Task
 	onCardClick: (task: Task) => void
-	onDragStart: (e: React.DragEvent, taskId: string) => void
+	onDragStart: (e: React.DragEvent, taskId: number) => void
 }
 
 const priorityColors = {

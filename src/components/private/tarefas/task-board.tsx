@@ -16,16 +16,16 @@ import { queryClient } from "@/lib/react-query"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists()
-	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
-	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
-	const [editingColumnId, setEditingColumnId] = useState<string | null>(null)
+	const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null)
+	const [draggedColumnId, setDraggedColumnId] = useState<number | null>(null)
+	const [editingColumnId, setEditingColumnId] = useState<number | null>(null)
 	const [editingColumnName, setEditingColumnName] = useState<string>("")
 
 	const columns = data?.data || []
 
 	// Funções de manipulação agora disparam ações de API
 
-	const handleDragStart = (e: React.DragEvent, taskId: string) => {
+	const handleDragStart = (e: React.DragEvent, taskId: number) => {
 		setDraggedTaskId(taskId)
 		e.dataTransfer.effectAllowed = "move"
 	}
@@ -35,18 +35,18 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleDrop = async (e: React.DragEvent, targetColumnId: TaskStatus) => {
+	const handleDrop = async (e: React.DragEvent, targetColumnId: number) => {
 		e.preventDefault()
 		if (!draggedTaskId) return
 
 		// Encontrar a tarefa arrastada
 		let draggedTask: Task | undefined
-		let sourceColumnId: TaskStatus | undefined
+		let sourceColumnId: number | undefined
 		for (const col of columns) {
 			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
 			if (task) {
 				draggedTask = task
-				sourceColumnId = col.id as TaskStatus
+				sourceColumnId = col.id as number
 				break
 			}
 		}
@@ -101,7 +101,7 @@ export function TaskBoard() {
 		}
 	}
 
-	const startEditingColumn = (columnId: string, currentName: string) => {
+	const startEditingColumn = (columnId: number, currentName: string) => {
 		setEditingColumnId(columnId)
 		setEditingColumnName(currentName)
 	}
@@ -131,7 +131,7 @@ export function TaskBoard() {
 		}
 	})
 
-	const saveColumnName = async (columnId: string) => {
+	const saveColumnName = async (columnId: number) => {
 		if (!editingColumnName.trim()) {
 			toast.error("Nome da lista não pode ser vazio")
 			return
@@ -151,7 +151,7 @@ export function TaskBoard() {
 		// }
 	}
 
-	const handleColumnDragStart = (e: React.DragEvent, columnId: string) => {
+	const handleColumnDragStart = (e: React.DragEvent, columnId: number) => {
 		setDraggedColumnId(columnId)
 		e.dataTransfer.effectAllowed = "move"
 	}
@@ -161,7 +161,7 @@ export function TaskBoard() {
 		e.dataTransfer.dropEffect = "move"
 	}
 
-	const handleColumnDrop = async (e: React.DragEvent, targetColumnId: string) => {
+	const handleColumnDrop = async (e: React.DragEvent, targetColumnId: number) => {
 		e.preventDefault()
 		e.stopPropagation()
 		if (!draggedColumnId || draggedColumnId === targetColumnId) {
@@ -311,7 +311,7 @@ export function TaskBoard() {
 						{/* Tasks Container */}
 						<div
 							onDragOver={handleDragOver}
-							onDrop={(e) => handleDrop(e, column.id as TaskStatus)}
+							onDrop={(e) => handleDrop(e, column.id as number)}
 							className={`flex-1 flex flex-col gap-3 p-3 rounded-xl bg-background min-h-[200px]
                        ${draggedTaskId ? "border-2 border-dashed border-indigo-primary/50" : ""}`}
 						>

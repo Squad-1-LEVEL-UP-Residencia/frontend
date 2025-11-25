@@ -105,7 +105,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	}
 
-	const toggleChecklistItem = (itemId: string) => {
+	const toggleChecklistItem = (itemId: number) => {
 		setChecklist((prev) => prev.map((item) => (item.id === itemId ? { ...item, completed: !item.completed } : item)))
 	}
 
@@ -113,7 +113,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		if (!newChecklistItem.trim()) return
 
 		const newItem: TaskChecklistItem = {
-			id: crypto.randomUUID(),
+			id: crypto.getRandomValues(new Uint32Array(1))[0],
 			content: newChecklistItem,
 			completed: false
 		}
@@ -122,7 +122,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setNewChecklistItem("")
 	}
 
-	const removeChecklistItem = (itemId: string) => {
+	const removeChecklistItem = (itemId: number) => {
 		setChecklist((prev) => prev.filter((item) => item.id !== itemId))
 	}
 

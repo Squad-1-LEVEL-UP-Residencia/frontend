@@ -11,33 +11,33 @@ export type TaskStatus = (typeof DEFAULT_TASK_STATUSES)[keyof typeof DEFAULT_TAS
 export type TaskPriority = 0 | 1 | 2
 
 export interface TaskMember {
-	id: string
+	id: number
 	name: string
 	avatar?: string
 }
 
 export interface TaskAttachment {
-	id: string
+	id: number
 	name: string
 	url: string
 	uploadedAt: Date
 }
 
 export interface TaskComment {
-	id: string
+	id: number
 	author: TaskMember
 	content: string
 	createdAt: Date
 }
 
 export interface TaskChecklistItem {
-	id: string
+	id: number
 	content: string
 	completed: boolean
 }
 
 export interface Task {
-	id: string
+	id: number
 	title: string
 	description?: string
 	status: TaskStatus

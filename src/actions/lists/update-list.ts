@@ -4,7 +4,7 @@ import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 
 export type UpdateListFormData = {
-	id: string
+	id: number
 	name: string
 }
 

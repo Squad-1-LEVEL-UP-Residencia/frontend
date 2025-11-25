@@ -10,11 +10,11 @@ export const editTaskSchema = z.object({
 	start_date: z.string().optional(),
 	end_date: z.string().optional(),
 	tags: z.array(z.string()).optional(),
-	members: z.array(z.string()).optional(),
+	members: z.array(z.number()).optional(),
 	checklist: z
 		.array(
 			z.object({
-				id: z.string(),
+				id: z.number(),
 				content: z.string(),
 				completed: z.boolean()
 			})
