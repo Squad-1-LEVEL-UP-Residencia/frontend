@@ -15,7 +15,7 @@ import { CreateListFormData } from "./modals/create-list/create-list-form"
 import { queryClient } from "@/lib/react-query"
 
 export function TaskBoard() {
-	const { data, isLoading, error } = useLists(1)
+	const { data, isLoading, error } = useLists()
 	const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null)
 	const [editingColumnId, setEditingColumnId] = useState<string | null>(null)
@@ -59,7 +59,7 @@ export function TaskBoard() {
 		setDraggedTaskId(null)
 	}
 
-	const openCreateModal = (columnId: TaskStatus) => {
+	const openCreateModal = (columnId: number) => {
 		window.dispatchEvent(new CustomEvent("task:create-open", { detail: columnId }))
 		Modal.handleOpen("create_task_modal")
 	}
@@ -328,7 +328,7 @@ export function TaskBoard() {
 
 							{/* Add Card Button */}
 							<button
-								onClick={() => openCreateModal(column.id as TaskStatus)}
+								onClick={() => openCreateModal(Number(column.id) as number)}
 								className="flex items-center justify-center gap-2 p-3 rounded-xl
                          border border-dashed border-light-grey
                          text-text-secondary hover:text-indigo-primary hover:border-indigo-primary
