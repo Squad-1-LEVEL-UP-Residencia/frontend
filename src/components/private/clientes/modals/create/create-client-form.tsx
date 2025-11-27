@@ -29,6 +29,10 @@ export function CreateClientForm() {
 			if (data.success) {
 				toast.success("Cliente criado com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["clients"] })
+
+				// Fechar modal
+				const modal = document.getElementById("create_client_modal") as HTMLDialogElement
+				modal?.close()
 			} else {
 				toast.error(data.error)
 			}

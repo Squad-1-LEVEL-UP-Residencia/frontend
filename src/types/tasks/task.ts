@@ -44,7 +44,7 @@ export interface Task {
 	priority: TaskPriority
 	tags?: string[]
 	position?: number
-	campaign?: string //TODO apagar isso aq
+	campaign?: string
 	start_date?: Date
 	end_date?: Date
 	members?: TaskMember[]

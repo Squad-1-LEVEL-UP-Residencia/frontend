@@ -34,12 +34,14 @@ export function CreateUserForm() {
 		onSuccess: (data) => {
 			if (data.success) {
 				toast.success("Usuário criado com sucesso!")
-
 				queryClient.invalidateQueries({ queryKey: ["users"] })
+
+				// Fechar modal
+				const modal = document.getElementById("create_user_modal") as HTMLDialogElement
+				modal?.close()
 			} else {
 				toast.error(data.error)
 			}
-			// console.log("Created user:", data)
 		}
 	})
 

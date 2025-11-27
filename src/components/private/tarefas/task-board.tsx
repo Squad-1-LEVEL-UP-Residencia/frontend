@@ -1,30 +1,47 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { TaskCard } from "./task-card"
 import { Plus } from "lucide-react"
 import { Modal } from "@/components/private/ui/modal"
-import type { Task, TaskStatus } from "@/types/tasks/task"
+import type { Task } from "@/types/tasks/task"
 import type { List } from "@/types/lists/list"
 import { useLists } from "@/hooks/lists/use-lists"
 import { deleteList, DeleteListFormData } from "@/actions/lists/delete-list"
 import { updateList, UpdateListFormData } from "@/actions/lists/update-list"
+import { moveTask, MoveTaskFormData } from "@/actions/tasks/move-task"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
-import { CreateListFormData } from "./modals/create-list/create-list-form"
 import { queryClient } from "@/lib/react-query"
-import { moveTask, MoveTaskFormData } from "@/actions/tasks/move-task"
 
 export function TaskBoard() {
-	const { data, isLoading, error } = useLists()
+	const { data, error } = useLists()
 	const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null)
 	const [draggedColumnId, setDraggedColumnId] = useState<number | null>(null)
 	const [editingColumnId, setEditingColumnId] = useState<number | null>(null)
 	const [editingColumnName, setEditingColumnName] = useState<string>("")
+	const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null)
 
 	const columns = data?.data || []
 
-	// Funções de manipulação agora disparam ações de API
+	// Mutation para mover tasks
+	const { mutateAsync: moveTaskMutation } = useMutation({
+		mutationFn: async ({ listId, position, taskId }: MoveTaskFormData) => {
+			return await moveTask({ listId, position, taskId })
+		},
+		onSuccess: (res) => {
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
+			if (res.status !== 200 && res.status !== 201) {
+				toast.error(res.raw.message)
+			} else {
+				toast.success(res.raw.message)
+			}
+		},
+		onError: (err) => {
+			console.error(err)
+			toast.error("Erro ao mover tarefa")
+		}
+	})
 
 	const handleDragStart = (e: React.DragEvent, taskId: number) => {
 		setDraggedTaskId(taskId)
@@ -35,24 +52,141 @@ export function TaskBoard() {
 		e.preventDefault()
 		e.dataTransfer.dropEffect = "move"
 	}
-	const { mutateAsync: moveTaskMutation } = useMutation({
-		mutationFn: async ({ listId, position, taskId }: MoveTaskFormData) => {
-			// chama a action que comunica com a API
-			return await moveTask({ listId, position, taskId })
-		},
-		onSuccess: (res, vars) => {
-			// atualiza o cache das listas para refletir a mudança (remove da fonte e insere no destino no topo)
-			queryClient.invalidateQueries({ queryKey: ["lists"] })
-			if (res.status !== 200 && res.status !== 201) {
-				toast.error(res.raw.message)
+
+	const handleTaskDragOver = (e: React.DragEvent, taskId: number) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setDragOverTaskId(taskId)
+	}
+
+	const handleTaskDrop = async (e: React.DragEvent, targetTask: Task, targetListId: number) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setDragOverTaskId(null)
+
+		if (!draggedTaskId) return
+
+		// Encontrar a tarefa arrastada
+		let draggedTask: Task | undefined
+		let sourceListId: number | undefined
+		for (const col of columns) {
+			const task = col.tasks.find((t: Task) => t.id === draggedTaskId)
+			if (task) {
+				draggedTask = task
+				sourceListId = col.id as number
+				break
 			}
-			toast.success(res.raw.message)
-		},
-		onError: (err) => {
-			console.error(err)
-			toast.error("Erro ao mover tarefa")
 		}
-	})
+
+		if (!draggedTask || !sourceListId) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Se for a mesma task, não fazer nada
+		if (draggedTask.id === targetTask.id) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Calcular nova posição baseada na task alvo
+		const targetList = columns.find((col) => col.id === targetListId)
+		if (!targetList || !targetList.tasks) {
+			setDraggedTaskId(null)
+			return
+		}
+
+		// Encontrar índices
+		const draggedIndex = targetList.tasks.findIndex((t: Task) => t.id === draggedTask.id)
+		const targetIndex = targetList.tasks.findIndex((t: Task) => t.id === targetTask.id)
+		let newPosition: number
+
+		// Se está na mesma lista
+		if (sourceListId === targetListId) {
+			// Movendo para baixo (índice aumenta)
+			if (draggedIndex < targetIndex) {
+				// Inserir DEPOIS da task alvo
+				// Pegar position entre a task alvo e a próxima
+				if (targetIndex < targetList.tasks.length - 1) {
+					const targetPos = targetTask.position || (targetIndex + 1) * 100
+					const nextTask = targetList.tasks[targetIndex + 1]
+					const nextPos = nextTask.position || (targetIndex + 2) * 100
+					newPosition = Math.floor((targetPos + nextPos) / 2)
+
+					// Se não houver espaço, usar próxima position disponível
+					if (newPosition <= targetPos) {
+						newPosition = targetPos + 1
+					}
+				} else {
+					// É a última task, adicionar depois dela
+					const targetPos = targetTask.position || (targetIndex + 1) * 100
+					newPosition = targetPos + 100
+				}
+			}
+			// Movendo para cima (índice diminui)
+			else {
+				// Inserir ANTES da task alvo
+				// Pegar position entre a task anterior e a alvo
+				if (targetIndex > 0) {
+					const prevTask = targetList.tasks[targetIndex - 1]
+					const prevPos = prevTask.position || targetIndex * 100
+					const targetPos = targetTask.position || (targetIndex + 1) * 100
+					newPosition = Math.floor((prevPos + targetPos) / 2)
+
+					// Se não houver espaço, usar position intermediária
+					if (newPosition <= prevPos) {
+						newPosition = prevPos + 1
+					}
+				} else {
+					// É a primeira task, colocar antes dela
+					const targetPos = targetTask.position || 100
+					newPosition = Math.max(1, Math.floor(targetPos / 2))
+				}
+			}
+		}
+		// Movendo para outra lista
+		else {
+			// Inserir ANTES da task alvo
+			if (targetIndex > 0) {
+				const prevTask = targetList.tasks[targetIndex - 1]
+				const prevPos = prevTask.position || targetIndex * 100
+				const targetPos = targetTask.position || (targetIndex + 1) * 100
+				newPosition = Math.floor((prevPos + targetPos) / 2)
+
+				if (newPosition <= prevPos) {
+					newPosition = prevPos + 1
+				}
+			} else {
+				const targetPos = targetTask.position || 100
+				newPosition = Math.max(1, Math.floor(targetPos / 2))
+			}
+		}
+
+		// Garantir que position seja >= 1
+		newPosition = Math.max(1, newPosition)
+
+		console.log("🎯 Movendo task:", {
+			from: draggedIndex,
+			to: targetIndex,
+			draggedTask: draggedTask.title,
+			targetTask: targetTask.title,
+			newPosition
+		})
+
+		// Mover a tarefa
+		try {
+			await moveTaskMutation({
+				taskId: draggedTask.id,
+				listId: targetListId,
+				position: newPosition
+			})
+		} catch (error) {
+			console.error("Erro ao mover task:", error)
+		} finally {
+			setDraggedTaskId(null)
+		}
+	}
+
 	const handleDrop = async (e: React.DragEvent, targetColumnId: number) => {
 		e.preventDefault()
 		if (!draggedTaskId) return
@@ -68,14 +202,16 @@ export function TaskBoard() {
 				break
 			}
 		}
-		if (!draggedTask || !sourceColumnId || sourceColumnId === targetColumnId) {
+
+		if (!draggedTask || !sourceColumnId) {
 			setDraggedTaskId(null)
 			return
 		}
+
 		try {
 			await moveTaskMutation({
 				listId: targetColumnId,
-				position: draggedTask.position!,
+				position: draggedTask.position ?? 0,
 				taskId: draggedTask.id
 			})
 		} catch (error) {
@@ -136,6 +272,7 @@ export function TaskBoard() {
 		setEditingColumnId(null)
 		setEditingColumnName("")
 	}
+
 	const { mutate: updateListMutation } = useMutation({
 		mutationFn: async (data: UpdateListFormData) => {
 			const res = await updateList({ id: data.id, name: data.name })
@@ -147,7 +284,6 @@ export function TaskBoard() {
 			}
 		},
 		onSuccess: (res) => {
-			console.log(res)
 			queryClient.setQueryData(["lists"], (old: any) => {
 				if (!old || !old.data) return { data: [res!.list] }
 				return { ...old, data: old.data.map((list: List) => (list.id === res!.list.id ? res!.list : list)) }
@@ -162,19 +298,8 @@ export function TaskBoard() {
 			toast.error("Nome da lista não pode ser vazio")
 			return
 		}
-		console.log("foi")
 
 		updateListMutation({ id: columnId, name: editingColumnName })
-		// const result = await updateList({ id: columnId, name: editingColumnName })
-
-		// if (result.success) {
-		// 	toast.success("Lista atualizada com sucesso!")
-		// 	setEditingColumnId(null)
-		// 	setEditingColumnName("")
-		// 	window.location.reload() // Recarrega para atualizar a lista
-		// } else {
-		// 	toast.error(result.error || "Erro ao atualizar lista")
-		// }
 	}
 
 	const handleColumnDragStart = (e: React.DragEvent, columnId: number) => {
@@ -194,8 +319,6 @@ export function TaskBoard() {
 			setDraggedColumnId(null)
 			return
 		}
-		// Disparar ação de reordenação na API se necessário
-		// Exemplo: await reorderList(draggedColumnId, targetColumnId)
 		setDraggedColumnId(null)
 	}
 
@@ -347,8 +470,12 @@ export function TaskBoard() {
 									<TaskCard
 										key={task.id ?? `task-${idx}`}
 										task={task}
+										listId={column.id}
 										onCardClick={openViewModal}
 										onDragStart={handleDragStart}
+										onDragOver={handleTaskDragOver}
+										onDrop={handleTaskDrop}
+										isDraggedOver={dragOverTaskId === task.id}
 									/>
 								))}
 
