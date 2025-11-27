@@ -99,86 +99,88 @@ export function TaskBoard() {
 		// Encontrar índices
 		const draggedIndex = targetList.tasks.findIndex((t: Task) => t.id === draggedTask.id)
 		const targetIndex = targetList.tasks.findIndex((t: Task) => t.id === targetTask.id)
-		let newPosition: number
+		console.log("draggedTask", draggedTask, "targetTask", targetTask)
+		// let newPosition: number
 
-		// Se está na mesma lista
-		if (sourceListId === targetListId) {
-			// Movendo para baixo (índice aumenta)
-			if (draggedIndex < targetIndex) {
-				// Inserir DEPOIS da task alvo
-				// Pegar position entre a task alvo e a próxima
-				if (targetIndex < targetList.tasks.length - 1) {
-					const targetPos = targetTask.position || (targetIndex + 1) * 100
-					const nextTask = targetList.tasks[targetIndex + 1]
-					const nextPos = nextTask.position || (targetIndex + 2) * 100
-					newPosition = Math.floor((targetPos + nextPos) / 2)
+		// // Se está na mesma lista
+		// if (sourceListId === targetListId) {
+		// 	// Movendo para baixo (índice aumenta)
+		// 	if (draggedIndex < targetIndex) {
+		// 		// Inserir DEPOIS da task alvo
+		// 		// Pegar position entre a task alvo e a próxima
+		// 		if (targetIndex < targetList.tasks.length - 1) {
+		// 			const targetPos = targetTask.position || (targetIndex + 1) * 100
+		// 			const nextTask = targetList.tasks[targetIndex + 1]
+		// 			const nextPos = nextTask.position || (targetIndex + 2) * 100
+		// 			newPosition = Math.floor((targetPos + nextPos) / 2)
 
-					// Se não houver espaço, usar próxima position disponível
-					if (newPosition <= targetPos) {
-						newPosition = targetPos + 1
-					}
-				} else {
-					// É a última task, adicionar depois dela
-					const targetPos = targetTask.position || (targetIndex + 1) * 100
-					newPosition = targetPos + 100
-				}
-			}
-			// Movendo para cima (índice diminui)
-			else {
-				// Inserir ANTES da task alvo
-				// Pegar position entre a task anterior e a alvo
-				if (targetIndex > 0) {
-					const prevTask = targetList.tasks[targetIndex - 1]
-					const prevPos = prevTask.position || targetIndex * 100
-					const targetPos = targetTask.position || (targetIndex + 1) * 100
-					newPosition = Math.floor((prevPos + targetPos) / 2)
+		// 			// Se não houver espaço, usar próxima position disponível
+		// 			if (newPosition <= targetPos) {
+		// 				newPosition = targetPos + 1
+		// 			}
+		// 		} else {
+		// 			// É a última task, adicionar depois dela
+		// 			const targetPos = targetTask.position || (targetIndex + 1) * 100
+		// 			newPosition = targetPos + 100
+		// 		}
+		// 	}
+		// 	// Movendo para cima (índice diminui)
+		// 	else {
+		// 		// Inserir ANTES da task alvo
+		// 		// Pegar position entre a task anterior e a alvo
+		// 		if (targetIndex > 0) {
+		// 			const prevTask = targetList.tasks[targetIndex - 1]
+		// 			const prevPos = prevTask.position || targetIndex * 100
+		// 			const targetPos = targetTask.position || (targetIndex + 1) * 100
+		// 			newPosition = Math.floor((prevPos + targetPos) / 2)
 
-					// Se não houver espaço, usar position intermediária
-					if (newPosition <= prevPos) {
-						newPosition = prevPos + 1
-					}
-				} else {
-					// É a primeira task, colocar antes dela
-					const targetPos = targetTask.position || 100
-					newPosition = Math.max(1, Math.floor(targetPos / 2))
-				}
-			}
-		}
-		// Movendo para outra lista
-		else {
-			// Inserir ANTES da task alvo
-			if (targetIndex > 0) {
-				const prevTask = targetList.tasks[targetIndex - 1]
-				const prevPos = prevTask.position || targetIndex * 100
-				const targetPos = targetTask.position || (targetIndex + 1) * 100
-				newPosition = Math.floor((prevPos + targetPos) / 2)
+		// 			// Se não houver espaço, usar position intermediária
+		// 			if (newPosition <= prevPos) {
+		// 				newPosition = prevPos + 1
+		// 			}
+		// 		} else {
+		// 			// É a primeira task, colocar antes dela
+		// 			const targetPos = targetTask.position || 100
+		// 			newPosition = Math.max(1, Math.floor(targetPos / 2))
+		// 		}
+		// 	}
+		// }
+		// // Movendo para outra lista
+		// else {
+		// 	// Inserir ANTES da task alvo
+		// 	if (targetIndex > 0) {
+		// 		const prevTask = targetList.tasks[targetIndex - 1]
+		// 		const prevPos = prevTask.position || targetIndex * 100
+		// 		const targetPos = targetTask.position || (targetIndex + 1) * 100
+		// 		newPosition = Math.floor((prevPos + targetPos) / 2)
 
-				if (newPosition <= prevPos) {
-					newPosition = prevPos + 1
-				}
-			} else {
-				const targetPos = targetTask.position || 100
-				newPosition = Math.max(1, Math.floor(targetPos / 2))
-			}
-		}
+		// 		if (newPosition <= prevPos) {
+		// 			newPosition = prevPos + 1
+		// 		}
+		// 	} else {
+		// 		const targetPos = targetTask.position || 100
+		// 		newPosition = Math.max(1, Math.floor(targetPos / 2))
+		// 	}
+		// }
 
-		// Garantir que position seja >= 1
-		newPosition = Math.max(1, newPosition)
+		// // Garantir que position seja >= 1
+		// newPosition = Math.max(1, newPosition)
 
 		console.log("🎯 Movendo task:", {
 			from: draggedIndex,
 			to: targetIndex,
 			draggedTask: draggedTask.title,
 			targetTask: targetTask.title,
-			newPosition
+			position: targetTask.position
+			// newPosition
 		})
 
 		// Mover a tarefa
 		try {
 			await moveTaskMutation({
 				taskId: draggedTask.id,
-				listId: targetListId,
-				position: newPosition
+				listId: targetList!.id as number,
+				position: targetTask.position !== undefined ? targetTask.position : 0
 			})
 		} catch (error) {
 			console.error("Erro ao mover task:", error)
