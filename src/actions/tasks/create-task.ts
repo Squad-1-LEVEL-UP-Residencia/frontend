@@ -2,20 +2,28 @@
 
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
-import { List } from "@/types/lists/list"
+import { CreateTaskFormData } from "@/types/tasks/create-task-schema"
+import { Task } from "@/types/tasks/task"
 
-export async function createList({ name }: { name: string }) {
+export async function createTask(formData: CreateTaskFormData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/lists`, {
+	const response = await fetch(`${baseUrl}/tasks`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
 		},
 		body: JSON.stringify({
-			name
+			list_id: formData.list_id,
+			client_id: formData.client_id,
+			title: formData.title,
+			description: formData.description,
+			status: formData.status,
+			priority: formData.priority,
+			start_date: formData.start_date,
+			end_date: formData.end_date
 		})
 	})
 
@@ -37,7 +45,7 @@ export async function createList({ name }: { name: string }) {
 	return {
 		success: true,
 		status: response.status,
-		list: data.list as List,
+		task: data.task as Task,
 		raw: data
 	}
 }

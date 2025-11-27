@@ -2,7 +2,7 @@ import { Paginated } from "../global/paginated"
 import { Task } from "../tasks/task"
 
 export interface List {
-	id: string
+	id: number
 	name: string
 	tasks: Task[]
 }

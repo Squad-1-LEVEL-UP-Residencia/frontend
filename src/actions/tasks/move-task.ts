@@ -1,50 +1,54 @@
 "use server"
 
-import { env } from "@/lib/env"
+import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
+import { Task } from "@/types/tasks/task"
+import { z } from "zod"
 
-export interface MoveTaskData {
-	taskId: string
-	listId: string
-	position: number
-}
+const moveTaskSchema = z.object({
+	listId: z.number().min(1),
+	position: z.number().min(0),
+	taskId: z.number().min(1)
+})
 
-export interface MoveTaskResponse {
-	success: boolean
-	error?: string
-	task?: any
-}
+export type MoveTaskFormData = z.infer<typeof moveTaskSchema>
 
-export async function moveTask(data: MoveTaskData): Promise<MoveTaskResponse> {
-	const accessToken = await useToken()
-	if (!accessToken) {
-		return { success: false, error: "Não autorizado" }
+export async function moveTask(formData: MoveTaskFormData) {
+	const token = await useToken()
+
+	const baseUrl = process.env.NEXT_PUBLIC_API_URL
+	const response = await fetch(`${baseUrl}/tasks/${formData.taskId}/move`, {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`
+		},
+		body: JSON.stringify({
+			listId: formData.listId,
+			position: formData.position
+		})
+	})
+
+	if (!response.ok) {
+		console.log(response)
+		const error = await response.json()
+		const { error: errorTitle, validationErrors, raw, details } = validationErrorHelper(error)
+
+		console.log(error)
+		return {
+			success: false,
+			error: errorTitle,
+			details: validationErrors && details,
+			status: response.status,
+			raw
+		}
 	}
 
-	const api = env.NEXT_PUBLIC_API_URL
-
-	try {
-		const result = await fetch(`${api}/tasks/${data.taskId}/move`, {
-			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${accessToken}`
-			},
-			body: JSON.stringify({
-				list_id: data.listId,
-				position: data.position
-			})
-		})
-
-		const response = await result.json()
-
-		if (!result.ok) {
-			return { success: false, error: response.message || "Erro ao mover tarefa" }
-		}
-
-		return { success: true, task: response.data }
-	} catch (error) {
-		console.error("Error moving task:", error)
-		return { success: false, error: "Erro ao mover tarefa" }
+	const data = await response.json()
+	return {
+		success: true,
+		status: response.status,
+		task: data.task as Task,
+		raw: data
 	}
 }

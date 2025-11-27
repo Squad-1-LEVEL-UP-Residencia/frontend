@@ -8,23 +8,23 @@ import { ModalTrigger } from "@/components/private/ui/modal"
 interface TaskCardProps {
 	task: Task
 	onCardClick: (task: Task) => void
-	onDragStart: (e: React.DragEvent, taskId: string) => void
-	onDragOver?: (e: React.DragEvent, taskId: string) => void
-	onDrop?: (e: React.DragEvent, task: Task, listId: string) => void
-	listId: string
+	onDragStart: (e: React.DragEvent, taskId: number) => void
+	onDragOver?: (e: React.DragEvent, taskId: number) => void
+	onDrop?: (e: React.DragEvent, task: Task, listId: number) => void
+	listId: number
 	isDraggedOver?: boolean
 }
 
 const priorityColors = {
-	low: "bg-green-100 text-green-700 border-green-200",
-	medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
-	high: "bg-red-100 text-red-700 border-red-200"
+	0: "bg-green-100 text-green-700 border-green-200",
+	1: "bg-yellow-100 text-yellow-700 border-yellow-200",
+	2: "bg-red-100 text-red-700 border-red-200"
 }
 
 const priorityLabels = {
-	low: "Baixa",
-	medium: "Média",
-	high: "Alta"
+	0: "Baixa",
+	1: "Média",
+	2: "Alta"
 }
 
 export function TaskCard({ task, onCardClick, onDragStart, onDragOver, onDrop, listId, isDraggedOver }: TaskCardProps) {
@@ -66,8 +66,8 @@ export function TaskCard({ task, onCardClick, onDragStart, onDragOver, onDrop, l
 
 				{/* Prioridade */}
 				<div className="mb-3">
-					<span className={`px-2 py-1 text-xs font-medium rounded-md border ${priorityColors[task.priority ?? "low"]}`}>
-						{priorityLabels[task.priority ?? "low"]}
+					<span className={`px-2 py-1 text-xs font-medium rounded-md border ${priorityColors[task.priority ?? 0]}`}>
+						{priorityLabels[task.priority ?? 0]}
 					</span>
 				</div>
 

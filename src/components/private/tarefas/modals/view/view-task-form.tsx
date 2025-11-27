@@ -20,15 +20,15 @@ interface ViewTaskFormProps {
 }
 
 const statusLabels = {
-	todo: "A Fazer",
+	pending: "A Fazer",
 	doing: "Fazendo",
 	done: "Concluído"
 }
 
 const priorityLabels = {
-	low: "Baixa",
-	medium: "Média",
-	high: "Alta"
+	0: "Baixa",
+	1: "Média",
+	2: "Alta"
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
@@ -105,7 +105,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	}
 
-	const toggleChecklistItem = (itemId: string) => {
+	const toggleChecklistItem = (itemId: number) => {
 		setChecklist((prev) => prev.map((item) => (item.id === itemId ? { ...item, completed: !item.completed } : item)))
 	}
 
@@ -113,7 +113,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		if (!newChecklistItem.trim()) return
 
 		const newItem: TaskChecklistItem = {
-			id: crypto.randomUUID(),
+			id: crypto.getRandomValues(new Uint32Array(1))[0],
 			content: newChecklistItem,
 			completed: false
 		}
@@ -122,7 +122,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setNewChecklistItem("")
 	}
 
-	const removeChecklistItem = (itemId: string) => {
+	const removeChecklistItem = (itemId: number) => {
 		setChecklist((prev) => prev.filter((item) => item.id !== itemId))
 	}
 
@@ -370,22 +370,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				<Button outline type="button" color="danger" onClick={handleDeleteTask}>
 					Excluir tarefa
 				</Button>
-				<div className="flex gap-2">
-					<Button
-						type="button"
-						outline
-						color="transparent"
-						onClick={() => {
-							const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-							modal?.close()
-						}}
-					>
-						Cancelar
-					</Button>
-					<Button outline type="submit" color="indigo" form="view-task-form">
-						Salvar alterações
-					</Button>
-				</div>
+				{/*<div className="flex gap-2">
+				 */}
+				<Button
+					type="button"
+					outline
+					color="transparent"
+					onClick={() => {
+						const modal = document.getElementById("view_task_modal") as HTMLDialogElement
+						modal?.close()
+					}}
+				>
+					Cancelar
+				</Button>
+				<Button outline type="submit" color="indigo" form="view-task-form">
+					Salvar alterações
+				</Button>
+				{/* </div> */}
 			</ModalFooter>
 		</div>
 	)

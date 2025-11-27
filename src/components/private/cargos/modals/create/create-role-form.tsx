@@ -49,6 +49,10 @@ export function CreateRoleForm() {
 			if (data.success === true) {
 				toast.success("Cargo criado com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
+
+				// Fechar modal
+				const modal = document.getElementById("create_role_modal") as HTMLDialogElement
+				modal?.close()
 			} else {
 				toast.error(`Erro ao criar o cargo: ${data.error}`)
 			}

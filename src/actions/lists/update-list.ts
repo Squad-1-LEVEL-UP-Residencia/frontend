@@ -4,7 +4,7 @@ import { useToken } from "@/hooks/use-token"
 import { env } from "@/lib/env"
 
 export type UpdateListFormData = {
-	id: string
+	id: number
 	name: string
 }
 
@@ -46,7 +46,7 @@ export async function updateList(formData: UpdateListFormData) {
 		return {
 			success: true,
 			status: response.status,
-			list: { ...data.lista },
+			list: { ...data.list },
 			raw: data
 		}
 	} catch (error) {
