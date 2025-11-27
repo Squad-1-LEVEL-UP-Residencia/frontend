@@ -1,8 +1,12 @@
 import { z } from "zod"
 
 export const createTaskSchema = z.object({
-	title: z.string().min(1, "Nome da tarefa é obrigatório").min(3, "Mínimo 3 caracteres"),
-	description: z.string().min(1, "Descrição é obrigatória"),
+	title: z
+		.string()
+		.min(1, "Nome da tarefa é obrigatório")
+		.min(3, "Mínimo 3 caracteres")
+		.max(100, "Máximo 100 caracteres"),
+	description: z.string().max(500, "Máximo 500 caracteres").optional(),
 	client_id: z.number("Cliente é obrigatório"),
 	list_id: z.number("Lista tem que ser um número").min(1, "Lista é obrigatória"),
 	status: z.enum(["todo", "doing", "done"]).optional(),

@@ -26,7 +26,7 @@ interface CreateTaskFormProps {
 
 export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 	const { data: clients, isLoading: isLoadingClients } = useClients()
-
+	console.log("list_id em CreateTaskForm:", list_id)
 	useEffect(() => {
 		setValue("list_id", Number(list_id), { shouldValidate: true })
 	}, [list_id])
@@ -44,10 +44,23 @@ export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 		}
 	})
 
+	useEffect(() => {
+		const handler = (e: Event) => {
+			const id = Number((e as CustomEvent<number>).detail)
+			// reset garante que o valor usado pelo resolver seja number
+			reset({ list_id: id })
+			// setValue adicional para garantir validação imediata
+			setValue("list_id", id, { shouldValidate: true })
+		}
+		window.addEventListener("task:create-open", handler as EventListener)
+		return () => window.removeEventListener("task:create-open", handler as EventListener)
+	}, [reset, setValue])
+
 	const { mutateAsync: createTaskMutation } = useMutation({
 		mutationFn: createTask,
 		onSuccess: (data) => {
 			console.log(data)
+			reset()
 			queryClient.setQueryData(["lists"], (old: any) => {
 				console.log("Cache antigo (old):", old) // Verifique se existe 'old.data' ou se é apenas um array
 				console.log("Resposta da API (data):", data) // Verifique se 'data.task' existe mesmo
@@ -62,12 +75,13 @@ export function CreateTaskForm({ list_id }: CreateTaskFormProps) {
 				return { ...old, data: updatedData }
 			})
 
-			const modal = document.getElementById("create_list_modal") as HTMLDialogElement
+			const modal = document.getElementById("create_task_modal") as HTMLDialogElement
 			modal?.close()
 		},
 		onError: (error) => {
 			toast.error("Erro ao criar tarefa")
 			console.error(error)
+			reset()
 		}
 	})
 
