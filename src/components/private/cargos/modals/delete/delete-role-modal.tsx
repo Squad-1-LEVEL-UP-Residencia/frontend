@@ -10,6 +10,7 @@ import toast from "react-hot-toast"
 import { deleteRole } from "@/actions/roles/delete-role"
 import { Role } from "@/types/roles/role"
 import { useEffect, useState } from "react"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function DeleteRoleModal() {
 	const [role, setRole] = useState<Role | null>(null)
@@ -32,8 +33,10 @@ export function DeleteRoleModal() {
 			if (res.success) {
 				toast.success("Cargo removido com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
+				closeModal("delete_role_modal")
 			} else {
 				toast.error(res.error ?? "Erro ao remover cargo")
+				closeModal("delete_role_modal")
 			}
 		}
 	})

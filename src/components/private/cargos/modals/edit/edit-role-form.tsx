@@ -16,6 +16,7 @@ import { Label } from "@/components/private/ui/label"
 import { Role } from "@/types/roles/role"
 import { useEffect } from "react"
 import { Permission } from "@/types/roles/permission"
+import { closeModal } from "@/data/helpers/closeModal"
 
 type Props = { role: Role | null }
 
@@ -70,8 +71,10 @@ export function EditRoleForm({ role }: Props) {
 			if (data.success === true) {
 				toast.success("Cargo atualizado com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["roles"] }) //TODO passar a page
+				closeModal("edit_role_modal")
 			} else {
 				toast.error(`Erro ao atualizar o cargo: ${data.error}`)
+				closeModal("edit_role_modal")
 			}
 		}
 	})

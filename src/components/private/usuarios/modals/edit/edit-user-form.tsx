@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { User } from "@/types/users/user"
 import { updateUser } from "@/actions/users/update-user"
+import { closeModal } from "@/data/helpers/closeModal"
 
 type Props = { user: User | null }
 
@@ -49,8 +50,10 @@ export function EditUserForm({ user }: Props) {
 			if (data.success) {
 				toast.success("Usuário editado com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["users"] })
+				closeModal("edit_user_modal")
 			} else {
 				toast.error(data.error)
+				closeModal("edit_user_modal")
 			}
 		}
 	})

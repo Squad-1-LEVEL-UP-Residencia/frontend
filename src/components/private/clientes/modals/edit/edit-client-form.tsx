@@ -14,6 +14,7 @@ import { useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
 import { updateClient } from "@/actions/clients/update-client"
+import { closeModal } from "@/data/helpers/closeModal"
 
 type Props = {
 	client: Client | null
@@ -50,8 +51,10 @@ export function EditClientForm({ client }: Props) {
 			if (data.success) {
 				toast.success("Cliente editado com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["clients"] })
+				closeModal("edit_client_modal")
 			} else {
 				toast.error(data.error)
+				closeModal("edit_client_modal")
 			}
 		}
 	})

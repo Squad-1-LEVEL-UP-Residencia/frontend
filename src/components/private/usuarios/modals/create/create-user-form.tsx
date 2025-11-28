@@ -16,6 +16,7 @@ import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
 import Link from "next/link"
 import { Select } from "@/components/private/ui/select"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function CreateUserForm() {
 	const { data: roles, isLoading } = useRoles()
@@ -37,10 +38,10 @@ export function CreateUserForm() {
 				queryClient.invalidateQueries({ queryKey: ["users"] })
 
 				// Fechar modal
-				const modal = document.getElementById("create_user_modal") as HTMLDialogElement
-				modal?.close()
+				closeModal("create_user_modal")
 			} else {
 				toast.error(data.error)
+				closeModal("create_user_modal")
 			}
 		}
 	})

@@ -14,6 +14,7 @@ import { getPermissions } from "@/actions/roles/get-permissions"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Label } from "@/components/private/ui/label"
 import { Permission } from "@/types/roles/permission"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function CreateRoleForm() {
 	const {
@@ -51,10 +52,10 @@ export function CreateRoleForm() {
 				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
 
 				// Fechar modal
-				const modal = document.getElementById("create_role_modal") as HTMLDialogElement
-				modal?.close()
+				closeModal("create_role_modal")
 			} else {
 				toast.error(`Erro ao criar o cargo: ${data.error}`)
+				closeModal("create_role_modal")
 			}
 		}
 	})

@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query"
 import { removeUser } from "@/actions/users/remove-user"
 import { queryClient } from "@/lib/react-query"
 import toast from "react-hot-toast"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function DeleteUserModal() {
 	const [user, setUser] = useState<User | null>(null)
@@ -32,8 +33,10 @@ export function DeleteUserModal() {
 			if (res.success) {
 				toast.success("Usuário removido com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["users"] })
+				closeModal("delete_user_modal")
 			} else {
 				toast.error(res.error ?? "Erro ao remover usuário")
+				closeModal("delete_user_modal")
 			}
 		}
 	})

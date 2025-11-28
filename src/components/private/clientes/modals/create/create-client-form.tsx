@@ -12,6 +12,7 @@ import { createClient } from "@/actions/clients/create-client"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function CreateClientForm() {
 	const {
@@ -31,10 +32,10 @@ export function CreateClientForm() {
 				queryClient.invalidateQueries({ queryKey: ["clients"] })
 
 				// Fechar modal
-				const modal = document.getElementById("create_client_modal") as HTMLDialogElement
-				modal?.close()
+				closeModal("create_client_modal")
 			} else {
 				toast.error(data.error)
+				closeModal("create_client_modal")
 			}
 		}
 	})

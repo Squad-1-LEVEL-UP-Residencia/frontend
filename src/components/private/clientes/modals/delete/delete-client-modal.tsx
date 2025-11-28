@@ -10,6 +10,7 @@ import { queryClient } from "@/lib/react-query"
 import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { removeClient } from "@/actions/clients/remove-client"
+import { closeModal } from "@/data/helpers/closeModal"
 
 export function DeleteClientModal() {
 	const [client, setClient] = useState<Client | null>(null)
@@ -31,8 +32,10 @@ export function DeleteClientModal() {
 			if (res.success) {
 				toast.success("Cliente removido com sucesso!")
 				queryClient.invalidateQueries({ queryKey: ["clients"] })
+				closeModal("delete_client_modal")
 			} else {
 				toast.error(res.error ?? "Erro ao remover Cliente")
+				closeModal("delete_client_modal")
 			}
 		}
 	})
