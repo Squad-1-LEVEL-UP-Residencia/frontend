@@ -9,6 +9,7 @@ import { useRoles } from "@/hooks/roles/use-roles"
 import { Container } from "../ui/container"
 import { ScrollList } from "../ui/scroll-lost"
 import { useSearchParams } from "next/navigation"
+import { Pagination } from "../ui/pagination"
 
 export function RolesList() {
 	const searchParams = useSearchParams()
@@ -30,7 +31,7 @@ export function RolesList() {
 	}
 
 	return (
-		<Container variant="page">
+		<Container variant="page" className="flex flex-col gap-4 justify-between">
 			<ScrollList>
 				<Table
 					head={["Cargo", "Descrição", "Ações"]}
@@ -38,7 +39,12 @@ export function RolesList() {
 					body={
 						roles &&
 						roles.data.map((r: Role) => (
-							<Table.Row key={r.id} variant="row" onClick={() => openView(r)} className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150">
+							<Table.Row
+								key={r.id}
+								variant="row"
+								onClick={() => openView(r)}
+								className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150"
+							>
 								<Table.Data className="w-2/5">{r.name}</Table.Data>
 								<Table.Data className="w-full">{r.description}</Table.Data>
 								<Table.Data className="text-right pr-2 sm:pr-6" onClick={(e) => e.stopPropagation()}>
@@ -67,6 +73,14 @@ export function RolesList() {
 					}
 				/>
 			</ScrollList>
+			<Pagination
+				currentPage={roles?.current_page!}
+				lastPage={roles?.last_page!}
+				total={roles?.total!}
+				perPage={roles?.per_page!}
+				from={roles?.from!}
+				to={roles?.to!}
+			/>
 		</Container>
 	)
 }

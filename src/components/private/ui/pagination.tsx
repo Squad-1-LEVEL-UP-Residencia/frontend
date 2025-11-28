@@ -50,7 +50,7 @@ export function Pagination({ currentPage, lastPage, total, perPage, from, to }: 
 		return pages
 	}
 
-	if (lastPage <= 1) return null
+	// if (lastPage <= 1) return null
 
 	return (
 		<div className="flex items-center justify-between px-4 py-3 border-t border-light-grey">

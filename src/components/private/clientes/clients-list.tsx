@@ -10,6 +10,7 @@ import { Client } from "@/types/clients/client"
 import { ScrollList } from "../ui/scroll-lost"
 import { useClients } from "@/hooks/clients/use-clients"
 import { useSearchParams } from "next/navigation"
+import { Pagination } from "../ui/pagination"
 
 export function ClientsList() {
 	const searchParams = useSearchParams()
@@ -29,7 +30,7 @@ export function ClientsList() {
 	}
 
 	return (
-		<Container variant="page">
+		<Container variant="page" className="flex flex-col gap-4 justify-between">
 			<ScrollList>
 				<Table
 					isLoading={isLoading}
@@ -37,7 +38,12 @@ export function ClientsList() {
 					body={
 						clients &&
 						clients.data.map((client: Client) => (
-							<Table.Row key={client.id} variant="row" onClick={() => openView(client)} className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150">
+							<Table.Row
+								key={client.id}
+								variant="row"
+								onClick={() => openView(client)}
+								className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150"
+							>
 								<Table.Data className="flex justify-start items-center gap-2">
 									<Avatar name={client.companyName} />
 									{client.companyName}
@@ -67,6 +73,14 @@ export function ClientsList() {
 					}
 				/>
 			</ScrollList>
+			<Pagination
+				currentPage={clients?.current_page!}
+				lastPage={clients?.last_page!}
+				total={clients?.total!}
+				perPage={clients?.per_page!}
+				from={clients?.from!}
+				to={clients?.to!}
+			/>
 		</Container>
 	)
 }

@@ -10,6 +10,7 @@ import { User } from "@/types/users/user"
 import { useUsers } from "@/hooks/users/use-users"
 import { ScrollList } from "../ui/scroll-lost"
 import { useSearchParams } from "next/navigation"
+import { Pagination } from "../ui/pagination"
 
 export function UsersList() {
 	const searchParams = useSearchParams()
@@ -32,7 +33,7 @@ export function UsersList() {
 	}
 
 	return (
-		<Container variant="page">
+		<Container variant="page" className="flex flex-col gap-4 justify-between">
 			<ScrollList>
 				<Table
 					isLoading={isLoading}
@@ -40,7 +41,12 @@ export function UsersList() {
 					body={
 						users &&
 						users.map((u: User) => (
-							<Table.Row key={u.id} variant="row" onClick={() => openView(u)} className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150">
+							<Table.Row
+								key={u.id}
+								variant="row"
+								onClick={() => openView(u)}
+								className="cursor-pointer hover:bg-gray-100/50 transition-colors duration-150"
+							>
 								<Table.Data className="flex justify-start items-center gap-2">
 									<Avatar name={u.name} />
 									{u.name}
@@ -73,6 +79,15 @@ export function UsersList() {
 					}
 				/>
 			</ScrollList>
+
+			<Pagination
+				currentPage={response?.current_page!}
+				lastPage={response?.last_page!}
+				total={response?.total!}
+				perPage={response?.per_page!}
+				from={response?.from!}
+				to={response?.to!}
+			/>
 		</Container>
 	)
 }
