@@ -14,13 +14,18 @@ import { Bot, Calendar, Plus, Paperclip, Trash2Icon, ExternalLink } from "lucide
 import toast from "react-hot-toast"
 import type { Task, TaskChecklistItem } from "@/types/tasks/task"
 import { useEffect, useState } from "react"
+import { useMutation } from "@tanstack/react-query"
+import { queryClient } from "@/lib/react-query"
+import { closeModal } from "@/data/helpers/closeModal"
+import { updateTask } from "@/actions/tasks/update-task"
+import { UpdateTaskFormData, updateTaskSchema } from "@/types/tasks/update-task-schema"
 
 interface ViewTaskFormProps {
 	task: Task
 }
 
 const statusLabels = {
-	pending: "A Fazer",
+	todo: "A Fazer",
 	doing: "Fazendo",
 	done: "Concluído"
 }
@@ -34,62 +39,63 @@ const priorityLabels = {
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(Array.isArray(task.checklist) ? task.checklist : [])
 	const [newChecklistItem, setNewChecklistItem] = useState("")
-
+	console.log(task.client_id, task.list_id)
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 		reset
-	} = useForm<EditTaskFormData>({
-		resolver: zodResolver(editTaskSchema),
+	} = useForm<UpdateTaskFormData>({
+		resolver: zodResolver(updateTaskSchema),
 		defaultValues: {
+			id: task.id,
 			title: task.title,
+			client_id: task.client_id,
+			list_id: task.list_id,
 			description: task.description,
-			status: task.status,
+			status: task.status || "todo",
 			priority: task.priority,
-			campaign: task.campaign || "",
-			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
-			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
-			tags: Array.isArray(task.tags) ? task.tags : [],
-			members: Array.isArray(task.members) ? task.members.map((m) => m.id) : [],
-			checklist: Array.isArray(task.checklist) ? task.checklist : []
+			start_date: task.start_date ? new Date(task.start_date).toISOString().slice(0, 10) : undefined,
+			end_date: task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : undefined
 		}
 	})
 
 	useEffect(() => {
 		reset({
+			id: task.id,
 			title: task.title,
-			description: task.description,
+			client_id: task.client_id,
+			list_id: task.list_id,
+			description: task.description || "",
 			status: task.status,
 			priority: task.priority,
-			campaign: task.campaign || "",
-			start_date: task.start_date ? new Date(task.start_date).toISOString().split("T")[0] : "",
-			end_date: task.end_date ? new Date(task.end_date).toISOString().split("T")[0] : "",
-			tags: Array.isArray(task.tags) ? task.tags : [],
-			members: Array.isArray(task.members) ? task.members.map((m) => m.id) : [],
-			checklist: Array.isArray(task.checklist) ? task.checklist : []
+			start_date: task.start_date ? new Date(task.start_date).toISOString().slice(0, 10) : undefined,
+			end_date: task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : undefined
 		})
 		setChecklist(Array.isArray(task.checklist) ? task.checklist : [])
 	}, [task, reset])
 
-	const onSubmit = async (data: EditTaskFormData) => {
-		try {
-			// Aqui você fará a atualização real da tarefa via server action ou API
-			const updatedTask = {
-				...task,
-				...data,
-				checklist,
-				updatedAt: new Date()
-			}
-
-			// Disparar evento para atualizar a lista
-			window.dispatchEvent(new CustomEvent("task:updated", { detail: updatedTask }))
-
+	const { mutateAsync: editTaskMutation } = useMutation({
+		mutationFn: updateTask,
+		onSuccess: (data) => {
+			console.log(data)
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
+			closeModal("view_task_modal")
+			reset()
 			toast.success("Tarefa atualizada com sucesso!")
+		},
+		onError: (error) => {
+			toast.error("Erro ao editar tarefa")
+			closeModal("view_task_modal")
+			console.error(error)
+			reset()
+		}
+	})
 
-			// Fechar modal
-			const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-			modal?.close()
+	const onSubmit = async (data: UpdateTaskFormData) => {
+		try {
+			console.log(data)
+			await editTaskMutation(data)
 		} catch (error) {
 			toast.error("Erro ao atualizar tarefa")
 			console.error(error)
@@ -132,9 +138,18 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<form id="view-task-form" onSubmit={handleSubmit(onSubmit)} className="flex gap-6">
+			<form
+				id="view-task-form"
+				onSubmit={handleSubmit(onSubmit, (errs) => {
+					console.log("Validation errors:", errs)
+				})}
+				className="flex gap-6"
+			>
 				{/* Coluna Principal (Esquerda) */}
 				<div className="flex-1 flex flex-col gap-6">
+					<input type="hidden" {...register("list_id", { valueAsNumber: true })} />
+					<input type="hidden" {...register("client_id", { valueAsNumber: true })} />
+					<input type="hidden" {...register("id", { valueAsNumber: true })} />
 					{/* Título */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="title">Título da Tarefa</Label>
@@ -144,11 +159,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 					{/* Status, Campanha e Datas */}
 					<div className="flex items-center gap-4 text-sm text-text-secondary">
-						{task.campaign && (
-							<span>
-								em <span className="font-medium text-text-primary">{task.campaign}</span>
-							</span>
-						)}
 						{task.start_date && (
 							<div className="flex items-center gap-1">
 								<Calendar width={14} height={14} />
@@ -298,40 +308,58 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="status">Status</Label>
 						<Select id="status" {...register("status")}>
-							{Object.entries(statusLabels).map(([value, label]) => (
-								<option key={value} value={value}>
-									{label}
-								</option>
-							))}
+							{/* {Object.entries(statusLabels).map(([value, label]) => ( */}
+							<option key={"todo"} value={"todo"}>
+								Fazer
+							</option>
+							{/* ))} */}
 						</Select>
+						{errors.status && <SpanError>{errors.status.message}</SpanError>}
 					</div>
 
 					{/* Prioridade */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="priority">Prioridade</Label>
-						<Select id="priority" {...register("priority")}>
-							{Object.entries(priorityLabels).map(([value, label]) => (
-								<option key={value} value={value}>
-									{label}
-								</option>
-							))}
+						<Select id="priority" {...register("priority", { valueAsNumber: true })}>
+							{/* {Object.entries(priorityLabels).map(([value, label]) => ( */}
+							<option key={"0"} value={0}>
+								{0}
+							</option>
+							<option key={"1"} value={1}>
+								{1}
+							</option>
+							<option key={"2"} value={2}>
+								{2}
+							</option>
+							{/* ))} */}
 						</Select>
+						{errors.priority && <SpanError>{errors.priority.message}</SpanError>}
 					</div>
 
 					{/* Campanha */}
-					<div className="flex flex-col gap-2">
-						<Label htmlFor="campaign">Campanha/Projeto</Label>
-						<Input id="campaign" variant="no-placeholder" placeholder="Nome da campanha" {...register("campaign")} />
-					</div>
 
 					{/* Datas de início e fim */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="start_date">Data de Início</Label>
-						<Input id="start_date" type="date" variant="no-placeholder" {...register("start_date")} />
+						<Input
+							id="start_date"
+							type="date"
+							variant="no-placeholder"
+							{...register("start_date")}
+							defaultValue={task.start_date ? new Date(task.start_date).toISOString().slice(0, 10) : ""}
+						/>
+						{errors.start_date && <SpanError>{errors.start_date.message}</SpanError>}
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="end_date">Data de Fim</Label>
-						<Input id="end_date" type="date" variant="no-placeholder" {...register("end_date")} />
+						<Input
+							id="end_date"
+							type="date"
+							variant="no-placeholder"
+							{...register("end_date")}
+							defaultValue={task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : ""}
+						/>
+						{errors.end_date && <SpanError>{errors.end_date.message}</SpanError>}
 					</div>
 
 					{/* Comentários e Atividade */}
@@ -354,13 +382,13 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									</div>
 								))}
 						</div>
-						<textarea
+						{/* <textarea
 							placeholder="Escrever um comentário..."
 							className="w-full rounded-xl border border-light-grey px-3 py-2
 							   text-sm text-text-primary placeholder:text-text-secondary
 							   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
 							   resize-none min-h-[60px]"
-						/>
+						/> */}
 					</div>
 				</div>
 			</form>
@@ -377,8 +405,8 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					outline
 					color="transparent"
 					onClick={() => {
-						const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-						modal?.close()
+						reset()
+						closeModal("view_task_modal")
 					}}
 				>
 					Cancelar

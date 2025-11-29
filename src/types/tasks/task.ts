@@ -1,4 +1,5 @@
 import { Client } from "../clients/client"
+import { List } from "../lists/list"
 
 export const DEFAULT_TASK_STATUSES = {
 	pending: "todo",
@@ -38,6 +39,8 @@ export interface TaskChecklistItem {
 
 export interface Task {
 	id: number
+	client_id: number
+	list_id: number
 	title: string
 	description?: string
 	status: TaskStatus
@@ -53,6 +56,7 @@ export interface Task {
 	checklist?: TaskChecklistItem[]
 	progress?: number
 	client: Client
+	list: List
 	createdAt: Date
 	updatedAt: Date
 }
