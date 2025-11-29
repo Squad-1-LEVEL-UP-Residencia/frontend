@@ -8,7 +8,7 @@ import { Label } from "@/components/private/ui/label"
 import { Select } from "@/components/private/ui/select"
 import { SpanError } from "@/components/private/ui/span-error"
 import { Button } from "@/components/private/ui/button"
-import { ModalFooter } from "@/components/private/ui/modal"
+import { ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
 import { Bot, Calendar, Plus, Paperclip, Trash2Icon, ExternalLink } from "lucide-react"
 import toast from "react-hot-toast"
@@ -39,7 +39,7 @@ const priorityLabels = {
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(Array.isArray(task.checklist) ? task.checklist : [])
 	const [newChecklistItem, setNewChecklistItem] = useState("")
-	console.log(task.client_id, task.list_id)
+
 	const {
 		register,
 		handleSubmit,
@@ -103,12 +103,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const handleDeleteTask = () => {
-		if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
-			window.dispatchEvent(new CustomEvent("task:deleted", { detail: task.id }))
-			toast.success("Tarefa excluída com sucesso!")
-			const modal = document.getElementById("view_task_modal") as HTMLDialogElement
-			modal?.close()
-		}
+		window.dispatchEvent(new CustomEvent("task:delete-open", { detail: task }))
 	}
 
 	const toggleChecklistItem = (itemId: number) => {
@@ -395,9 +390,12 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 			{/* Footer buttons */}
 			<ModalFooter className="col-span-2">
-				<Button outline type="button" color="danger" onClick={handleDeleteTask}>
-					Excluir tarefa
-				</Button>
+				<ModalTrigger id="delete_task_modal">
+					<Button outline type="submit" color="danger" onClick={handleDeleteTask}>
+						Excluir tarefa
+					</Button>
+				</ModalTrigger>
+
 				{/*<div className="flex gap-2">
 				 */}
 				<Button

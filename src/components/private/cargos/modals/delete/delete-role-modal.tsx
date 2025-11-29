@@ -21,7 +21,7 @@ export function DeleteRoleModal() {
 			setRole(detail ?? null)
 		}
 		window.addEventListener("role:delete-open", handler as EventListener)
-		return () => window.removeEventListener("user:delete-open", handler as EventListener)
+		return () => window.removeEventListener("role:delete-open", handler as EventListener)
 	}, [])
 
 	const { mutateAsync: deleteRoleMutation, isPending } = useMutation({
