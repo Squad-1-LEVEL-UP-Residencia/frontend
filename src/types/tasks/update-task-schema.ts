@@ -11,7 +11,7 @@ export const updateTaskSchema = z.object({
 	description: z.string("A descrição deve ser uma string").max(500, "Máximo 500 caracteres").optional(),
 	client_id: z.number("Cliente é obrigatório"),
 	list_id: z.number("Lista tem que ser um número").min(1, "Lista é obrigatória"),
-	status: z.enum(["todo", "doing", "done"]).optional(),
+	status: z.enum(["pending", "doing", "done"]),
 	priority: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
 	start_date: z.string().optional(),
 	end_date: z.string().optional()

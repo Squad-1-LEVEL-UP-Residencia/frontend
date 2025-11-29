@@ -25,7 +25,7 @@ interface ViewTaskFormProps {
 }
 
 const statusLabels = {
-	todo: "A Fazer",
+	pending: "A Fazer",
 	doing: "Fazendo",
 	done: "Concluído"
 }
@@ -53,7 +53,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			client_id: task.client_id,
 			list_id: task.list_id,
 			description: task.description,
-			status: task.status || "todo",
+			status: task.status || "pending",
 			priority: task.priority,
 			start_date: task.start_date ? new Date(task.start_date).toISOString().slice(0, 10) : undefined,
 			end_date: task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : undefined
@@ -81,11 +81,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			console.log(data)
 			queryClient.invalidateQueries({ queryKey: ["lists"] })
 			closeModal("view_task_modal")
-			reset()
 			toast.success("Tarefa atualizada com sucesso!")
+			reset()
 		},
 		onError: (error) => {
-			toast.error("Erro ao editar tarefa")
+			toast.error("Erro ao editar tarefa" + error.message)
 			closeModal("view_task_modal")
 			console.error(error)
 			reset()
@@ -307,12 +307,12 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					{/* Status */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="status">Status</Label>
-						<Select id="status" {...register("status")}>
-							{/* {Object.entries(statusLabels).map(([value, label]) => ( */}
-							<option key={"todo"} value={"todo"}>
-								Fazer
-							</option>
-							{/* ))} */}
+						<Select id="status" {...register("status")} defaultValue={task.status ?? "pending"}>
+							{Object.entries(statusLabels).map(([value, label]) => (
+								<option key={value} value={value}>
+									{label}
+								</option>
+							))}
 						</Select>
 						{errors.status && <SpanError>{errors.status.message}</SpanError>}
 					</div>
@@ -363,7 +363,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					</div>
 
 					{/* Comentários e Atividade */}
-					<div className="flex flex-col gap-3 mt-4">
+					{/* <div className="flex flex-col gap-3 mt-4">
 						<Label>Atividade</Label>
 						<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
 							{Array.isArray(task.comments) &&
@@ -382,14 +382,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									</div>
 								))}
 						</div>
-						{/* <textarea
+						<textarea
 							placeholder="Escrever um comentário..."
 							className="w-full rounded-xl border border-light-grey px-3 py-2
 							   text-sm text-text-primary placeholder:text-text-secondary
 							   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
 							   resize-none min-h-[60px]"
-						/> */}
-					</div>
+						/>
+					</div> */}
 				</div>
 			</form>
 

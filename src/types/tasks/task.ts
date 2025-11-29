@@ -1,11 +1,11 @@
 import { Client } from "../clients/client"
 import { List } from "../lists/list"
 
-export const DEFAULT_TASK_STATUSES = {
-	pending: "todo",
-	doing: "doing",
-	done: "done"
-} as const
+export enum DEFAULT_TASK_STATUSES {
+	pending = "pending",
+	doing = "pending",
+	done = "pending"
+}
 
 export type TaskStatus = (typeof DEFAULT_TASK_STATUSES)[keyof typeof DEFAULT_TASK_STATUSES]
 
