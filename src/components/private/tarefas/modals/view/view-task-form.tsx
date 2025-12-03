@@ -8,9 +8,9 @@ import { Label } from "@/components/private/ui/label"
 import { Select } from "@/components/private/ui/select"
 import { SpanError } from "@/components/private/ui/span-error"
 import { Button } from "@/components/private/ui/button"
-import { ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
+import { Modal, ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
-import { Bot, Calendar, Plus, Paperclip, Trash2Icon, ExternalLink } from "lucide-react"
+import { Bot, Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare } from "lucide-react"
 import toast from "react-hot-toast"
 import type { Task, TaskChecklistItem } from "@/types/tasks/task"
 import { useEffect, useState } from "react"
@@ -19,6 +19,11 @@ import { queryClient } from "@/lib/react-query"
 import { closeModal } from "@/data/helpers/closeModal"
 import { updateTask } from "@/actions/tasks/update-task"
 import { UpdateTaskFormData, updateTaskSchema } from "@/types/tasks/update-task-schema"
+import { addTaskMember } from "@/actions/tasks/add-task-member"
+import { addTaskChecklist } from "@/actions/tasks/add-task-checklist"
+import { addTaskLink } from "@/actions/tasks/add-task-link"
+import { addTaskComment } from "@/actions/tasks/add-task-comment"
+import { getUsers } from "@/actions/users/get-users"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -39,6 +44,10 @@ const priorityLabels = {
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [checklist, setChecklist] = useState<TaskChecklistItem[]>(Array.isArray(task.checklist) ? task.checklist : [])
 	const [newChecklistItem, setNewChecklistItem] = useState("")
+	const [newLinkUrl, setNewLinkUrl] = useState("")
+	const [newComment, setNewComment] = useState("")
+	const [availableUsers, setAvailableUsers] = useState<any[]>([])
+	const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
 	const {
 		register,
@@ -92,6 +101,70 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: addMemberMutation } = useMutation({
+		mutationFn: addTaskMember,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Membro adicionado com sucesso!")
+			} else {
+				toast.error(data.error || "Erro ao adicionar membro")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao adicionar membro: " + error.message)
+		}
+	})
+
+	const { mutateAsync: addChecklistMutation } = useMutation({
+		mutationFn: addTaskChecklist,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item adicionado à checklist!")
+				setNewChecklistItem("")
+			} else {
+				toast.error(data.error || "Erro ao adicionar item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao adicionar item: " + error.message)
+		}
+	})
+
+	const { mutateAsync: addLinkMutation } = useMutation({
+		mutationFn: addTaskLink,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Link adicionado com sucesso!")
+				setNewLinkUrl("")
+			} else {
+				toast.error(data.error || "Erro ao adicionar link")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao adicionar link: " + error.message)
+		}
+	})
+
+	const { mutateAsync: addCommentMutation } = useMutation({
+		mutationFn: addTaskComment,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Comentário adicionado com sucesso!")
+				setNewComment("")
+			} else {
+				toast.error(data.error || "Erro ao adicionar comentário")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao adicionar comentário: " + error.message)
+		}
+	})
+
+
 	const onSubmit = async (data: UpdateTaskFormData) => {
 		try {
 			console.log(data)
@@ -110,22 +183,85 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setChecklist((prev) => prev.map((item) => (item.id === itemId ? { ...item, completed: !item.completed } : item)))
 	}
 
-	const addChecklistItem = () => {
+	const addChecklistItem = async () => {
 		if (!newChecklistItem.trim()) return
 
-		const newItem: TaskChecklistItem = {
-			id: crypto.getRandomValues(new Uint32Array(1))[0],
-			content: newChecklistItem,
-			completed: false
+		try {
+			await addChecklistMutation({
+				taskId: task.id,
+				content: newChecklistItem
+			})
+		} catch (error) {
+			console.error("Erro ao adicionar item da checklist:", error)
 		}
-
-		setChecklist((prev) => [...prev, newItem])
-		setNewChecklistItem("")
 	}
 
 	const removeChecklistItem = (itemId: number) => {
 		setChecklist((prev) => prev.filter((item) => item.id !== itemId))
 	}
+
+	const loadUsers = async () => {
+		setIsLoadingUsers(true)
+		try {
+			const usersData = await getUsers(1)
+			setAvailableUsers(usersData.data || [])
+		} catch (error) {
+			console.error("Erro ao carregar usuários:", error)
+			toast.error("Erro ao carregar usuários")
+		} finally {
+			setIsLoadingUsers(false)
+		}
+	}
+
+	const handleOpenAddMember = () => {
+		loadUsers()
+		Modal.handleOpen("add_member_modal")
+	}
+
+	const handleAddMember = async (userId: number) => {
+		try {
+			await addMemberMutation({
+				taskId: task.id,
+				userId
+			})
+			closeModal("add_member_modal")
+		} catch (error) {
+			console.error("Erro ao adicionar membro:", error)
+		}
+	}
+
+	const handleAddLink = async () => {
+		if (!newLinkUrl.trim()) {
+			toast.error("URL é obrigatória")
+			return
+		}
+
+		try {
+			await addLinkMutation({
+				taskId: task.id,
+				url: newLinkUrl
+			})
+		} catch (error) {
+			console.error("Erro ao adicionar link:", error)
+		}
+	}
+
+	const handleAddComment = async () => {
+		if (!newComment.trim()) {
+			toast.error("Comentário não pode estar vazio")
+			return
+		}
+
+		try {
+			await addCommentMutation({
+				taskId: task.id,
+				content: newComment
+			})
+		} catch (error) {
+			console.error("Erro ao adicionar comentário:", error)
+		}
+	}
+
 
 	const completedCount = Array.isArray(checklist) ? checklist.filter((item) => item.completed).length : 0
 	const progressPercent =
@@ -197,6 +333,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 								))}
 							<button
 								type="button"
+								onClick={handleOpenAddMember}
 								className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
 								 text-sm text-text-secondary hover:bg-background transition-colors"
 							>
@@ -206,25 +343,41 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						</div>
 					</div>
 
-					{/* Anexos */}
+					{/* Links */}
 					<div className="flex flex-col gap-2">
-						<Label>Anexos</Label>
+						<Label>Links</Label>
 						<div className="flex flex-col gap-2">
-							{Array.isArray(task.attachments) &&
-								task.attachments.map((attachment) => (
-									<div key={attachment.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
-										<Paperclip width={16} height={16} className="text-text-secondary" />
-										<span className="text-sm flex-1">{attachment.name}</span>
+							{Array.isArray(task.links) &&
+								task.links.map((link: any) => (
+									<div key={link.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
+										<ExternalLink width={16} height={16} className="text-text-secondary" />
+										<a
+											href={link.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-sm flex-1 text-indigo-primary hover:underline"
+										>
+											{link.title || link.url}
+										</a>
 									</div>
 								))}
-							<button
-								type="button"
-								className="flex items-center gap-1 px-3 py-2 border border-dashed border-light-grey rounded-lg
-								 text-sm text-text-secondary hover:bg-background transition-colors justify-center"
-							>
-								<Plus width={16} height={16} />
-								Adicionar anexo
-							</button>
+							<div className="flex gap-2">
+								<Input
+									variant="no-placeholder"
+									placeholder="URL do link..."
+									value={newLinkUrl}
+									onChange={(e) => setNewLinkUrl(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault()
+											handleAddLink()
+										}
+									}}
+								/>
+								<Button outline type="button" color="indigo" onClick={handleAddLink}>
+									<Plus width={16} height={16} />
+								</Button>
+							</div>
 						</div>
 					</div>
 
@@ -358,18 +511,18 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					</div>
 
 					{/* Comentários e Atividade */}
-					{/* <div className="flex flex-col gap-3 mt-4">
-						<Label>Atividade</Label>
+					<div className="flex flex-col gap-3 mt-4">
+						<Label>Comentários</Label>
 						<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
 							{Array.isArray(task.comments) &&
-								task.comments.map((comment) => (
+								task.comments.map((comment: any) => (
 									<div key={comment.id} className="flex gap-2">
-										<Avatar name={comment.author.name} />
+										<Avatar name={comment.author?.name || "Usuário"} />
 										<div className="flex-1 flex flex-col gap-1">
 											<div className="flex items-center gap-2">
-												<span className="text-sm font-medium">{comment.author.name}</span>
+												<span className="text-sm font-medium">{comment.author?.name || "Usuário"}</span>
 												<span className="text-xs text-text-secondary">
-													{new Date(comment.createdAt).toLocaleDateString("pt-BR")}
+													{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString("pt-BR") : ""}
 												</span>
 											</div>
 											<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>
@@ -377,14 +530,22 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									</div>
 								))}
 						</div>
-						<textarea
-							placeholder="Escrever um comentário..."
-							className="w-full rounded-xl border border-light-grey px-3 py-2
-							   text-sm text-text-primary placeholder:text-text-secondary
-							   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-							   resize-none min-h-[60px]"
-						/>
-					</div> */}
+						<div className="flex flex-col gap-2">
+							<textarea
+								placeholder="Escrever um comentário..."
+								value={newComment}
+								onChange={(e) => setNewComment(e.target.value)}
+								className="w-full rounded-xl border border-light-grey px-3 py-2
+								   text-sm text-text-primary placeholder:text-text-secondary
+								   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+								   resize-none min-h-[60px]"
+							/>
+							<Button outline type="button" color="indigo" onClick={handleAddComment}>
+								<MessageSquare width={16} height={16} />
+								Adicionar Comentário
+							</Button>
+						</div>
+					</div>
 				</div>
 			</form>
 
@@ -414,6 +575,54 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				</Button>
 				{/* </div> */}
 			</ModalFooter>
+
+			{/* Modal de adicionar membro */}
+			<Modal id="add_member_modal" variant="sm">
+				<div className="flex flex-col gap-4">
+					<h3 className="text-lg font-semibold">Adicionar Membro</h3>
+
+					{isLoadingUsers ? (
+						<div className="flex items-center justify-center py-8">
+							<span className="text-text-secondary">Carregando usuários...</span>
+						</div>
+					) : (
+						<div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+							{availableUsers.length === 0 ? (
+								<div className="text-center py-4 text-text-secondary">
+									Nenhum usuário disponível
+								</div>
+							) : (
+								availableUsers.map((user) => (
+									<button
+										key={user.id}
+										type="button"
+										onClick={() => handleAddMember(user.id)}
+										className="flex items-center gap-3 px-4 py-3 border border-light-grey rounded-lg
+											hover:bg-background transition-colors text-left"
+									>
+										<Avatar name={user.name} />
+										<div className="flex flex-col">
+											<span className="text-sm font-medium">{user.name}</span>
+											<span className="text-xs text-text-secondary">{user.email}</span>
+										</div>
+									</button>
+								))
+							)}
+						</div>
+					)}
+
+					<div className="flex justify-end gap-2">
+						<Button
+							type="button"
+							outline
+							color="transparent"
+							onClick={() => closeModal("add_member_modal")}
+						>
+							Cancelar
+						</Button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	)
 }
