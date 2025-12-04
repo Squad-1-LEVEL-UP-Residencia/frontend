@@ -3,29 +3,35 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface RemoveMemberData {
+export interface UpdateTaskCommentData {
 	taskId: number
-	memberId: string
+	commentId: number
+	content: string
 }
 
-export async function removeMember(data: RemoveMemberData) {
+export async function updateTaskComment(data: UpdateTaskCommentData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/members/${data.memberId}`, {
-		method: "DELETE",
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/comments/${data.commentId}`, {
+		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
-		}
+		},
+		body: JSON.stringify({
+			content: data.content
+		})
 	})
+
+	const contentType = response.headers.get("content-type")
 
 	if (!response.ok) {
 		let error
 		try {
 			error = await response.json()
 		} catch (e) {
-			console.error("[removeMember] Erro ao fazer parse da resposta de erro:", e)
+			console.error("[addTaskComment] Erro ao fazer parse da resposta de erro:", e)
 			return {
 				success: false,
 				error: `Erro no servidor (${response.status})`,
@@ -47,13 +53,26 @@ export async function removeMember(data: RemoveMemberData) {
 
 	// Tratar resposta de sucesso
 	try {
+		if (!contentType || !contentType.includes("application/json")) {
+			const textResponse = await response.text()
+			console.error("[addTaskComment] Resposta não é JSON:", textResponse.substring(0, 200))
+			return {
+				success: false,
+				error: "Endpoint retornou resposta inválida (esperado JSON)",
+				status: response.status,
+				raw: null
+			}
+		}
+
+		const responseData = await response.json()
 		return {
 			success: true,
 			status: response.status,
-			message: "Membro removido com sucesso"
+			data: responseData,
+			raw: responseData
 		}
 	} catch (e) {
-		console.error("[removeMember] Erro ao fazer parse da resposta de sucesso:", e)
+		console.error("[addTaskComment] Erro ao fazer parse da resposta de sucesso:", e)
 		return {
 			success: false,
 			error: "Erro ao processar resposta do servidor",

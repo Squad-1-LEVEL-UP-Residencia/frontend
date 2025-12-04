@@ -9,7 +9,7 @@ import { SpanError } from "@/components/private/ui/span-error"
 import { Button } from "@/components/private/ui/button"
 import { Modal, ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
-import { Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare } from "lucide-react"
+import { Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare, Edit2Icon } from "lucide-react"
 import toast from "react-hot-toast"
 import type { Task, TaskChecklist, TaskChecklistItem, TaskComment } from "@/types/tasks/task"
 import { memo, useEffect, useState } from "react"
@@ -30,6 +30,9 @@ import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { useAvailableMembers } from "@/hooks/task/elements/useAvailableMembers"
 import { removeMember } from "@/actions/tasks/members/remove-member"
 import { set } from "zod"
+import { deleteTaskComment } from "@/actions/tasks/comments/delete-comment"
+import { useAuth } from "@/contexts/auth-context"
+import { updateTaskComment } from "@/actions/tasks/comments/update-comment"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -48,15 +51,20 @@ const priorityLabels = {
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
-	const [checklists, setChecklists] = useState<TaskChecklist[]>(Array.isArray(task.checklists) ? task.checklists : [])
-	const [newLinkUrl, setNewLinkUrl] = useState("")
+	// Sew items states
 	const [newComment, setNewComment] = useState("")
+	const [newLinkUrl, setNewLinkUrl] = useState("")
+	const [isEditingComment, setIsEditingComment] = useState(false)
+	const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+	// States
+	const [checklists, setChecklists] = useState<TaskChecklist[]>(Array.isArray(task.checklists) ? task.checklists : [])
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
 	const [userSearch, setUserSearch] = useState("")
 	const [taskMembers, setTaskMembers] = useState(task.members || [])
+	const [taskComments, setTaskComments] = useState<TaskComment[]>(Array.isArray(task.comments) ? task.comments : [])
 
 	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useAvailableMembers(task.id)
-
+	const { user } = useAuth()
 	const {
 		register,
 		handleSubmit,
@@ -91,6 +99,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		})
 		setChecklists(Array.isArray(task.checklists) ? task.checklists : [])
 		setTaskMembers(task.members || [])
+		setTaskComments(Array.isArray(task.comments) ? task.comments : [])
 	}, [task, reset])
 
 	useEffect(() => {
@@ -283,12 +292,47 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Comentário adicionado com sucesso!")
 				setNewComment("")
+				setTaskComments((prev) => [...prev, data.data.comment])
 			} else {
 				toast.error(data.error || "Erro ao adicionar comentário")
 			}
 		},
 		onError: (error) => {
 			toast.error("Erro ao adicionar comentário: " + error.message)
+		}
+	})
+
+	const { mutateAsync: updateCommentMutation } = useMutation({
+		mutationFn: updateTaskComment,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Comentário atualizado com sucesso!")
+				setTaskComments((prev) => prev.map((c) => (c.id === data.data.comment.id ? data.data.comment : c)))
+				setIsEditingComment(false)
+				setEditingCommentId(null)
+			} else {
+				toast.error(data.error || "Erro ao atualizar comentário")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao atualizar comentário: " + error.message)
+		}
+	})
+
+	const { mutateAsync: deleteCommentMutation } = useMutation({
+		mutationFn: deleteTaskComment,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Comentário removido com sucesso!")
+				setTaskComments((prev) => prev.filter((comment) => comment.id !== variables.commentId))
+			} else {
+				toast.error(data.error || "Erro ao atualizar comentário")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao atualizar comentário: " + error.message)
 		}
 	})
 
@@ -426,6 +470,35 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			})
 		} catch (error) {
 			console.error("Erro ao adicionar comentário:", error)
+		}
+	}
+
+	const toggleEditComment = (commentId: number) => {
+		setIsEditingComment(!isEditingComment)
+		setEditingCommentId(commentId)
+	}
+
+	const handleEditComment = (content: string, commentId: number) => {
+		updateCommentMutation({
+			taskId: task.id,
+			commentId,
+			content
+		})
+	}
+
+	const handleDeleteComment = async (commentId: number) => {
+		if (!commentId) {
+			toast.error("Comentário não pode estar vazio")
+			return
+		}
+
+		try {
+			await deleteCommentMutation({
+				taskId: task.id,
+				commentId
+			})
+		} catch (error) {
+			console.error("Erro ao deletar o comentário:", error)
 		}
 	}
 
@@ -734,23 +807,60 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-3 mt-4">
 						<Label>Comentários</Label>
 						<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
-							{Array.isArray(task.comments) &&
-								task.comments.map((comment: TaskComment) => (
-									<div key={comment.id} className="flex gap-2">
-										<Avatar name={comment.author || "Usuário sem nome"} />
-										<div className="flex-1 flex flex-col gap-1">
-											<div className="flex items-center gap-2">
-												<span className="text-sm font-medium">
-													{comment.author || "Usuário sem nome"} - {comment.author_role || "Desconhecido"}
-												</span>
-												<span className="text-xs text-text-secondary">
-													{comment.created_at ? new Date(comment.created_at).toLocaleDateString("pt-BR") : ""}
-												</span>
+							{Array.isArray(taskComments) &&
+								taskComments.map((comment: TaskComment) => {
+									let editedCommentContent: string = comment.content
+
+									return (
+										<div key={comment.id} className="flex gap-2">
+											<Avatar name={comment.author || "Usuário sem nome"} />
+											<div className="flex-1 flex flex-col gap-1">
+												<div className="flex items-center gap-2 mr-2">
+													<span className="text-sm font-medium">
+														{comment.author || "Usuário sem nome"} - {comment.author_role || "Desconhecido"}
+													</span>
+													<span className="text-xs text-text-secondary">
+														{comment.created_at ? new Date(comment.created_at).toLocaleDateString("pt-BR") : ""}
+													</span>
+													{user && user.id === comment.user_id && (
+														<div className="flex gap-2 items-center">
+															<button
+																type="button"
+																onClick={() => toggleEditComment(comment.id)}
+																className="text-blue-primary hover:text-blue-600"
+															>
+																<Edit2Icon width={14} height={14} />
+															</button>
+															<button
+																type="button"
+																onClick={() => handleDeleteComment(comment.id)}
+																className="text-red-primary hover:text-red-600"
+															>
+																<Trash2Icon width={14} height={14} />
+															</button>
+														</div>
+													)}
+												</div>
+												{isEditingComment && user && user.id === comment.user_id && editingCommentId == comment.id ? (
+													<textarea
+														className="text-sm text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg resize-none h-20"
+														defaultValue={comment.content}
+														onChange={(e) => (editedCommentContent = e.target.value)}
+														onKeyDown={(e) => {
+															if (e.key === "Enter") {
+																handleEditComment(editedCommentContent, comment.id)
+															}
+														}}
+													/>
+												) : (
+													<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">
+														{comment.content}
+													</p>
+												)}
 											</div>
-											<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>
 										</div>
-									</div>
-								))}
+									)
+								})}
 						</div>
 						<div className="flex flex-col gap-2">
 							<textarea

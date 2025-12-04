@@ -3,16 +3,16 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface RemoveMemberData {
+export interface RemoveCommentData {
 	taskId: number
-	memberId: string
+	commentId: number
 }
 
-export async function removeMember(data: RemoveMemberData) {
+export async function deleteTaskComment(data: RemoveCommentData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/members/${data.memberId}`, {
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/comments/${data.commentId}`, {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
@@ -25,7 +25,7 @@ export async function removeMember(data: RemoveMemberData) {
 		try {
 			error = await response.json()
 		} catch (e) {
-			console.error("[removeMember] Erro ao fazer parse da resposta de erro:", e)
+			console.error("[removeComment] Erro ao fazer parse da resposta de erro:", e)
 			return {
 				success: false,
 				error: `Erro no servidor (${response.status})`,
