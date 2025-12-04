@@ -30,6 +30,9 @@ import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-i
 import { deleteTaskChecklist } from "@/actions/tasks/delete-task-checklist"
 import { markTaskChecklistItem } from "@/actions/tasks/mark-task-checklist-item"
 import { useUsers } from "@/hooks/users/use-users"
+import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
+import { useSearchParams } from "next/navigation"
+import { useAvailableMembers } from "@/hooks/task/elements/useAvailableMembers"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -52,8 +55,9 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [newLinkUrl, setNewLinkUrl] = useState("")
 	const [newComment, setNewComment] = useState("")
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
+	const [userSearch, setUserSearch] = useState("")
 
-	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers(1, "")
+	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useAvailableMembers(task.id)
 
 	const {
 		register,
@@ -91,9 +95,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}, [task, reset])
 
 	useEffect(() => {
-		console.log(usersData?.data[0].id, task.members?.[0].id)
-		setAvailableUsers(usersData?.data.filter((user) => !task.members?.some((member) => member.id === user.id)) || [])
-	}, [usersData])
+		setAvailableUsers(
+			usersData?.filter(
+				(user) =>
+					user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+					user.email.toLowerCase().includes(userSearch.toLowerCase())
+			) || []
+		)
+	}, [usersData, userSearch, task.members])
 
 	//??? Mutations
 	const { mutateAsync: editTaskMutation } = useMutation({
@@ -763,6 +772,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						</div>
 					) : (
 						<div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+							<SearchBar
+								placeholder={"Buscar usuário..."}
+								noFilter
+								className="shadow-none"
+								onSearch={(q) => setUserSearch(q)}
+								search={userSearch}
+							/>
+
 							{availableUsers.length === 0 ? (
 								<div className="text-center py-4 text-text-secondary">Nenhum usuário disponível</div>
 							) : (
