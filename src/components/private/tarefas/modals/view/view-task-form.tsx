@@ -24,7 +24,7 @@ import { addTaskChecklist } from "@/actions/tasks/add-task-checklist"
 import { addTaskLink } from "@/actions/tasks/add-task-link"
 import { addTaskComment } from "@/actions/tasks/add-task-comment"
 import { getUsers } from "@/actions/users/get-users"
-import { check } from "zod"
+import { check, set } from "zod"
 import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
 
@@ -126,6 +126,8 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Item adicionado à checklist!")
+				console.log(data.data.checklist)
+				setChecklists((prev) => [...prev, data.data.checklist])
 			} else {
 				toast.error(data.error || "Erro ao adicionar item")
 			}
@@ -141,6 +143,18 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Item adicionado à checklist!")
+				const newItem: TaskChecklistItem = data.data.item
+				setChecklists((prev) => {
+					return prev.map((checklist) => {
+						if (checklist.id === newItem.checklist_id) {
+							return {
+								...checklist,
+								items: [...(checklist.items || []), newItem]
+							}
+						}
+						return checklist
+					})
+				})
 			} else {
 				toast.error(data.error || "Erro ao adicionar item")
 			}
@@ -220,6 +234,18 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				items: (checklist.items || []).map((it) => (it.id === itemId ? { ...it, is_completed: !it.is_completed } : it))
 			}))
 		)
+	}
+
+	const addChecklist = async (title: string) => {
+		if (!title.trim()) return
+		try {
+			addChecklistMutation({
+				taskId: task.id,
+				title: title
+			})
+		} catch (error) {
+			toast.error("Erro ao adicionar checklist")
+		}
 	}
 
 	const addChecklistItem = async (checklistId: number, description: string) => {
@@ -499,6 +525,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 											variant="no-placeholder"
 											placeholder="Adicionar item..."
 											onChange={(e) => (description = e.target.value)}
+											className="text-sm italic placeholder:text-text-secondary bg-background/50 border border-dashed border-light-grey px-3 py-2 rounded-lg"
 											onKeyDown={(e) => {
 												if (e.key === "Enter") {
 													e.preventDefault()
@@ -518,6 +545,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 								</div>
 							)
 						})}
+
+					{/* Add new checklist */}
+					<div className="flex gap-2 mt-8">
+						<Input variant="no-placeholder" placeholder="Adicionar uma nova checklist..." />
+						<Button
+							outline
+							type="button"
+							color="indigo"
+							onClick={(e) => {
+								const input = (e.currentTarget.previousSibling as HTMLInputElement)!
+								addChecklist(input.value)
+								input.value = ""
+							}}
+						>
+							<Plus width={16} height={16} />
+						</Button>
+					</div>
 				</div>
 
 				{/* Coluna Lateral (Direita) */}
