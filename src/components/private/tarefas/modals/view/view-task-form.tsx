@@ -183,10 +183,16 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 	const { mutateAsync: removeChecklistItemMutation } = useMutation({
 		mutationFn: deleteTaskChecklistItem,
-		onSuccess: (data) => {
+		onSuccess: (data, variables) => {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Item removido da checklist!")
+				setChecklists((prev) =>
+					prev.map((checklist) => ({
+						...checklist,
+						items: checklist.items?.filter((item) => item.id !== variables.itemId)
+					}))
+				)
 			} else {
 				toast.error(data.error || "Erro ao remover item")
 			}
@@ -292,13 +298,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			checklistId: checklistId,
 			itemId: itemId
 		})
-
-		setChecklists((prev) =>
-			prev.map((checklist) => ({
-				...checklist,
-				items: checklist.items?.filter((item) => item.id !== itemId)
-			}))
-		)
 	}
 
 	const loadUsers = async () => {
