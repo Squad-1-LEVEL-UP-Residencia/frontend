@@ -600,6 +600,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					color="transparent"
 					onClick={() => {
 						reset()
+						queryClient.invalidateQueries({ queryKey: ["lists"] })
 						closeModal("view_task_modal")
 					}}
 				>
