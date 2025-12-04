@@ -29,6 +29,7 @@ import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
 import { deleteTaskChecklist } from "@/actions/tasks/delete-task-checklist"
 import { markTaskChecklistItem } from "@/actions/tasks/mark-task-checklist-item"
+import { useUsers } from "@/hooks/users/use-users"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -51,7 +52,8 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [newLinkUrl, setNewLinkUrl] = useState("")
 	const [newComment, setNewComment] = useState("")
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
-	const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+
+	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers(1, "")
 
 	const {
 		register,
@@ -88,8 +90,12 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setChecklists(Array.isArray(task.checklists) ? task.checklists : [])
 	}, [task, reset])
 
-	//??? Mutations
+	useEffect(() => {
+		console.log(usersData?.data[0].id, task.members?.[0].id)
+		setAvailableUsers(usersData?.data.filter((user) => !task.members?.some((member) => member.id === user.id)) || [])
+	}, [usersData])
 
+	//??? Mutations
 	const { mutateAsync: editTaskMutation } = useMutation({
 		mutationFn: updateTask,
 		onSuccess: (data) => {
@@ -325,15 +331,13 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const loadUsers = async () => {
-		setIsLoadingUsers(true)
 		try {
-			const usersData = await getUsers(1)
-			setAvailableUsers(usersData.data || [])
+			await refetchUsers()
 		} catch (error) {
 			console.error("Erro ao carregar usuários:", error)
 			toast.error("Erro ao carregar usuários")
 		} finally {
-			setIsLoadingUsers(false)
+			// setIsLoadingUsers(false)
 		}
 	}
 
@@ -436,8 +440,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						/>
 						{errors.description && <SpanError>{errors.description.message}</SpanError>}
 					</div>
-
-					{/* Removido campo Link ChatGPT */}
 
 					{/* Membros */}
 					<div className="flex flex-col gap-2">
