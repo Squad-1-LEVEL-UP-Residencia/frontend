@@ -27,6 +27,7 @@ import { getUsers } from "@/actions/users/get-users"
 import { check, set } from "zod"
 import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
+import { deleteTaskChecklist } from "@/actions/tasks/delete-task-checklist"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -164,6 +165,22 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: removeChecklistMutation } = useMutation({
+		mutationFn: deleteTaskChecklist,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item removido da checklist!")
+				setChecklists((prev) => prev.filter((item) => item.id !== variables.checklistId))
+			} else {
+				toast.error(data.error || "Erro ao remover item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao remover item: " + error.message)
+		}
+	})
+
 	const { mutateAsync: removeChecklistItemMutation } = useMutation({
 		mutationFn: deleteTaskChecklistItem,
 		onSuccess: (data) => {
@@ -263,7 +280,10 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const removeChecklist = (checklistId: number) => {
-		setChecklists((prev) => prev.filter((item) => item.id !== checklistId))
+		removeChecklistMutation({
+			taskId: task.id,
+			checklistId: checklistId
+		})
 	}
 
 	const removeChecklistItem = (checklistId: number, itemId: number) => {
@@ -471,8 +491,20 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 							let description: string = ""
 							return (
 								<div key={checklist.id} className="flex flex-col gap-3">
-									<div className="flex items-center justify-between">
-										<Label>{checklist.title}</Label>
+									<div className="flex items-center justify-between group">
+										<Label>
+											<div className="flex gap-4">
+												{checklist.title}{" "}
+												<button
+													type="button"
+													onClick={() => removeChecklist(checklist.id)}
+													className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+												>
+													<Trash2Icon width={14} height={14} />
+												</button>
+											</div>
+										</Label>
+
 										<span className="text-sm text-text-secondary font-medium">
 											{checklist.items.filter((item) => item.is_completed).length}/{checklist.items.length} (
 											{progressBar}%)
