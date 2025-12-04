@@ -11,8 +11,8 @@ import { Modal, ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
 import { Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare, Edit2Icon } from "lucide-react"
 import toast from "react-hot-toast"
-import type { Task, TaskChecklist, TaskChecklistItem, TaskComment } from "@/types/tasks/task"
-import { memo, useEffect, useState } from "react"
+import type { Task, TaskChecklist, TaskChecklistItem, TaskComment, TaskLink } from "@/types/tasks/task"
+import { useEffect, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
 import { closeModal } from "@/data/helpers/closeModal"
@@ -29,10 +29,13 @@ import { markTaskChecklistItem } from "@/actions/tasks/mark-task-checklist-item"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
 import { useAvailableMembers } from "@/hooks/task/elements/useAvailableMembers"
 import { removeMember } from "@/actions/tasks/members/remove-member"
-import { set } from "zod"
 import { deleteTaskComment } from "@/actions/tasks/comments/delete-comment"
 import { useAuth } from "@/contexts/auth-context"
 import { updateTaskComment } from "@/actions/tasks/comments/update-comment"
+import { updateTaskLink } from "@/actions/tasks/links/update-link"
+import { set } from "zod"
+import { hasPermission } from "@/data/helpers/hasPermission"
+import { PermissionsConstant } from "@/constants/permissions"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -52,16 +55,21 @@ const priorityLabels = {
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	// Sew items states
-	const [newComment, setNewComment] = useState("")
 	const [newLinkUrl, setNewLinkUrl] = useState("")
+	// coments
+	const [newComment, setNewComment] = useState("")
 	const [isEditingComment, setIsEditingComment] = useState(false)
 	const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+	// Links
+	const [editingLinkId, setEditingLinkId] = useState<number | null>(null)
+	const [isEditingLink, setIsEditingLink] = useState(false)
 	// States
 	const [checklists, setChecklists] = useState<TaskChecklist[]>(Array.isArray(task.checklists) ? task.checklists : [])
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
 	const [userSearch, setUserSearch] = useState("")
 	const [taskMembers, setTaskMembers] = useState(task.members || [])
 	const [taskComments, setTaskComments] = useState<TaskComment[]>(Array.isArray(task.comments) ? task.comments : [])
+	const [taskLinks, setTaskLinks] = useState<TaskLink[]>(Array.isArray(task.links) ? task.links : [])
 
 	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useAvailableMembers(task.id)
 	const { user } = useAuth()
@@ -100,6 +108,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		setChecklists(Array.isArray(task.checklists) ? task.checklists : [])
 		setTaskMembers(task.members || [])
 		setTaskComments(Array.isArray(task.comments) ? task.comments : [])
+		setTaskLinks(Array.isArray(task.links) ? task.links : [])
 	}, [task, reset])
 
 	useEffect(() => {
@@ -285,6 +294,24 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: updateLinkMutation } = useMutation({
+		mutationFn: updateTaskLink,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success(data.data.message)
+				setTaskLinks((prev) => prev.map((link) => (link.id === variables.linkId ? data.data.link : link)))
+				setIsEditingLink(false)
+				setEditingLinkId(null)
+			} else {
+				toast.error(data.error || "Erro ao atualizar link")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao atualizar link: " + error.message)
+		}
+	})
+
 	const { mutateAsync: addCommentMutation } = useMutation({
 		mutationFn: addTaskComment,
 		onSuccess: (data) => {
@@ -457,6 +484,28 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	}
 
+	const toggleEditLink = (linkId: number) => {
+		setIsEditingLink(!isEditingLink)
+		setEditingLinkId(linkId)
+	}
+
+	const handleUpdateLink = async (linkId: number, url: string) => {
+		if (!url.trim()) {
+			toast.error("URL é obrigatória")
+			return
+		}
+
+		try {
+			await updateLinkMutation({
+				taskId: task.id,
+				linkId,
+				url
+			})
+		} catch (error) {
+			console.error("Erro ao atualizar link:", error)
+		}
+	}
+
 	const handleAddComment = async () => {
 		if (!newComment.trim()) {
 			toast.error("Comentário não pode estar vazio")
@@ -588,20 +637,56 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Links</Label>
 						<div className="flex flex-col gap-2">
-							{Array.isArray(task.links) &&
-								task.links.map((link: any) => (
-									<div key={link.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
-										<ExternalLink width={16} height={16} className="text-text-secondary" />
-										<a
-											href={link.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-sm flex-1 text-indigo-primary hover:underline"
-										>
-											{link.title || link.url}
-										</a>
-									</div>
-								))}
+							{Array.isArray(taskLinks) &&
+								taskLinks.map((link: any) => {
+									let editedLinkUrl: string = link.url
+									return (
+										<div key={link.id} className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg">
+											<ExternalLink width={16} height={16} className="text-text-secondary" />
+											{isEditingLink && editingLinkId === link.id ? (
+												<input
+													className="text-sm text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg resize-none w-full"
+													defaultValue={link.url}
+													onChange={(e) => (editedLinkUrl = e.target.value)}
+													onKeyDown={(e) => {
+														if (e.key === "Enter") {
+															e.preventDefault()
+															handleUpdateLink(link.id, editedLinkUrl)
+														}
+													}}
+												/>
+											) : (
+												<a
+													href={link.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-sm flex-1 text-indigo-primary hover:underline"
+												>
+													{link.title || link.url}
+												</a>
+											)}
+
+											{hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+												<div className="flex items-center gap-2">
+													<button
+														type="button"
+														onClick={() => toggleEditLink(link.id)}
+														className="text-text-secondary hover:text-text-primary"
+													>
+														<Edit2Icon width={14} height={14} />
+													</button>
+													<button
+														type="button"
+														// onClick={() => handleDeleteLink(link.id)}
+														className="text-red-primary hover:text-red-600"
+													>
+														<Trash2Icon width={14} height={14} />
+													</button>
+												</div>
+											)}
+										</div>
+									)
+								})}
 							<div className="flex gap-2">
 								<Input
 									variant="no-placeholder"
