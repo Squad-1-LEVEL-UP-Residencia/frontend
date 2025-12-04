@@ -7,7 +7,7 @@ export const SignInInput = forwardRef<HTMLInputElement, SignInInputProps>(({ cla
 		<input
 			{...props}
 			ref={ref}
-			className={`input-neutral min-w-full border border-background rounded-2xl p-4 ${className ?? ""}`}
+			className={`input-neutral min-w-full border border-background text-black rounded-2xl p-4 ${className ?? ""}`}
 		/>
 	)
 })
