@@ -1,6 +1,6 @@
 "use client"
 
-import { Task } from "@/types/tasks/task"
+import { Task, TaskChecklistItem } from "@/types/tasks/task"
 import { Avatar } from "@/components/private/ui/avatar"
 import { Link, Paperclip, MessageSquare, CheckSquare } from "lucide-react"
 import { ModalTrigger } from "@/components/private/ui/modal"
@@ -28,8 +28,10 @@ const priorityLabels = {
 }
 
 export function TaskCard({ task, onCardClick, onDragStart, onDragOver, onDrop, listId, isDraggedOver }: TaskCardProps) {
-	const completedChecklist = Array.isArray(task.checklist) ? task.checklist.filter((item) => item.completed).length : 0
-	const totalChecklist = Array.isArray(task.checklist) ? task.checklist.length : 0
+	const completedChecklist = Array.isArray(task.checklists)
+		? task.checklists.filter((item: TaskChecklistItem) => item.is_completed).length
+		: 0
+	const totalChecklist = Array.isArray(task.checklists) ? task.checklists.length : 0
 	const progressPercent = totalChecklist > 0 ? (completedChecklist / totalChecklist) * 100 : 0
 
 	return (
@@ -93,10 +95,10 @@ export function TaskCard({ task, onCardClick, onDragStart, onDragOver, onDrop, l
 				<div className="flex items-center justify-between mt-3 pt-3 border-t border-light-grey">
 					{/* Icons */}
 					<div className="flex items-center gap-3">
-						{Array.isArray(task.attachments) && task.attachments.length > 0 && (
+						{Array.isArray(task.links) && task.links.length > 0 && (
 							<div className="flex items-center gap-1 text-text-secondary">
 								<Paperclip width={14} height={14} />
-								<span className="text-xs">{task.attachments.length}</span>
+								<span className="text-xs">{task.links.length}</span>
 							</div>
 						)}
 						{Array.isArray(task.comments) && task.comments.length > 0 && (
