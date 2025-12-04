@@ -851,160 +851,161 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					</div>
 
 					{/* Checklist */}
-
-					{/* o foreach de checklists começa aqui */}
-					{checklists &&
-						checklists.map((checklist) => {
-							let progressBar: number =
-								checklist.items.length > 0
-									? Math.round(
-											(checklist.items.filter((item) => item.is_completed).length / checklist.items.length) * 100
-									  )
-									: 0
-							let description: string = ""
-							return (
-								<div key={checklist.id} className="flex flex-col gap-3">
-									<div className="flex items-center justify-between">
-										<Label className="pointer-events-none">
-											<div className="flex gap-2">
-												{isEditingChecklist && editingChecklistId === checklist.id ? (
-													<input
-														className="text-lg text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg pointer-events-auto"
-														defaultValue={checklist.title}
-														onChange={(e) => (checklist.title = e.target.value)}
-														onKeyDown={(e) => {
-															if (e.key === "Enter") {
-																e.preventDefault()
-																updateChecklist(checklist.id, checklist.title)
-															}
-														}}
-													/>
-												) : (
-													<span className="text-lg font-semibold text-text-primary">{checklist.title}</span>
-												)}
-
-												<div className="flex items-center gap-2">
-													<button
-														type="button"
-														onClick={() => toggleEditChecklist(checklist.id)}
-														className="pointer-events-auto transition-colors cursor-pointer text-text-secondary hover:text-text-primary"
-													>
-														<Edit2Icon width={14} height={14} />
-													</button>
-
-													<button
-														type="button"
-														onClick={() => removeChecklist(checklist.id)}
-														className="pointer-events-auto transition-colors cursor-pointer text-red-primary hover:text-red-600"
-													>
-														<Trash2Icon width={14} height={14} />
-													</button>
-												</div>
-											</div>
-										</Label>
-
-										<span className="text-sm text-text-secondary font-medium">
-											{checklist.items.filter((item) => item.is_completed).length}/{checklist.items.length} (
-											{progressBar}%)
-										</span>
-									</div>
-
-									{/* Progress bar */}
-									{checklists.length > 0 && (
-										<div className="w-full bg-grey-primary rounded-full h-2">
-											<div
-												className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
-												style={{ width: `${progressBar}%` }}
-											/>
-										</div>
-									)}
-
-									{/* Checklist items */}
-									<div className="flex flex-col gap-2">
-										{/* foreach de checklist.items  */}
-										{checklist.items.length > 0 &&
-											checklist.items.map((item) => {
-												let editedDescription: string = item.description!
-												return (
-													<div key={item.id} className="flex items-center gap-2 group">
+					<div className="flex flex-col gap-2 mt-8">
+						<Label>Checklists</Label>
+						{/* o foreach de checklists começa aqui */}
+						{checklists &&
+							checklists.map((checklist) => {
+								let progressBar: number =
+									checklist.items.length > 0
+										? Math.round(
+												(checklist.items.filter((item) => item.is_completed).length / checklist.items.length) * 100
+										  )
+										: 0
+								let description: string = ""
+								return (
+									<div key={checklist.id} className="flex flex-col gap-3">
+										<div className="flex items-center justify-between">
+											<Label className="pointer-events-none">
+												<div className="flex gap-2">
+													{isEditingChecklist && editingChecklistId === checklist.id ? (
 														<input
-															type="checkbox"
-															checked={item.is_completed}
-															onChange={() => toggleChecklistItem(item.id, checklist.id, !item.is_completed)}
-															className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
+															className="text-lg text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg pointer-events-auto"
+															defaultValue={checklist.title}
+															onChange={(e) => (checklist.title = e.target.value)}
+															onKeyDown={(e) => {
+																if (e.key === "Enter") {
+																	e.preventDefault()
+																	updateChecklist(checklist.id, checklist.title)
+																}
+															}}
 														/>
-														{isEditingChecklistItem && editingChecklistItemId === item.id ? (
-															<input
-																className={`text-sm text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg resize-none flex-1 ${
-																	item.is_completed ? "line-through opacity-60" : ""
-																}`}
-																defaultValue={item.description}
-																onChange={(e) => (editedDescription = e.target.value)}
-																onKeyDown={(e) => {
-																	if (e.key === "Enter") {
-																		e.preventDefault()
-																		updateChecklistItem(checklist.id, item.id, editedDescription)
-																	}
-																}}
-															/>
-														) : (
-															<span
-																className={`text-sm flex-1 ${
-																	item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
-																}`}
-															>
-																{item.description}
-															</span>
-														)}
-														<div className="flex items-center gap-2">
-															<button
-																type="button"
-																onClick={() => toggleEditChecklistItem(item.id)}
-																className="text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-															>
-																<Edit2Icon width={14} height={14} />
-															</button>
-															<button
-																type="button"
-																onClick={() => removeChecklistItem(checklist.id, item.id)}
-																className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
-															>
-																<Trash2Icon width={14} height={14} />
-															</button>
-														</div>
+													) : (
+														<span className="text-lg font-semibold text-text-primary">{checklist.title}</span>
+													)}
+
+													<div className="flex items-center gap-2">
+														<button
+															type="button"
+															onClick={() => toggleEditChecklist(checklist.id)}
+															className="pointer-events-auto transition-colors cursor-pointer text-text-secondary hover:text-text-primary"
+														>
+															<Edit2Icon width={14} height={14} />
+														</button>
+
+														<button
+															type="button"
+															onClick={() => removeChecklist(checklist.id)}
+															className="pointer-events-auto transition-colors cursor-pointer text-red-primary hover:text-red-600"
+														>
+															<Trash2Icon width={14} height={14} />
+														</button>
 													</div>
-												)
-											})}
-									</div>
+												</div>
+											</Label>
 
-									{/* Add new item */}
-									<div className="flex gap-2">
-										<Input
-											variant="no-placeholder"
-											placeholder="Adicionar item..."
-											onChange={(e) => (description = e.target.value)}
-											className="text-sm italic placeholder:text-text-secondary bg-background/50 border border-dashed border-light-grey px-3 py-2 rounded-lg"
-											onKeyDown={(e) => {
-												if (e.key === "Enter") {
-													e.preventDefault()
-													addChecklistItem(checklist.id, description)
-													e.currentTarget.value = ""
-												}
-											}}
-										/>
-										<Button
-											outline
-											type="button"
-											color="indigo"
-											onClick={() => addChecklistItem(checklist.id, description)}
-										>
-											<Plus width={16} height={16} />
-										</Button>
-									</div>
-								</div>
-							)
-						})}
+											<span className="text-sm text-text-secondary font-medium">
+												{checklist.items.filter((item) => item.is_completed).length}/{checklist.items.length} (
+												{progressBar}%)
+											</span>
+										</div>
 
+										{/* Progress bar */}
+										{checklists.length > 0 && (
+											<div className="w-full bg-grey-primary rounded-full h-2">
+												<div
+													className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
+													style={{ width: `${progressBar}%` }}
+												/>
+											</div>
+										)}
+
+										{/* Checklist items */}
+										<div className="flex flex-col gap-2">
+											{/* foreach de checklist.items  */}
+											{checklist.items.length > 0 &&
+												checklist.items.map((item) => {
+													let editedDescription: string = item.description!
+													return (
+														<div key={item.id} className="flex items-center gap-2 group">
+															<input
+																type="checkbox"
+																checked={item.is_completed}
+																onChange={() => toggleChecklistItem(item.id, checklist.id, !item.is_completed)}
+																className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
+															/>
+															{isEditingChecklistItem && editingChecklistItemId === item.id ? (
+																<input
+																	className={`text-sm text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg resize-none flex-1 ${
+																		item.is_completed ? "line-through opacity-60" : ""
+																	}`}
+																	defaultValue={item.description}
+																	onChange={(e) => (editedDescription = e.target.value)}
+																	onKeyDown={(e) => {
+																		if (e.key === "Enter") {
+																			e.preventDefault()
+																			updateChecklistItem(checklist.id, item.id, editedDescription)
+																		}
+																	}}
+																/>
+															) : (
+																<span
+																	className={`text-sm flex-1 ${
+																		item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
+																	}`}
+																>
+																	{item.description}
+																</span>
+															)}
+															<div className="flex items-center gap-2">
+																<button
+																	type="button"
+																	onClick={() => toggleEditChecklistItem(item.id)}
+																	className="text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+																>
+																	<Edit2Icon width={14} height={14} />
+																</button>
+																<button
+																	type="button"
+																	onClick={() => removeChecklistItem(checklist.id, item.id)}
+																	className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+																>
+																	<Trash2Icon width={14} height={14} />
+																</button>
+															</div>
+														</div>
+													)
+												})}
+										</div>
+
+										{/* Add new item */}
+										<div className="flex gap-2">
+											<Input
+												variant="no-placeholder"
+												placeholder="Adicionar item..."
+												onChange={(e) => (description = e.target.value)}
+												className="text-sm italic placeholder:text-text-secondary bg-background/50 border border-dashed border-light-grey px-3 py-2 rounded-lg"
+												onKeyDown={(e) => {
+													if (e.key === "Enter") {
+														e.preventDefault()
+														addChecklistItem(checklist.id, description)
+														e.currentTarget.value = ""
+													}
+												}}
+											/>
+											<Button
+												outline
+												type="button"
+												color="indigo"
+												onClick={() => addChecklistItem(checklist.id, description)}
+											>
+												<Plus width={16} height={16} />
+											</Button>
+										</div>
+									</div>
+								)
+							})}
+					</div>
 					{/* Add new checklist */}
 					<div className="flex gap-2 mt-8">
 						<Input variant="no-placeholder" placeholder="Adicionar uma nova checklist..." />
