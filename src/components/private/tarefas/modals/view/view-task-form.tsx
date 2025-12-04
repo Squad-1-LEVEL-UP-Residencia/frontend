@@ -12,7 +12,7 @@ import { Modal, ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
 import { Bot, Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare } from "lucide-react"
 import toast from "react-hot-toast"
-import type { Task, TaskChecklist, TaskChecklistItem } from "@/types/tasks/task"
+import type { Task, TaskChecklist, TaskChecklistItem, TaskComment } from "@/types/tasks/task"
 import { useEffect, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
@@ -585,14 +585,16 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						<Label>Comentários</Label>
 						<div className="flex flex-col gap-3 max-h-60 overflow-y-auto">
 							{Array.isArray(task.comments) &&
-								task.comments.map((comment: any) => (
+								task.comments.map((comment: TaskComment) => (
 									<div key={comment.id} className="flex gap-2">
-										<Avatar name={comment.author?.name || "Usuário"} />
+										<Avatar name={comment.author || "Usuário sem nome"} />
 										<div className="flex-1 flex flex-col gap-1">
 											<div className="flex items-center gap-2">
-												<span className="text-sm font-medium">{comment.author?.name || "Usuário"}</span>
+												<span className="text-sm font-medium">
+													{comment.author || "Usuário sem nome"} - {comment.author_role || "Desconhecido"}
+												</span>
 												<span className="text-xs text-text-secondary">
-													{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString("pt-BR") : ""}
+													{comment.created_at ? new Date(comment.created_at).toLocaleDateString("pt-BR") : ""}
 												</span>
 											</div>
 											<p className="text-sm text-text-primary bg-background px-3 py-2 rounded-lg">{comment.content}</p>

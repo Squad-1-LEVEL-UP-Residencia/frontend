@@ -28,6 +28,8 @@ export interface TaskComment {
 	id: number
 	task_id?: number
 	user_id: string
+	author: string
+	author_role: string
 	content: string
 	created_at: string
 	updated_at?: string
