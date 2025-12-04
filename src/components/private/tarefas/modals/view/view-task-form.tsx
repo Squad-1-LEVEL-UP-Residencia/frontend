@@ -37,6 +37,8 @@ import { set } from "zod"
 import { hasPermission } from "@/data/helpers/hasPermission"
 import { PermissionsConstant } from "@/constants/permissions"
 import { deleteTaskLink } from "@/actions/tasks/links/delete-link"
+import { updateTaskChecklistItem } from "@/actions/tasks/checklists/items/update-checklist-item"
+import { updateTaskChecklist } from "@/actions/tasks/checklists/update-checklist"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -55,22 +57,28 @@ const priorityLabels = {
 }
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
-	// Sew items states
-	const [newLinkUrl, setNewLinkUrl] = useState("")
-	// coments
+	// Comments
+	const [taskComments, setTaskComments] = useState<TaskComment[]>(Array.isArray(task.comments) ? task.comments : [])
 	const [newComment, setNewComment] = useState("")
 	const [isEditingComment, setIsEditingComment] = useState(false)
 	const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
 	// Links
 	const [editingLinkId, setEditingLinkId] = useState<number | null>(null)
+	const [taskLinks, setTaskLinks] = useState<TaskLink[]>(Array.isArray(task.links) ? task.links : [])
 	const [isEditingLink, setIsEditingLink] = useState(false)
-	// States
+	const [newLinkUrl, setNewLinkUrl] = useState("")
+
+	// Checklist
 	const [checklists, setChecklists] = useState<TaskChecklist[]>(Array.isArray(task.checklists) ? task.checklists : [])
+	const [isEditingChecklistItem, setIsEditingChecklistItem] = useState(false)
+	const [editingChecklistItemId, setEditingChecklistItemId] = useState<number | null>(null)
+	const [isEditingChecklist, setIsEditingChecklist] = useState(false)
+	const [editingChecklistId, setEditingChecklistId] = useState<number | null>(null)
+
+	// States
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
 	const [userSearch, setUserSearch] = useState("")
 	const [taskMembers, setTaskMembers] = useState(task.members || [])
-	const [taskComments, setTaskComments] = useState<TaskComment[]>(Array.isArray(task.comments) ? task.comments : [])
-	const [taskLinks, setTaskLinks] = useState<TaskLink[]>(Array.isArray(task.links) ? task.links : [])
 
 	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useAvailableMembers(task.id)
 	const { user } = useAuth()
@@ -192,6 +200,34 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: updateChecklistMutation } = useMutation({
+		mutationFn: updateTaskChecklist,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Checklist atualizada com sucesso!")
+				const updatedChecklist: TaskChecklist = data.data.checklist
+				setChecklists((prev) => {
+					return prev.map((checklist) =>
+						checklist.id === variables.checklistId
+							? {
+									...checklist,
+									...updatedChecklist
+							  }
+							: checklist
+					)
+				})
+				setIsEditingChecklist(false)
+				setEditingChecklistId(null)
+			} else {
+				toast.error(data.error || "Erro ao editar a checklist")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao editar a checklist: " + error.message)
+		}
+	})
+
 	const { mutateAsync: addChecklistItemMutation } = useMutation({
 		mutationFn: addTaskChecklistItem,
 		onSuccess: (data) => {
@@ -216,6 +252,34 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		},
 		onError: (error) => {
 			toast.error("Erro ao adicionar item: " + error.message)
+		}
+	})
+
+	const { mutateAsync: updateChecklistItemMutation } = useMutation({
+		mutationFn: updateTaskChecklistItem,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item atualizado com sucesso!")
+				const updatedItem: TaskChecklistItem = data.data.item
+				setChecklists((prev) => {
+					return prev.map((checklist) =>
+						checklist.id === variables.checklistId
+							? {
+									...checklist,
+									items: checklist.items?.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+							  }
+							: checklist
+					)
+				})
+				setIsEditingChecklistItem(false)
+				setEditingChecklistItemId(null)
+			} else {
+				toast.error(data.error || "Erro ao editar o item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao editar o item: " + error.message)
 		}
 	})
 
@@ -429,6 +493,41 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		} catch (error) {
 			console.error("Erro ao adicionar item da checklist:", error)
 		}
+	}
+
+	const toggleEditChecklistItem = (itemId: number) => {
+		setEditingChecklistItemId(itemId)
+		setIsEditingChecklistItem(!isEditingChecklistItem)
+	}
+
+	const updateChecklistItem = async (checklistId: number, itemId: number, description: string) => {
+		if (!description.trim()) {
+			toast.error("Descrição é obrigatória")
+		}
+
+		await updateChecklistItemMutation({
+			taskId: task.id,
+			checklistId,
+			itemId,
+			description
+		})
+	}
+
+	const updateChecklist = async (checklistId: number, title: string) => {
+		if (!title.trim()) {
+			toast.error("O titulo da checklist é obrigatório")
+		}
+
+		await updateChecklistMutation({
+			taskId: task.id,
+			checklistId,
+			title
+		})
+	}
+
+	const toggleEditChecklist = (checklistId: number) => {
+		setEditingChecklistId(checklistId)
+		setIsEditingChecklist(!isEditingChecklist)
 	}
 
 	const removeChecklist = (checklistId: number) => {
@@ -767,15 +866,39 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									<div className="flex items-center justify-between">
 										<Label className="pointer-events-none">
 											<div className="flex gap-2">
-												<span>{checklist.title} </span>
+												{isEditingChecklist && editingChecklistId === checklist.id ? (
+													<input
+														className="text-lg text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg pointer-events-auto"
+														defaultValue={checklist.title}
+														onChange={(e) => (checklist.title = e.target.value)}
+														onKeyDown={(e) => {
+															if (e.key === "Enter") {
+																e.preventDefault()
+																updateChecklist(checklist.id, checklist.title)
+															}
+														}}
+													/>
+												) : (
+													<span className="text-lg font-semibold text-text-primary">{checklist.title}</span>
+												)}
 
-												<button
-													type="button"
-													onClick={() => removeChecklist(checklist.id)}
-													className="pointer-events-auto transition-colors curosr-pointer text-red-primary hover:text-red-600"
-												>
-													<Trash2Icon width={14} height={14} />
-												</button>
+												<div className="flex items-center gap-2">
+													<button
+														type="button"
+														onClick={() => toggleEditChecklist(checklist.id)}
+														className="pointer-events-auto transition-colors cursor-pointer text-text-secondary hover:text-text-primary"
+													>
+														<Edit2Icon width={14} height={14} />
+													</button>
+
+													<button
+														type="button"
+														onClick={() => removeChecklist(checklist.id)}
+														className="pointer-events-auto transition-colors cursor-pointer text-red-primary hover:text-red-600"
+													>
+														<Trash2Icon width={14} height={14} />
+													</button>
+												</div>
 											</div>
 										</Label>
 
@@ -799,30 +922,58 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									<div className="flex flex-col gap-2">
 										{/* foreach de checklist.items  */}
 										{checklist.items.length > 0 &&
-											checklist.items.map((item) => (
-												<div key={item.id} className="flex items-center gap-2 group">
-													<input
-														type="checkbox"
-														checked={item.is_completed}
-														onChange={() => toggleChecklistItem(item.id, checklist.id, !item.is_completed)}
-														className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
-													/>
-													<span
-														className={`text-sm flex-1 ${
-															item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
-														}`}
-													>
-														{item.description}
-													</span>
-													<button
-														type="button"
-														onClick={() => removeChecklistItem(checklist.id, item.id)}
-														className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
-													>
-														<Trash2Icon width={14} height={14} />
-													</button>
-												</div>
-											))}
+											checklist.items.map((item) => {
+												let editedDescription: string = item.description!
+												return (
+													<div key={item.id} className="flex items-center gap-2 group">
+														<input
+															type="checkbox"
+															checked={item.is_completed}
+															onChange={() => toggleChecklistItem(item.id, checklist.id, !item.is_completed)}
+															className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
+														/>
+														{isEditingChecklistItem && editingChecklistItemId === item.id ? (
+															<input
+																className={`text-sm text-text-primary border border-blue-primary/60 bg-background px-3 py-2 rounded-lg resize-none flex-1 ${
+																	item.is_completed ? "line-through opacity-60" : ""
+																}`}
+																defaultValue={item.description}
+																onChange={(e) => (editedDescription = e.target.value)}
+																onKeyDown={(e) => {
+																	if (e.key === "Enter") {
+																		e.preventDefault()
+																		updateChecklistItem(checklist.id, item.id, editedDescription)
+																	}
+																}}
+															/>
+														) : (
+															<span
+																className={`text-sm flex-1 ${
+																	item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
+																}`}
+															>
+																{item.description}
+															</span>
+														)}
+														<div className="flex items-center gap-2">
+															<button
+																type="button"
+																onClick={() => toggleEditChecklistItem(item.id)}
+																className="text-text-secondary hover:text-text-primary"
+															>
+																<Edit2Icon width={14} height={14} />
+															</button>
+															<button
+																type="button"
+																onClick={() => removeChecklistItem(checklist.id, item.id)}
+																className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+															>
+																<Trash2Icon width={14} height={14} />
+															</button>
+														</div>
+													</div>
+												)
+											})}
 									</div>
 
 									{/* Add new item */}
