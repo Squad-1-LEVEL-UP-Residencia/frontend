@@ -194,7 +194,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		try {
 			await addChecklistMutation({
 				taskId: task.id,
-				content: newChecklistItem
+				title: newChecklistItem
 			})
 		} catch (error) {
 			console.error("Erro ao adicionar item da checklist:", error)
@@ -266,10 +266,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			console.error("Erro ao adicionar comentário:", error)
 		}
 	}
-
-	const allChecklistItems = Array.isArray(checklists) ? checklists.flatMap((c) => c.items || []) : []
-	const completedCount = allChecklistItems.filter((item) => item.is_completed).length
-	const progressPercent = allChecklistItems.length > 0 ? (completedCount / allChecklistItems.length) * 100 : 0
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -389,80 +385,85 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 					{/* o foreach de checklists começa aqui */}
 					{checklists &&
-						checklists.map((checklist) => (
-							<div key={checklist.id} className="flex flex-col gap-3">
-								<div className="flex items-center justify-between">
-									<Label>{checklist.title}</Label>
-									<span className="text-sm text-text-secondary font-medium">
-										{completedCount}/{checklists.length} ({Math.round(progressPercent)}%)
-									</span>
-								</div>
+						checklists.map((checklist) => {
+							let progressBar: number =
+								checklist.items.length > 0
+									? Math.round(
+											(checklist.items.filter((item) => item.is_completed).length / checklist.items.length) * 100
+									  )
+									: 0
 
-								{/* Progress bar */}
-								{checklists.length > 0 && (
-									<div className="w-full bg-grey-primary rounded-full h-2">
-										<div
-											className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
-											style={{ width: `${progressPercent}%` }}
-										/>
+							return (
+								<div key={checklist.id} className="flex flex-col gap-3">
+									<div className="flex items-center justify-between">
+										<Label>{checklist.title}</Label>
+										<span className="text-sm text-text-secondary font-medium">
+											{checklist.items.filter((item) => item.is_completed).length}/{checklist.items.length} (
+											{progressBar}%)
+										</span>
 									</div>
-								)}
 
-								{/* Checklist items */}
-								<div className="flex flex-col gap-2">
-									{/* foreach de checklist.items  */}
-									{checklist.items.length > 0 &&
-										checklist.items.map(
-											(item) => {
-												console.log(item)
-												return (
-													<div key={item.id} className="flex items-center gap-2 group">
-														<input
-															type="checkbox"
-															checked={item.is_completed}
-															onChange={() => toggleChecklistItem(item.id)}
-															className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
-														/>
-														<span
-															className={`text-sm flex-1 ${
-																item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
-															}`}
-														>
-															{item.description}
-														</span>
-														<button
-															type="button"
-															onClick={() => removeChecklistItem(item.id)}
-															className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
-														>
-															<Trash2Icon width={14} height={14} />
-														</button>
-													</div>
-												)
-											} // deletar
-										)}
-								</div>
+									{/* Progress bar */}
+									{checklists.length > 0 && (
+										<div className="w-full bg-grey-primary rounded-full h-2">
+											<div
+												className="bg-indigo-primary h-2 rounded-full transition-all duration-300"
+												style={{ width: `${progressBar}%` }}
+											/>
+										</div>
+									)}
 
-								{/* Add new item */}
-								<div className="flex gap-2">
-									<Input
-										variant="no-placeholder"
-										placeholder="Adicionar item..."
-										value={newChecklistItem}
-										onChange={(e) => setNewChecklistItem(e.target.value)}
-										onKeyDown={(e) => {
-											if (e.key === "Enter") {
-												e.preventDefault()
-												addChecklistItem()
-											}
-										}}
-									/>
-									<Button outline type="button" color="indigo" onClick={addChecklistItem}>
-										<Plus width={16} height={16} />
-									</Button>
+									{/* Checklist items */}
+									<div className="flex flex-col gap-2">
+										{/* foreach de checklist.items  */}
+										{checklist.items.length > 0 &&
+											checklist.items.map((item) => (
+												<div key={item.id} className="flex items-center gap-2 group">
+													<input
+														type="checkbox"
+														checked={item.is_completed}
+														onChange={() => toggleChecklistItem(item.id)}
+														className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
+													/>
+													<span
+														className={`text-sm flex-1 ${
+															item.is_completed ? "line-through text-text-secondary" : "text-text-primary"
+														}`}
+													>
+														{item.description}
+													</span>
+													<button
+														type="button"
+														onClick={() => removeChecklistItem(item.id)}
+														className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+													>
+														<Trash2Icon width={14} height={14} />
+													</button>
+												</div>
+											))}
+									</div>
+
+									{/* Add new item */}
+									<div className="flex gap-2">
+										<Input
+											variant="no-placeholder"
+											placeholder="Adicionar item..."
+											value={newChecklistItem}
+											onChange={(e) => setNewChecklistItem(e.target.value)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") {
+													e.preventDefault()
+													addChecklistItem()
+												}
+											}}
+										/>
+										<Button outline type="button" color="indigo" onClick={addChecklistItem}>
+											<Plus width={16} height={16} />
+										</Button>
+									</div>
 								</div>
-							</div>
-						))}
+							)
+						})}
 				</div>
 
 				{/* Coluna Lateral (Direita) */}

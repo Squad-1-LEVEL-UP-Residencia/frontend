@@ -5,7 +5,7 @@ import { useToken } from "@/hooks/use-token"
 
 export interface AddTaskChecklistData {
 	taskId: number
-	content: string
+	title: string
 }
 
 export async function addTaskChecklist(data: AddTaskChecklistData) {
@@ -19,7 +19,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 			Authorization: `Bearer ${token}`
 		},
 		body: JSON.stringify({
-			content: data.content
+			title: data.title
 		})
 	})
 
