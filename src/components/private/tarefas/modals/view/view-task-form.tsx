@@ -39,6 +39,7 @@ import { PermissionsConstant } from "@/constants/permissions"
 import { deleteTaskLink } from "@/actions/tasks/links/delete-link"
 import { updateTaskChecklistItem } from "@/actions/tasks/checklists/items/update-checklist-item"
 import { updateTaskChecklist } from "@/actions/tasks/checklists/update-checklist"
+import { Title } from "@/components/private/ui/title"
 
 interface ViewTaskFormProps {
 	task: Task
