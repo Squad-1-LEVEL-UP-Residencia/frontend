@@ -26,6 +26,7 @@ import { addTaskComment } from "@/actions/tasks/add-task-comment"
 import { getUsers } from "@/actions/users/get-users"
 import { check } from "zod"
 import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
+import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -84,6 +85,8 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		})
 		setChecklists(Array.isArray(task.checklists) ? task.checklists : [])
 	}, [task, reset])
+
+	//??? Mutations
 
 	const { mutateAsync: editTaskMutation } = useMutation({
 		mutationFn: updateTask,
@@ -147,6 +150,21 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: removeChecklistItemMutation } = useMutation({
+		mutationFn: deleteTaskChecklistItem,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item removido da checklist!")
+			} else {
+				toast.error(data.error || "Erro ao remover item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao remover item: " + error.message)
+		}
+	})
+
 	const { mutateAsync: addLinkMutation } = useMutation({
 		mutationFn: addTaskLink,
 		onSuccess: (data) => {
@@ -178,6 +196,8 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			toast.error("Erro ao adicionar comentário: " + error.message)
 		}
 	})
+
+	//??? handlers
 
 	const onSubmit = async (data: UpdateTaskFormData) => {
 		try {
@@ -216,8 +236,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	}
 
-	const removeChecklistItem = (itemId: number) => {
-		setChecklists((prev) => prev.filter((item) => item.id !== itemId))
+	const removeChecklist = (checklistId: number) => {
+		setChecklists((prev) => prev.filter((item) => item.id !== checklistId))
+	}
+
+	const removeChecklistItem = (checklistId: number, itemId: number) => {
+		removeChecklistItemMutation({
+			taskId: task.id,
+			checklistId: checklistId,
+			itemId: itemId
+		})
+
+		setChecklists((prev) =>
+			prev.map((checklist) => ({
+				...checklist,
+				items: checklist.items?.filter((item) => item.id !== itemId)
+			}))
+		)
 	}
 
 	const loadUsers = async () => {
@@ -449,7 +484,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 													</span>
 													<button
 														type="button"
-														onClick={() => removeChecklistItem(item.id)}
+														onClick={() => removeChecklistItem(checklist.id, item.id)}
 														className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
 													>
 														<Trash2Icon width={14} height={14} />
