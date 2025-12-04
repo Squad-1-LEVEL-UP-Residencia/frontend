@@ -25,6 +25,7 @@ import { addTaskLink } from "@/actions/tasks/add-task-link"
 import { addTaskComment } from "@/actions/tasks/add-task-comment"
 import { getUsers } from "@/actions/users/get-users"
 import { check } from "zod"
+import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -133,6 +134,22 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: addChecklistItemMutation } = useMutation({
+		mutationFn: addTaskChecklistItem,
+		onSuccess: (data) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item adicionado à checklist!")
+				setNewChecklistItem("")
+			} else {
+				toast.error(data.error || "Erro ao adicionar item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao adicionar item: " + error.message)
+		}
+	})
+
 	const { mutateAsync: addLinkMutation } = useMutation({
 		mutationFn: addTaskLink,
 		onSuccess: (data) => {
@@ -188,13 +205,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		)
 	}
 
-	const addChecklistItem = async () => {
+	const addChecklistItem = async (checklistId: number) => {
 		if (!newChecklistItem.trim()) return
 
 		try {
-			await addChecklistMutation({
+			await addChecklistItemMutation({
 				taskId: task.id,
-				title: newChecklistItem
+				checklistId: checklistId,
+				description: newChecklistItem
 			})
 		} catch (error) {
 			console.error("Erro ao adicionar item da checklist:", error)
@@ -453,11 +471,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 											onKeyDown={(e) => {
 												if (e.key === "Enter") {
 													e.preventDefault()
-													addChecklistItem()
+													addChecklistItem(checklist.id)
 												}
 											}}
 										/>
-										<Button outline type="button" color="indigo" onClick={addChecklistItem}>
+										<Button outline type="button" color="indigo" onClick={() => addChecklistItem(checklist.id)}>
 											<Plus width={16} height={16} />
 										</Button>
 									</div>
