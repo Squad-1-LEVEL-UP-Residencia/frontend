@@ -1,5 +1,6 @@
 import { Client } from "../clients/client"
 import { List } from "../lists/list"
+import { User } from "../users/user"
 
 export enum DEFAULT_TASK_STATUSES {
 	pending = "pending",
@@ -14,27 +15,43 @@ export type TaskPriority = 0 | 1 | 2
 export interface TaskMember {
 	id: number
 	name: string
-	avatar?: string
 }
 
-export interface TaskAttachment {
+export interface TaskLink {
 	id: number
-	name: string
+	title: string
 	url: string
 	uploadedAt: Date
 }
 
 export interface TaskComment {
 	id: number
-	author: TaskMember
+	task_id?: number
+	user_id: string
 	content: string
-	createdAt: Date
+	created_at: string
+	updated_at?: string
+	deleted_at?: string | null
+}
+
+export interface TaskChecklist {
+	id: number
+	task_id?: number
+	title: string
+	created_at?: string
+	updated_at?: string
+	deleted_at?: string | null
+	items: TaskChecklistItem[]
 }
 
 export interface TaskChecklistItem {
 	id: number
-	content: string
-	completed: boolean
+	checklist_id?: number
+	description?: string
+	is_completed?: boolean
+	created_at?: string
+	updated_at?: string
+	deleted_at?: string | null
 }
 
 export interface Task {
@@ -47,13 +64,12 @@ export interface Task {
 	priority: TaskPriority
 	tags?: string[]
 	position?: number
-	campaign?: string
 	start_date?: Date
 	end_date?: Date
-	members?: TaskMember[]
-	attachments?: TaskAttachment[]
+	members?: User[]
+	links?: TaskLink[]
 	comments?: TaskComment[]
-	checklist?: TaskChecklistItem[]
+	checklists?: TaskChecklist[]
 	progress?: number
 	client: Client
 	list: List
