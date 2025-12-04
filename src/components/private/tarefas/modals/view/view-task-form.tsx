@@ -36,6 +36,7 @@ import { updateTaskLink } from "@/actions/tasks/links/update-link"
 import { set } from "zod"
 import { hasPermission } from "@/data/helpers/hasPermission"
 import { PermissionsConstant } from "@/constants/permissions"
+import { deleteTaskLink } from "@/actions/tasks/links/delete-link"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -285,6 +286,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Link adicionado com sucesso!")
 				setNewLinkUrl("")
+				setTaskLinks((prev) => [...prev, data.data.link])
 			} else {
 				toast.error(data.error || "Erro ao adicionar link")
 			}
@@ -303,6 +305,21 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 				setTaskLinks((prev) => prev.map((link) => (link.id === variables.linkId ? data.data.link : link)))
 				setIsEditingLink(false)
 				setEditingLinkId(null)
+			} else {
+				toast.error(data.error || "Erro ao atualizar link")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao atualizar link: " + error.message)
+		}
+	})
+	const { mutateAsync: removeLinkMutation } = useMutation({
+		mutationFn: deleteTaskLink,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Link removido com sucesso!")
+				setTaskLinks((prev) => prev.filter((link) => link.id !== variables.linkId))
 			} else {
 				toast.error(data.error || "Erro ao atualizar link")
 			}
@@ -415,18 +432,22 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const removeChecklist = (checklistId: number) => {
-		removeChecklistMutation({
-			taskId: task.id,
-			checklistId: checklistId
-		})
+		if (confirm("Tem certeza que deseja remover este checklist? Isso apagará todos os itens dentro dele.")) {
+			removeChecklistMutation({
+				taskId: task.id,
+				checklistId: checklistId
+			})
+		}
 	}
 
 	const removeChecklistItem = (checklistId: number, itemId: number) => {
-		removeChecklistItemMutation({
-			taskId: task.id,
-			checklistId: checklistId,
-			itemId: itemId
-		})
+		if (confirm("Tem certeza que deseja remover este item da checklist?")) {
+			removeChecklistItemMutation({
+				taskId: task.id,
+				checklistId: checklistId,
+				itemId: itemId
+			})
+		}
 	}
 
 	const loadUsers = async () => {
@@ -458,13 +479,15 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const handleRemoveMember = async (memberId: string) => {
-		try {
-			await removeMemberMutation({
-				taskId: task.id,
-				memberId
-			})
-		} catch (error) {
-			console.error("Erro ao remover membro:", error)
+		if (confirm("Tem certeza que deseja remover este link?")) {
+			try {
+				await removeMemberMutation({
+					taskId: task.id,
+					memberId
+				})
+			} catch (error) {
+				console.error("Erro ao remover membro:", error)
+			}
 		}
 	}
 
@@ -481,6 +504,24 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			})
 		} catch (error) {
 			console.error("Erro ao adicionar link:", error)
+		}
+	}
+
+	const handleDeleteLink = async (linkId: number) => {
+		if (confirm("Tem certeza que deseja remover este link?")) {
+			if (!linkId) {
+				toast.error("Link inválido")
+				return
+			}
+
+			try {
+				await removeLinkMutation({
+					taskId: task.id,
+					linkId
+				})
+			} catch (error) {
+				console.error("Erro ao deletar o link:", error)
+			}
 		}
 	}
 
@@ -536,18 +577,20 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	}
 
 	const handleDeleteComment = async (commentId: number) => {
-		if (!commentId) {
-			toast.error("Comentário não pode estar vazio")
-			return
-		}
+		if (confirm("Tem certeza que deseja remover este comentário?")) {
+			if (!commentId) {
+				toast.error("Comentário não pode estar vazio")
+				return
+			}
 
-		try {
-			await deleteCommentMutation({
-				taskId: task.id,
-				commentId
-			})
-		} catch (error) {
-			console.error("Erro ao deletar o comentário:", error)
+			try {
+				await deleteCommentMutation({
+					taskId: task.id,
+					commentId
+				})
+			} catch (error) {
+				console.error("Erro ao deletar o comentário:", error)
+			}
 		}
 	}
 
@@ -677,7 +720,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 													</button>
 													<button
 														type="button"
-														// onClick={() => handleDeleteLink(link.id)}
+														onClick={() => handleDeleteLink(link.id)}
 														className="text-red-primary hover:text-red-600"
 													>
 														<Trash2Icon width={14} height={14} />
