@@ -45,7 +45,6 @@ const priorityLabels = {
 
 export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [checklists, setChecklists] = useState<TaskChecklist[]>(Array.isArray(task.checklists) ? task.checklists : [])
-	const [newChecklistItem, setNewChecklistItem] = useState("")
 	const [newLinkUrl, setNewLinkUrl] = useState("")
 	const [newComment, setNewComment] = useState("")
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
@@ -124,7 +123,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Item adicionado à checklist!")
-				setNewChecklistItem("")
 			} else {
 				toast.error(data.error || "Erro ao adicionar item")
 			}
@@ -140,7 +138,6 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
 				toast.success("Item adicionado à checklist!")
-				setNewChecklistItem("")
 			} else {
 				toast.error(data.error || "Erro ao adicionar item")
 			}
@@ -205,14 +202,14 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		)
 	}
 
-	const addChecklistItem = async (checklistId: number) => {
-		if (!newChecklistItem.trim()) return
+	const addChecklistItem = async (checklistId: number, description: string) => {
+		if (!description.trim()) return
 
 		try {
 			await addChecklistItemMutation({
 				taskId: task.id,
 				checklistId: checklistId,
-				description: newChecklistItem
+				description: description
 			})
 		} catch (error) {
 			console.error("Erro ao adicionar item da checklist:", error)
@@ -410,7 +407,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 											(checklist.items.filter((item) => item.is_completed).length / checklist.items.length) * 100
 									  )
 									: 0
-
+							let description: string = ""
 							return (
 								<div key={checklist.id} className="flex flex-col gap-3">
 									<div className="flex items-center justify-between">
@@ -466,16 +463,20 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 										<Input
 											variant="no-placeholder"
 											placeholder="Adicionar item..."
-											value={newChecklistItem}
-											onChange={(e) => setNewChecklistItem(e.target.value)}
+											onChange={(e) => (description = e.target.value)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter") {
 													e.preventDefault()
-													addChecklistItem(checklist.id)
+													addChecklistItem(checklist.id, description)
 												}
 											}}
 										/>
-										<Button outline type="button" color="indigo" onClick={() => addChecklistItem(checklist.id)}>
+										<Button
+											outline
+											type="button"
+											color="indigo"
+											onClick={() => addChecklistItem(checklist.id, description)}
+										>
 											<Plus width={16} height={16} />
 										</Button>
 									</div>
