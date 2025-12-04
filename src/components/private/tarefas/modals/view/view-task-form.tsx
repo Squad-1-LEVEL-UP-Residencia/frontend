@@ -490,14 +490,15 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 							let description: string = ""
 							return (
 								<div key={checklist.id} className="flex flex-col gap-3">
-									<div className="flex items-center justify-between group">
-										<Label>
-											<div className="flex gap-4">
-												{checklist.title}{" "}
+									<div className="flex items-center justify-between">
+										<Label className="pointer-events-none">
+											<div className="flex gap-2">
+												<span>{checklist.title} </span>
+
 												<button
 													type="button"
 													onClick={() => removeChecklist(checklist.id)}
-													className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+													className="pointer-events-auto transition-colors curosr-pointer text-red-primary hover:text-red-600"
 												>
 													<Trash2Icon width={14} height={14} />
 												</button>
