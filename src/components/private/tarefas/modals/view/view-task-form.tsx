@@ -28,6 +28,7 @@ import { check, set } from "zod"
 import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
 import { deleteTaskChecklist } from "@/actions/tasks/delete-task-checklist"
+import { markTaskChecklistItem } from "@/actions/tasks/mark-task-checklist-item"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -202,6 +203,29 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	})
 
+	const { mutateAsync: markChecklistItemMutation } = useMutation({
+		mutationFn: markTaskChecklistItem,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				toast.success("Item marcado como completo com sucesso!")
+				setChecklists((prev) =>
+					prev.map((checklist) => ({
+						...checklist,
+						items: (checklist.items || []).map((it) =>
+							it.id === variables.itemId ? { ...it, is_completed: !it.is_completed } : it
+						)
+					}))
+				)
+			} else {
+				toast.error(data.error || "Erro ao remover item")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao remover item: " + error.message)
+		}
+	})
+
 	const { mutateAsync: addLinkMutation } = useMutation({
 		mutationFn: addTaskLink,
 		onSuccess: (data) => {
@@ -250,13 +274,13 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		window.dispatchEvent(new CustomEvent("task:delete-open", { detail: task }))
 	}
 
-	const toggleChecklistItem = (itemId: number) => {
-		setChecklists((prev) =>
-			prev.map((checklist) => ({
-				...checklist,
-				items: (checklist.items || []).map((it) => (it.id === itemId ? { ...it, is_completed: !it.is_completed } : it))
-			}))
-		)
+	const toggleChecklistItem = (itemId: number, checklistId: number, is_completed: boolean) => {
+		markChecklistItemMutation({
+			taskId: task.id,
+			checklistId: checklistId,
+			itemId: itemId,
+			is_completed: is_completed
+		})
 	}
 
 	const addChecklist = async (title: string) => {
@@ -530,7 +554,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 													<input
 														type="checkbox"
 														checked={item.is_completed}
-														onChange={() => toggleChecklistItem(item.id)}
+														onChange={() => toggleChecklistItem(item.id, checklist.id, !item.is_completed)}
 														className="w-4 h-4 rounded border border-zinc-950 bg-white accent:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white"
 													/>
 													<span
@@ -562,6 +586,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 												if (e.key === "Enter") {
 													e.preventDefault()
 													addChecklistItem(checklist.id, description)
+													e.currentTarget.value = ""
 												}
 											}}
 										/>
