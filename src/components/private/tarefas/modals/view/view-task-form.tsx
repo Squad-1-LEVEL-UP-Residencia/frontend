@@ -959,7 +959,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 															<button
 																type="button"
 																onClick={() => toggleEditChecklistItem(item.id)}
-																className="text-text-secondary hover:text-text-primary"
+																className="text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
 															>
 																<Edit2Icon width={14} height={14} />
 															</button>
