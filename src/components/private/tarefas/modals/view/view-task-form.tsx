@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { editTaskSchema, type EditTaskFormData } from "@/types/tasks/edit-task-schema"
 import { Input } from "@/components/private/ui/input"
 import { Label } from "@/components/private/ui/label"
 import { Select } from "@/components/private/ui/select"
@@ -10,10 +9,10 @@ import { SpanError } from "@/components/private/ui/span-error"
 import { Button } from "@/components/private/ui/button"
 import { Modal, ModalFooter, ModalTrigger } from "@/components/private/ui/modal"
 import { Avatar } from "@/components/private/ui/avatar"
-import { Bot, Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare } from "lucide-react"
+import { Calendar, Plus, Trash2Icon, ExternalLink, MessageSquare } from "lucide-react"
 import toast from "react-hot-toast"
 import type { Task, TaskChecklist, TaskChecklistItem, TaskComment } from "@/types/tasks/task"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
 import { closeModal } from "@/data/helpers/closeModal"
@@ -23,16 +22,14 @@ import { addTaskMember } from "@/actions/tasks/add-task-member"
 import { addTaskChecklist } from "@/actions/tasks/add-task-checklist"
 import { addTaskLink } from "@/actions/tasks/add-task-link"
 import { addTaskComment } from "@/actions/tasks/add-task-comment"
-import { getUsers } from "@/actions/users/get-users"
-import { check, set } from "zod"
 import { addTaskChecklistItem } from "@/actions/tasks/add-task-checklist-item"
 import { deleteTaskChecklistItem } from "@/actions/tasks/delete-task-checklist-item"
 import { deleteTaskChecklist } from "@/actions/tasks/delete-task-checklist"
 import { markTaskChecklistItem } from "@/actions/tasks/mark-task-checklist-item"
-import { useUsers } from "@/hooks/users/use-users"
 import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
-import { useSearchParams } from "next/navigation"
 import { useAvailableMembers } from "@/hooks/task/elements/useAvailableMembers"
+import { removeMember } from "@/actions/tasks/members/remove-member"
+import { set } from "zod"
 
 interface ViewTaskFormProps {
 	task: Task
@@ -56,6 +53,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 	const [newComment, setNewComment] = useState("")
 	const [availableUsers, setAvailableUsers] = useState<any[]>([])
 	const [userSearch, setUserSearch] = useState("")
+	const [taskMembers, setTaskMembers] = useState(task.members || [])
 
 	const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useAvailableMembers(task.id)
 
@@ -92,9 +90,12 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			end_date: task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : undefined
 		})
 		setChecklists(Array.isArray(task.checklists) ? task.checklists : [])
+		setTaskMembers(task.members || [])
 	}, [task, reset])
 
 	useEffect(() => {
+		refetchUsers()
+
 		setAvailableUsers(
 			usersData?.filter(
 				(user) =>
@@ -102,7 +103,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					user.email.toLowerCase().includes(userSearch.toLowerCase())
 			) || []
 		)
-	}, [usersData, userSearch, task.members])
+	}, [usersData, userSearch, task.members, taskMembers])
 
 	//??? Mutations
 	const { mutateAsync: editTaskMutation } = useMutation({
@@ -127,6 +128,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		onSuccess: (data) => {
 			if (data.success) {
 				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				setTaskMembers((prev) => [...prev, data.data.member.user])
 				toast.success("Membro adicionado com sucesso!")
 			} else {
 				toast.error(data.error || "Erro ao adicionar membro")
@@ -134,6 +136,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		},
 		onError: (error) => {
 			toast.error("Erro ao adicionar membro: " + error.message)
+		}
+	})
+
+	const { mutateAsync: removeMemberMutation } = useMutation({
+		mutationFn: removeMember,
+		onSuccess: (data, variables) => {
+			if (data.success) {
+				queryClient.invalidateQueries({ queryKey: ["lists"] })
+				console.log(variables.memberId)
+				setTaskMembers((prev) => prev.filter((member) => member.id !== variables.memberId))
+				toast.success("Membro removido com sucesso!")
+			} else {
+				toast.error(data.error || "Erro ao remover membro")
+			}
+		},
+		onError: (error) => {
+			toast.error("Erro ao remover membro: " + error.message)
 		}
 	})
 
@@ -367,6 +386,17 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 		}
 	}
 
+	const handleRemoveMember = async (memberId: string) => {
+		try {
+			await removeMemberMutation({
+				taskId: task.id,
+				memberId
+			})
+		} catch (error) {
+			console.error("Erro ao remover membro:", error)
+		}
+	}
+
 	const handleAddLink = async () => {
 		if (!newLinkUrl.trim()) {
 			toast.error("URL é obrigatória")
@@ -454,11 +484,19 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					<div className="flex flex-col gap-2">
 						<Label>Membros</Label>
 						<div className="flex items-center gap-2 flex-wrap">
-							{Array.isArray(task.members) &&
-								task.members.map((member) => (
+							{Array.isArray(taskMembers) &&
+								taskMembers.map((member) => (
 									<div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
 										<Avatar name={member.name} />
 										<span className="text-sm font-medium">{member.name}</span>
+										<button type="button">
+											<Trash2Icon
+												width={14}
+												height={14}
+												className="text-red-primary hover:text-red-600"
+												onClick={() => handleRemoveMember(member.id)}
+											/>
+										</button>
 									</div>
 								))}
 							<button
