@@ -3,23 +3,25 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface AddTaskChecklistData {
+export interface updateTaskChecklistItemData {
 	taskId: number
-	title: string
+	checklistId: number
+	description: string
+	itemId: number
 }
 
-export async function addTaskChecklist(data: AddTaskChecklistData) {
+export async function updateTaskChecklistItem(data: updateTaskChecklistItemData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists`, {
-		method: "POST",
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists/${data.checklistId}/item/${data.itemId}`, {
+		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
 		},
 		body: JSON.stringify({
-			title: data.title
+			description: data.description
 		})
 	})
 
@@ -30,7 +32,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 		try {
 			error = await response.json()
 		} catch (e) {
-			console.error("[addTaskChecklist] Erro ao fazer parse da resposta de erro:", e)
+			console.error("[updateTaskChecklistItem] Erro ao fazer parse da resposta de erro:", e)
 			return {
 				success: false,
 				error: `Erro no servidor (${response.status})`,
@@ -54,7 +56,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 	try {
 		if (!contentType || !contentType.includes("application/json")) {
 			const textResponse = await response.text()
-			console.error("[addTaskChecklist] Resposta não é JSON:", textResponse.substring(0, 200))
+			console.error("[updateTaskChecklistItem] Resposta não é JSON:", textResponse.substring(0, 200))
 			return {
 				success: false,
 				error: "Endpoint retornou resposta inválida (esperado JSON)",
@@ -71,7 +73,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 			raw: responseData
 		}
 	} catch (e) {
-		console.error("[addTaskChecklist] Erro ao fazer parse da resposta de sucesso:", e)
+		console.error("[updateTaskChecklistItem] Erro ao fazer parse da resposta de sucesso:", e)
 		return {
 			success: false,
 			error: "Erro ao processar resposta do servidor",

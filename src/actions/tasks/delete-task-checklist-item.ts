@@ -3,28 +3,25 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface AddTaskChecklistData {
+export interface DeleteTaskChecklistItemData {
 	taskId: number
-	title: string
+	checklistId: number
+	itemId: number
 }
 
-export async function addTaskChecklist(data: AddTaskChecklistData) {
+export async function deleteTaskChecklistItem(data: DeleteTaskChecklistItemData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists`, {
-		method: "POST",
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists/${data.checklistId}/item/${data.itemId}`, {
+		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({
-			title: data.title
-		})
+		}
 	})
 
 	const contentType = response.headers.get("content-type")
-
 	if (!response.ok) {
 		let error
 		try {
@@ -52,23 +49,10 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 
 	// Tratar resposta de sucesso
 	try {
-		if (!contentType || !contentType.includes("application/json")) {
-			const textResponse = await response.text()
-			console.error("[addTaskChecklist] Resposta não é JSON:", textResponse.substring(0, 200))
-			return {
-				success: false,
-				error: "Endpoint retornou resposta inválida (esperado JSON)",
-				status: response.status,
-				raw: null
-			}
-		}
-
-		const responseData = await response.json()
 		return {
 			success: true,
 			status: response.status,
-			data: responseData,
-			raw: responseData
+			message: "Item deletado com sucesso"
 		}
 	} catch (e) {
 		console.error("[addTaskChecklist] Erro ao fazer parse da resposta de sucesso:", e)

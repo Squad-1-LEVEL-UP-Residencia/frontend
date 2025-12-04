@@ -3,22 +3,25 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface AddTaskChecklistData {
+export interface UpdateTaskLinkData {
 	taskId: number
-	title: string
+	linkId: number
+	url: string
+	title?: string
 }
 
-export async function addTaskChecklist(data: AddTaskChecklistData) {
+export async function updateTaskLink(data: UpdateTaskLinkData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists`, {
-		method: "POST",
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/links/${data.linkId}`, {
+		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
 		},
 		body: JSON.stringify({
+			url: data.url,
 			title: data.title
 		})
 	})
@@ -30,7 +33,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 		try {
 			error = await response.json()
 		} catch (e) {
-			console.error("[addTaskChecklist] Erro ao fazer parse da resposta de erro:", e)
+			console.error("[updateTaskLink] Erro ao fazer parse da resposta de erro:", e)
 			return {
 				success: false,
 				error: `Erro no servidor (${response.status})`,
@@ -54,7 +57,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 	try {
 		if (!contentType || !contentType.includes("application/json")) {
 			const textResponse = await response.text()
-			console.error("[addTaskChecklist] Resposta não é JSON:", textResponse.substring(0, 200))
+			console.error("[updateTaskLink] Resposta não é JSON:", textResponse.substring(0, 200))
 			return {
 				success: false,
 				error: "Endpoint retornou resposta inválida (esperado JSON)",
@@ -71,7 +74,7 @@ export async function addTaskChecklist(data: AddTaskChecklistData) {
 			raw: responseData
 		}
 	} catch (e) {
-		console.error("[addTaskChecklist] Erro ao fazer parse da resposta de sucesso:", e)
+		console.error("[updateTaskLink] Erro ao fazer parse da resposta de sucesso:", e)
 		return {
 			success: false,
 			error: "Erro ao processar resposta do servidor",

@@ -3,23 +3,24 @@
 import { validationErrorHelper } from "@/data/helpers/validationErrorHelper"
 import { useToken } from "@/hooks/use-token"
 
-export interface AddTaskChecklistData {
+export interface AddTaskChecklistItemData {
 	taskId: number
-	title: string
+	checklistId: number
+	description: string
 }
 
-export async function addTaskChecklist(data: AddTaskChecklistData) {
+export async function addTaskChecklistItem(data: AddTaskChecklistItemData) {
 	const token = await useToken()
 
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL
-	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists`, {
+	const response = await fetch(`${baseUrl}/tasks/${data.taskId}/checklists/${data.checklistId}/item`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${token}`
 		},
 		body: JSON.stringify({
-			title: data.title
+			description: data.description
 		})
 	})
 

@@ -8,10 +8,12 @@ import { ComponentProps } from "react"
 interface SearchBarProps extends ComponentProps<"div"> {
 	search?: string
 	placeholder: string
+	noFilter?: boolean
+
 	onSearch?: (query: string) => void
 }
 
-export function SearchBar({ search, placeholder, onSearch, className, ...props }: SearchBarProps) {
+export function SearchBar({ search, placeholder, onSearch, className, noFilter, ...props }: SearchBarProps) {
 	return (
 		// <div className="bg-white p-6 rounded-lg flex gap-2">
 		<div
@@ -24,9 +26,11 @@ export function SearchBar({ search, placeholder, onSearch, className, ...props }
 				value={search}
 				onChange={(e) => onSearch?.(e.target.value)}
 			/>
-			<Button outline={true} className="px-3">
-				<FilterIcon size={16} />
-			</Button>
+			{!noFilter && (
+				<Button outline={true} className="px-3">
+					<FilterIcon size={16} />
+				</Button>
+			)}
 		</div>
 		// </div>
 	)
