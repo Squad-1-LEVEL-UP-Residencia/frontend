@@ -35,5 +35,8 @@ export const PermissionsConstant = {
 	CREATE_ROLE: "create_role",
 	EDIT_ROLE: "edit_role",
 	DELETE_ROLE: "delete_role",
-	ARCHIVE_ROLE: "archive_role"
+	ARCHIVE_ROLE: "archive_role",
+
+	// Permissioes de dashboard
+	VIEW_DASHBOARD: "view_dashboard"
 } as const

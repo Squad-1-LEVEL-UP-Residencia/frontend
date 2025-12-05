@@ -3,7 +3,7 @@ import { User } from "@/types/users/user"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface AuthContextProps {
-	user: User | null
+	user: User | null | undefined
 	login(userData: User): void
 	logout(): void
 }
@@ -11,14 +11,15 @@ interface AuthContextProps {
 const authContext = createContext<AuthContextProps>({} as AuthContextProps)
 
 export function AuthContextProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState<User | null>(null)
+	const [user, setUser] = useState<User | null | undefined>(undefined)
 
 	useEffect(() => {
 		const fetchData = async () => {
 			const res = await getMe()
-			//TODO lidar com o error
 			if (res && res.ok) {
 				login(res.data)
+			} else {
+				setUser(null)
 			}
 		}
 		fetchData()
