@@ -13,6 +13,9 @@ import { moveTask, MoveTaskFormData } from "@/actions/tasks/move-task"
 import toast from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { queryClient } from "@/lib/react-query"
+import { hasPermission } from "@/data/helpers/hasPermission"
+import { useAuth } from "@/contexts/auth-context"
+import { PermissionsConstant } from "@/constants/permissions"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists()
@@ -21,6 +24,8 @@ export function TaskBoard() {
 	const [editingColumnId, setEditingColumnId] = useState<number | null>(null)
 	const [editingColumnName, setEditingColumnName] = useState<string>("")
 	const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null)
+
+	const { user } = useAuth()
 
 	const columns = data?.data || []
 
@@ -64,7 +69,8 @@ export function TaskBoard() {
 		e.stopPropagation()
 		setDragOverTaskId(null)
 
-		if (!draggedTaskId) return
+		if (hasPermission(user?.role.permissions!, PermissionsConstant.MOVE_JOB))
+			if (!draggedTaskId) return toast.error("Você não tem permissão para mover tarefas.")
 
 		// Encontrar a tarefa arrastada
 		let draggedTask: Task | undefined
