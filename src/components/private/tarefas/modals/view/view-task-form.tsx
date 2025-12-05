@@ -1100,6 +1100,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 							type="date"
 							variant="no-placeholder"
 							{...register("start_date")}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
 							defaultValue={task.start_date ? new Date(task.start_date).toISOString().slice(0, 10) : ""}
 						/>
 						{errors.start_date && <SpanError>{errors.start_date.message}</SpanError>}
@@ -1111,6 +1112,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 							type="date"
 							variant="no-placeholder"
 							{...register("end_date")}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
 							defaultValue={task.end_date ? new Date(task.end_date).toISOString().slice(0, 10) : ""}
 						/>
 						{errors.end_date && <SpanError>{errors.end_date.message}</SpanError>}
@@ -1175,21 +1177,23 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									)
 								})}
 						</div>
-						<div className="flex flex-col gap-2">
-							<textarea
-								placeholder="Escrever um comentário..."
-								value={newComment}
-								onChange={(e) => setNewComment(e.target.value)}
-								className="w-full rounded-xl border border-light-grey px-3 py-2
+						{user?.role.permissions && hasPermission(user?.role.permissions!, PermissionsConstant.COMMENT_ON_JOB) && (
+							<div className="flex flex-col gap-2">
+								<textarea
+									placeholder="Escrever um comentário..."
+									value={newComment}
+									onChange={(e) => setNewComment(e.target.value)}
+									className="w-full rounded-xl border border-light-grey px-3 py-2
 								   text-sm text-text-primary placeholder:text-text-secondary
 								   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
 								   resize-none min-h-[60px]"
-							/>
-							<Button outline type="button" color="indigo" onClick={handleAddComment}>
-								<MessageSquare width={16} height={16} />
-								Adicionar Comentário
-							</Button>
-						</div>
+								/>
+								<Button outline type="button" color="indigo" onClick={handleAddComment}>
+									<MessageSquare width={16} height={16} />
+									Adicionar Comentário
+								</Button>
+							</div>
+						)}
 					</div>
 				</div>
 			</form>
