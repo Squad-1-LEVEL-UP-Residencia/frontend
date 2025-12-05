@@ -20,7 +20,7 @@ export default function Home() {
 		<PageContainer>
 			<TitleSection title="Dashboard" paragraph="Visão geral das suas tarefas e atividades" />
 
-			<Container className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+			<Container className="flex flex-col items-start md:items-center justify-between gap-6 mb-8">
 				<Title className="flex items-center gap-4 mb-4">
 					<Avatar name={user ? user.name! : "Convidado"} /> {greeting},{" "}
 					<span className="text-indigo-600">{user ? user.name! : "Convidado"}</span>
