@@ -711,7 +711,13 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					{/* Título */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="title">Título da Tarefa</Label>
-						<Input id="title" variant="no-placeholder" className="text-xl font-semibold" {...register("title")} />
+						<Input
+							id="title"
+							variant="no-placeholder"
+							className="text-xl font-semibold"
+							{...register("title")}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
+						/>
 						{errors.title && <SpanError>{errors.title.message}</SpanError>}
 					</div>
 
@@ -741,6 +747,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                        resize-none min-h-[120px]"
 							{...register("description")}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
 						/>
 						{errors.description && <SpanError>{errors.description.message}</SpanError>}
 					</div>
@@ -754,25 +761,30 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 									<div key={member.id} className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg">
 										<Avatar name={member.name} />
 										<span className="text-sm font-medium">{member.name}</span>
-										<button type="button">
-											<Trash2Icon
-												width={14}
-												height={14}
-												className="text-red-primary hover:text-red-600"
-												onClick={() => handleRemoveMember(member.id)}
-											/>
-										</button>
+										{user?.role.permissions &&
+											hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_MEMBERS) && (
+												<button type="button">
+													<Trash2Icon
+														width={14}
+														height={14}
+														className="text-red-primary hover:text-red-600"
+														onClick={() => handleRemoveMember(member.id)}
+													/>
+												</button>
+											)}
 									</div>
 								))}
-							<button
-								type="button"
-								onClick={handleOpenAddMember}
-								className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
+							{user?.role.permissions && hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_MEMBERS) && (
+								<button
+									type="button"
+									onClick={handleOpenAddMember}
+									className="flex items-center gap-1 px-3 py-1.5 border border-light-grey rounded-lg
 								 text-sm text-text-secondary hover:bg-background transition-colors"
-							>
-								<Plus width={16} height={16} />
-								Adicionar
-							</button>
+								>
+									<Plus width={16} height={16} />
+									Adicionar
+								</button>
+							)}
 						</div>
 					</div>
 
@@ -830,23 +842,25 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 										</div>
 									)
 								})}
-							<div className="flex gap-2">
-								<Input
-									variant="no-placeholder"
-									placeholder="URL do link..."
-									value={newLinkUrl}
-									onChange={(e) => setNewLinkUrl(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											e.preventDefault()
-											handleAddLink()
-										}
-									}}
-								/>
-								<Button outline type="button" color="indigo" onClick={handleAddLink}>
-									<Plus width={16} height={16} />
-								</Button>
-							</div>
+							{hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+								<div className="flex gap-2">
+									<Input
+										variant="no-placeholder"
+										placeholder="URL do link..."
+										value={newLinkUrl}
+										onChange={(e) => setNewLinkUrl(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												e.preventDefault()
+												handleAddLink()
+											}
+										}}
+									/>
+									<Button outline type="button" color="indigo" onClick={handleAddLink}>
+										<Plus width={16} height={16} />
+									</Button>
+								</div>
+							)}
 						</div>
 					</div>
 
@@ -883,24 +897,26 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 													) : (
 														<span className="text-lg font-semibold text-text-primary">{checklist.title}</span>
 													)}
+													{user?.role.permissions &&
+														hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+															<div className="flex items-center gap-2">
+																<button
+																	type="button"
+																	onClick={() => toggleEditChecklist(checklist.id)}
+																	className="pointer-events-auto transition-colors cursor-pointer text-text-secondary hover:text-text-primary"
+																>
+																	<Edit2Icon width={14} height={14} />
+																</button>
 
-													<div className="flex items-center gap-2">
-														<button
-															type="button"
-															onClick={() => toggleEditChecklist(checklist.id)}
-															className="pointer-events-auto transition-colors cursor-pointer text-text-secondary hover:text-text-primary"
-														>
-															<Edit2Icon width={14} height={14} />
-														</button>
-
-														<button
-															type="button"
-															onClick={() => removeChecklist(checklist.id)}
-															className="pointer-events-auto transition-colors cursor-pointer text-red-primary hover:text-red-600"
-														>
-															<Trash2Icon width={14} height={14} />
-														</button>
-													</div>
+																<button
+																	type="button"
+																	onClick={() => removeChecklist(checklist.id)}
+																	className="pointer-events-auto transition-colors cursor-pointer text-red-primary hover:text-red-600"
+																>
+																	<Trash2Icon width={14} height={14} />
+																</button>
+															</div>
+														)}
 												</div>
 											</Label>
 
@@ -957,71 +973,78 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 																	{item.description}
 																</span>
 															)}
-															<div className="flex items-center gap-2">
-																<button
-																	type="button"
-																	onClick={() => toggleEditChecklistItem(item.id)}
-																	className="text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-																>
-																	<Edit2Icon width={14} height={14} />
-																</button>
-																<button
-																	type="button"
-																	onClick={() => removeChecklistItem(checklist.id, item.id)}
-																	className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
-																>
-																	<Trash2Icon width={14} height={14} />
-																</button>
-															</div>
+															{user?.role.permissions &&
+																hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+																	<div className="flex items-center gap-2">
+																		<button
+																			type="button"
+																			onClick={() => toggleEditChecklistItem(item.id)}
+																			className="text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+																		>
+																			<Edit2Icon width={14} height={14} />
+																		</button>
+																		<button
+																			type="button"
+																			onClick={() => removeChecklistItem(checklist.id, item.id)}
+																			className="opacity-0 group-hover:opacity-100 transition-opacity text-red-primary hover:text-red-600"
+																		>
+																			<Trash2Icon width={14} height={14} />
+																		</button>
+																	</div>
+																)}
 														</div>
 													)
 												})}
 										</div>
 
 										{/* Add new item */}
-										<div className="flex gap-2">
-											<Input
-												variant="no-placeholder"
-												placeholder="Adicionar item..."
-												onChange={(e) => (description = e.target.value)}
-												className="text-sm italic placeholder:text-text-secondary bg-background/50 border border-dashed border-light-grey px-3 py-2 rounded-lg"
-												onKeyDown={(e) => {
-													if (e.key === "Enter") {
-														e.preventDefault()
-														addChecklistItem(checklist.id, description)
-														e.currentTarget.value = ""
-													}
-												}}
-											/>
-											<Button
-												outline
-												type="button"
-												color="indigo"
-												onClick={() => addChecklistItem(checklist.id, description)}
-											>
-												<Plus width={16} height={16} />
-											</Button>
-										</div>
+										{user?.role.permissions && hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+											<div className="flex gap-2">
+												<Input
+													variant="no-placeholder"
+													placeholder="Adicionar item..."
+													onChange={(e) => (description = e.target.value)}
+													className="text-sm italic placeholder:text-text-secondary bg-background/50 border border-dashed border-light-grey px-3 py-2 rounded-lg"
+													onKeyDown={(e) => {
+														if (e.key === "Enter") {
+															e.preventDefault()
+															addChecklistItem(checklist.id, description)
+															e.currentTarget.value = ""
+														}
+													}}
+												/>
+												<Button
+													outline
+													type="button"
+													color="indigo"
+													onClick={() => addChecklistItem(checklist.id, description)}
+												>
+													<Plus width={16} height={16} />
+												</Button>
+											</div>
+										)}
 									</div>
 								)
 							})}
 					</div>
 					{/* Add new checklist */}
-					<div className="flex gap-2 mt-8">
-						<Input variant="no-placeholder" placeholder="Adicionar uma nova checklist..." />
-						<Button
-							outline
-							type="button"
-							color="indigo"
-							onClick={(e) => {
-								const input = (e.currentTarget.previousSibling as HTMLInputElement)!
-								addChecklist(input.value)
-								input.value = ""
-							}}
-						>
-							<Plus width={16} height={16} />
-						</Button>
-					</div>
+					{hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB) && (
+						<div className="flex gap-2 mt-8">
+							<Input variant="no-placeholder" placeholder="Adicionar uma nova checklist..." />
+							<Button
+								outline
+								type="button"
+								color="indigo"
+								onClick={(e) => {
+									const input = (e.currentTarget.previousSibling as HTMLInputElement)!
+									addChecklist(input.value)
+									input.value = ""
+								}}
+							>
+								<Plus width={16} height={16} />
+							</Button>
+						</div>
+					)}
 				</div>
 
 				{/* Coluna Lateral (Direita) */}
@@ -1029,7 +1052,12 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					{/* Status */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="status">Status</Label>
-						<Select id="status" {...register("status")} defaultValue={task.status ?? "pending"}>
+						<Select
+							id="status"
+							{...register("status")}
+							defaultValue={task.status ?? "pending"}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
+						>
 							{Object.entries(statusLabels).map(([value, label]) => (
 								<option key={value} value={value}>
 									{label}
@@ -1042,7 +1070,11 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 					{/* Prioridade */}
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="priority">Prioridade</Label>
-						<Select id="priority" {...register("priority", { valueAsNumber: true })}>
+						<Select
+							id="priority"
+							{...register("priority", { valueAsNumber: true })}
+							disabled={!hasPermission(user?.role.permissions!, PermissionsConstant.EDIT_JOB)}
+						>
 							{/* {Object.entries(priorityLabels).map(([value, label]) => ( */}
 							<option key={"0"} value={0}>
 								{0}
