@@ -25,15 +25,15 @@ export function middleware(request: NextRequest) {
 
 	if (isAuthenticated && publicRoute?.whenAuthenticated == "redirect") {
 		const redirectUrl = request.nextUrl.clone()
-		redirectUrl.pathname = "/tarefas"
+		redirectUrl.pathname = "/dashboard"
 
 		return NextResponse.redirect(redirectUrl)
 	}
 
-	// Redireciona usuário autenticado da '/' para '/'
+	// Redireciona usuário autenticado da '/' para '/dashboard'
 	if (isAuthenticated && pathname === "/") {
 		const redirectUrl = request.nextUrl.clone()
-		redirectUrl.pathname = "/tarefas"
+		redirectUrl.pathname = "/dashboard"
 		return NextResponse.redirect(redirectUrl)
 	}
 }

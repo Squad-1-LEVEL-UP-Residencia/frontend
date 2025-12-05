@@ -37,9 +37,6 @@ function AuthGate({ children, collapsed, toggleCollapsed }: AuthGateProps) {
 
 	let permission: string = "home_access"
 	switch (path) {
-		case "/dashboard":
-			permission = PermissionsConstant.VIEW_DASHBOARD
-			break
 		case "/clientes":
 			permission = PermissionsConstant.VIEW_CLIENT
 			break
@@ -53,6 +50,9 @@ function AuthGate({ children, collapsed, toggleCollapsed }: AuthGateProps) {
 			permission = PermissionsConstant.VIEW_ROLE
 			break
 		case "/":
+			permission = "home_access"
+			break
+		default:
 			permission = "home_access"
 			break
 	}
