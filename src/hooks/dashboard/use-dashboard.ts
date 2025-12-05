@@ -3,7 +3,7 @@ import { DashboardData } from "@/types/dashboard/dashboard"
 import { useQuery } from "@tanstack/react-query"
 
 export function useDashboard(userId?: string) {
-	return useQuery<DashboardData>({
+	return useQuery<DashboardData[]>({
 		queryKey: ["dashboard", userId ?? "all"],
 		queryFn: () => getDashboardData(userId),
 		staleTime: 1000 * 60 * 5 // 5 minutos

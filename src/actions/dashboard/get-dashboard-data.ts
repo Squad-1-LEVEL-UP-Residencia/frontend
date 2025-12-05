@@ -7,14 +7,14 @@ import { DashboardData } from "@/types/dashboard/dashboard"
 export async function getDashboardData(userId?: string) {
 	const accessToken = await useToken()
 	if (!accessToken) {
-		return {} as DashboardData
+		return [] as DashboardData[]
 	}
 
 	const api = env.NEXT_PUBLIC_API_URL
 
 	// Constrói a URL com a query string se userId for fornecido
 	const queryParams = userId ? `?user=${userId}` : ""
-	const url = `${api}/dashboard${queryParams}`
+	const url = `${api}/dashboard/tasks-count-per-user-by-list${queryParams}`
 
 	const result = await fetch(url, {
 		method: "GET",
@@ -26,9 +26,9 @@ export async function getDashboardData(userId?: string) {
 
 	if (!result.ok) {
 		console.error("Failed to fetch dashboard data:", result.statusText)
-		return {} as DashboardData
+		return [] as DashboardData[]
 	}
 
 	const response = await result.json()
-	return response as DashboardData
+	return response.data as DashboardData[]
 }
