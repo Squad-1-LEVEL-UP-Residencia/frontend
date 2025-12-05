@@ -6,6 +6,8 @@ import { ViewTaskForm } from "./view-task-form"
 import { useEffect, useState } from "react"
 import type { Task } from "@/types/tasks/task"
 import { DeleteTaskModal } from "../delete/delete-task-modal"
+import Image from "next/image"
+import Link from "next/link"
 
 export function ViewTaskModal() {
 	const [task, setTask] = useState<Task | null>(null)
@@ -22,8 +24,13 @@ export function ViewTaskModal() {
 	return (
 		<>
 			<Modal id="view_task_modal" variant="lg" hasCloseButton className="max-w-6xl">
-				<div className="flex flex-col gap-6">
-					<Title variant="sm">Detalhes da Tarefa</Title>
+				<div className="flex flex-col gap-2">
+					<div className="flex items-center gap-2">
+						<Title variant="sm">{task?.client?.companyName}</Title>
+						<Link href={task?.client.agentUrl ? task.client.agentUrl : "#"} target="_blank">
+							<Image src={"/chatgpt.png"} alt={"ChatGPT"} width={25} height={25} />
+						</Link>
+					</div>
 					{task && <ViewTaskForm task={task} />}
 				</div>
 			</Modal>

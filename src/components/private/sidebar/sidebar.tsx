@@ -31,15 +31,13 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 						<li className="p-2 mb-8">
 							<FlapIconSvg />
 						</li>
-						{hasPermission(permissions, PermissionsConstant.VIEW_JOB) && (
-							<SidebarLi
-								pageName="Dashboard"
-								icon={<LayoutDashboardIcon />}
-								path="dashboard"
-								isSelected={pathname === "/dashboard"}
-								collapsed={collapsed}
-							/>
-						)}
+						<SidebarLi
+							pageName="Dashboard"
+							icon={<LayoutDashboardIcon />}
+							path="dashboard"
+							isSelected={pathname === "/dashboard"}
+							collapsed={collapsed}
+						/>
 						{hasPermission(permissions, PermissionsConstant.VIEW_JOB) && (
 							<SidebarLi
 								pageName="Tarefas"
