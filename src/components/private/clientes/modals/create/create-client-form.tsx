@@ -100,7 +100,10 @@ export function CreateClientForm() {
 				<Button
 					outline={true}
 					disabled={isPending}
-					onClick={() => reset()}
+					onClick={() => {
+						reset()
+						closeModal("create_client_modal")
+					}}
 					className={`${isPending ? "opacity-70 cursor-not-allowed" : ""} min-w-20 px-4`}
 				>
 					Cancelar

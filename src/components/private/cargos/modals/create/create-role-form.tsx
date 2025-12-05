@@ -52,10 +52,10 @@ export function CreateRoleForm() {
 				queryClient.invalidateQueries({ queryKey: ["roles", ""] })
 
 				// Fechar modal
-				closeModal("create_role_modal")
+				closeModal("add_role_modal")
 			} else {
 				toast.error(`Erro ao criar o cargo: ${data.error}`)
-				closeModal("create_role_modal")
+				closeModal("add_role_modal")
 			}
 		}
 	})
@@ -98,7 +98,10 @@ export function CreateRoleForm() {
 				<Button
 					outline={true}
 					disabled={isPending}
-					onClick={() => reset()}
+					onClick={() => {
+						closeModal("add_role_modal")
+						reset()
+					}}
 					className={`${isPending ? "opacity-70 cursor-not-allowed hover:" : ""} min-w-20 px-4`}
 				>
 					Cancelar
