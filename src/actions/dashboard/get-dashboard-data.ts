@@ -13,9 +13,9 @@ export async function getDashboardData(userId?: string) {
 	const api = env.NEXT_PUBLIC_API_URL
 
 	// Constrói a URL com a query string se userId for fornecido
-	const queryParams = userId ? `?user=${userId}` : ""
+	const queryParams = userId ? `?userId=${userId}` : ""
 	const url = `${api}/dashboard/tasks-count-per-user-by-list${queryParams}`
-
+	console.log("Fetching dashboard data from URL:", url)
 	const result = await fetch(url, {
 		method: "GET",
 		headers: {
@@ -30,5 +30,6 @@ export async function getDashboardData(userId?: string) {
 	}
 
 	const response = await result.json()
+	console.log("dasboard get" + response.data)
 	return response.data as DashboardData[]
 }

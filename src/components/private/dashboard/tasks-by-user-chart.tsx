@@ -23,7 +23,6 @@ const COLORS = [
 export function TasksByUserChart({ data }: TasksByUserChartProps) {
 	// Pegar top 10 usuários
 	const topUsers = data.slice(0, 10)
-	console.log("Top Users:", topUsers)
 	return (
 		<ResponsiveContainer width="100%" height={400}>
 			<BarChart data={topUsers} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>

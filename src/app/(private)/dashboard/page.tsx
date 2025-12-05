@@ -6,71 +6,44 @@ import { TitleSection } from "@/components/private/ui/title-section"
 import { Label } from "@/components/private/ui/label"
 import { Select } from "@/components/private/ui/select"
 import { TasksByUserChart } from "@/components/private/dashboard/tasks-by-user-chart"
-import { getTasksByUser } from "@/actions/dashboard/get-tasks-by-user"
-import { getTasksByList } from "@/actions/dashboard/get-tasks-by-list"
-import { getUsers } from "@/actions/users/get-users"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useDashboard } from "@/hooks/dashboard/use-dashboard"
-import { DashboardData } from "@/types/dashboard/dashboard"
-import { TasksByListChart2, TasksByListPerUserChart } from "@/components/private/dashboard/tasks-by-list-chart2"
-
-const USE_MOCK_DATA = false
+import { TasksByListPerUserChart } from "@/components/private/dashboard/tasks-by-list-chart2"
+import { useUsers } from "@/hooks/users/use-users"
+import { useSearchParams } from "next/navigation"
+import { useSearchQuery } from "@/hooks/user-search-query"
+import { useAllUsers } from "@/hooks/users/use-all-users"
+import { queryClient } from "@/lib/react-query"
+import { SearchBar } from "@/components/private/ui/page-search-bar/searchbar"
+import { User } from "@/types/users/user"
+import { getAllUsers } from "@/actions/users/get-all-users"
 
 export default function Dashboard() {
-	const [tasksByList, setTasksByList] = useState<any[]>([])
-	const [users, setUsers] = useState<any[]>([])
 	const [selectedUserId, setSelectedUserId] = useState<string>("")
 	// const [isLoading, setIsLoading] = useState(true)
-
+	const { search, handleSearch } = useSearchQuery("search")
+	const { data: dashboardData, isLoading, error } = useDashboard(selectedUserId)
+	const { data: usersData } = useAllUsers(search ?? "")
+	console.log(selectedUserId)
 	useEffect(() => {
-		loadDashboardData()
-	}, [])
+		console.log(usersData)
+	}, [selectedUserId, usersData])
 
+	// invalida sempre que `search` mudar, passando o novo `search`
 	useEffect(() => {
-		if (selectedUserId) {
-			loadTasksByList(parseInt(selectedUserId))
-		} else {
-			loadTasksByList()
+		if (search !== undefined) {
+			queryClient.invalidateQueries({ queryKey: ["dashboard", selectedUserId] })
 		}
-	}, [selectedUserId])
-	const { data: dashboardData, isLoading, error } = useDashboard()
+	}, [selectedUserId, search])
 
 	if (error) {
 		toast.error("Erro ao carregar dados do dashboard")
 	}
 
-	console.log(dashboardData)
-
-	const loadDashboardData = async () => {
-		// setIsLoading(true)
-	}
-
-	const loadTasksByList = async (userId?: number) => {
-		try {
-			if (USE_MOCK_DATA) {
-				// Dados mockados para um usuário específico
-				const mockDataByUser: { [key: number]: any[] } = {
-					1: [
-						{ listId: 1, listName: "A Fazer", taskCount: 5 },
-						{ listId: 2, listName: "Em Progresso", taskCount: 7 },
-						{ listId: 3, listName: "Concluído", taskCount: 3 }
-					],
-					2: [
-						{ listId: 1, listName: "A Fazer", taskCount: 4 },
-						{ listId: 2, listName: "Em Progresso", taskCount: 3 },
-						{ listId: 3, listName: "Concluído", taskCount: 5 }
-					]
-				}
-				setTasksByList(userId ? mockDataByUser[userId] || [] : [])
-			} else {
-				const data = await getTasksByList(userId)
-				setTasksByList(data)
-			}
-		} catch (error) {
-			console.error("Erro ao carregar tarefas por lista:", error)
-			toast.error("Erro ao carregar tarefas por lista")
-		}
+	function handleSelectUser(userId: string) {
+		setSelectedUserId(userId)
+		handleSearch(userId)
 	}
 
 	return (
@@ -88,22 +61,30 @@ export default function Dashboard() {
 					<Container>
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="user-filter">Filtrar por Usuário</Label>
+							{/* <SearchBar
+								placeholder={"Buscar usuário..."}
+								noFilter
+								className="shadow-none"
+								onSearch={(q) => handleSearchUser(q)}
+								search={userSearch}
+							/> */}
 							<Select
 								id="user-filter"
 								value={selectedUserId}
-								onChange={(e) => setSelectedUserId(e.target.value)}
+								onChange={(e) => handleSelectUser(e.target.value)}
 								className="max-w-md"
 							>
 								<option value="">Selecione um usuário</option>
-								{users.map((user) => (
-									<option key={user.id} value={user.id}>
-										{user.name}
-									</option>
-								))}
+								{usersData &&
+									usersData.map((user) => (
+										<option key={user.id} value={user.id}>
+											{user.name}
+										</option>
+									))}
 							</Select>
 							{selectedUserId && (
 								<p className="text-sm text-indigo-600 font-medium">
-									Visualizando tarefas de: {users.find((u) => u.id === parseInt(selectedUserId))?.name}
+									Visualizando tarefas de: {usersData && usersData.find((u) => u.id === selectedUserId)?.name}
 								</p>
 							)}
 						</div>
