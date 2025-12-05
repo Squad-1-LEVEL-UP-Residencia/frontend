@@ -16,6 +16,7 @@ import { queryClient } from "@/lib/react-query"
 import { hasPermission } from "@/data/helpers/hasPermission"
 import { useAuth } from "@/contexts/auth-context"
 import { PermissionsConstant } from "@/constants/permissions"
+import { Permission } from "@/types/roles/permission"
 
 export function TaskBoard() {
 	const { data, isLoading, error } = useLists()
@@ -507,19 +508,21 @@ export function TaskBoard() {
 								</div>
 							</div>
 						))}
-					<div className="flex-shrink-0 w-80">
-						<button
-							onClick={openCreateListModal}
-							className="w-full h-32 flex flex-col items-center justify-center gap-3 p-4 rounded-xl
+					{user?.role.permissions && hasPermission(user?.role.permissions!, PermissionsConstant.CREATE_LIST) && (
+						<div className="flex-shrink-0 w-80">
+							<button
+								onClick={openCreateListModal}
+								className="w-full h-32 flex flex-col items-center justify-center gap-3 p-4 rounded-xl
                      border-2 border-dashed border-light-grey
                      text-text-secondary hover:text-indigo-primary hover:border-indigo-primary
                      bg-background hover:bg-gray-50
                      transition-all duration-200"
-						>
-							<Plus width={24} height={24} />
-							<span className="text-sm font-semibold">Nova Lista</span>
-						</button>
-					</div>
+							>
+								<Plus width={24} height={24} />
+								<span className="text-sm font-semibold">Nova Lista</span>
+							</button>
+						</div>
+					)}
 				</>
 			)}
 		</div>
