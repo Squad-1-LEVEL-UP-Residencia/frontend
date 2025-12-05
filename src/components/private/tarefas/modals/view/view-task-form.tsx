@@ -693,7 +693,7 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 			}
 		}
 	}
-
+	console.log(user?.role.permissions)
 	return (
 		<div className="flex flex-col gap-4">
 			<form
@@ -1164,11 +1164,13 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 
 			{/* Footer buttons */}
 			<ModalFooter className="col-span-2">
-				<ModalTrigger id="delete_task_modal">
-					<Button outline type="submit" color="danger" onClick={handleDeleteTask}>
-						Excluir tarefa
-					</Button>
-				</ModalTrigger>
+				{user?.role.permissions && hasPermission(user.role.permissions!, PermissionsConstant.DELETE_JOB) && (
+					<ModalTrigger id="delete_task_modal">
+						<Button outline type="submit" color="danger" onClick={handleDeleteTask}>
+							Excluir tarefa
+						</Button>
+					</ModalTrigger>
+				)}
 
 				{/*<div className="flex gap-2">
 				 */}
@@ -1182,11 +1184,15 @@ export function ViewTaskForm({ task }: ViewTaskFormProps) {
 						closeModal("view_task_modal")
 					}}
 				>
-					Cancelar
+					{user?.role.permissions && !hasPermission(user?.role.permissions!, PermissionsConstant.DELETE_JOB)
+						? "Fechar"
+						: "Cancelar"}
 				</Button>
-				<Button outline type="submit" color="indigo" form="view-task-form">
-					Salvar alterações
-				</Button>
+				{user?.role.permissions && hasPermission(user.role.permissions!, PermissionsConstant.DELETE_JOB) && (
+					<Button outline type="submit" color="indigo" form="view-task-form">
+						Salvar alterações
+					</Button>
+				)}
 				{/* </div> */}
 			</ModalFooter>
 

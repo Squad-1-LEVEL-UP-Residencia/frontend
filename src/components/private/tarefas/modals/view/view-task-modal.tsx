@@ -27,7 +27,7 @@ export function ViewTaskModal() {
 				<div className="flex flex-col gap-2">
 					<div className="flex items-center gap-2">
 						<Title variant="sm">{task?.client?.companyName}</Title>
-						<Link href={task?.client.agentUrl || "#"} target="_blank">
+						<Link href={task?.client.agentUrl ? task.client.agentUrl : "#"} target="_blank">
 							<Image src={"/chatgpt.png"} alt={"ChatGPT"} width={25} height={25} />
 						</Link>
 					</div>
